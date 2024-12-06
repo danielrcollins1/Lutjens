@@ -1,0 +1,33 @@
+#include "Utils.h"
+
+// Roll one die.
+int rollDie(int sides) {
+	return rand() % sides + 1;	
+}
+
+// Roll multiple dice and sum.
+int rollDice(int num, int sides) {
+	int sum = 0;
+	for (int i = 0; i < num; i++) {
+		sum += rollDie(sides);
+	}
+	return sum;
+}
+
+// Get a Y/N response from stdin.
+bool getUserYes() {
+	std::string input;
+	std::cin >> input;
+	return tolower(input[0]) == 'y';
+}
+
+// Check if a C-string is all digits.
+bool isAllDigits(const char* s) {
+	while (*s) {
+		if (!isdigit(*s)) {
+			return false;
+		}
+		s++;
+	}
+	return true;
+}
