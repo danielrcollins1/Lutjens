@@ -20,6 +20,9 @@ int main(int argc, char** argv) {
 		auto game = GameDirector::instance();
 		game->doGameLoop();
 		game->doEndGame();
+		cout << "Press Enter to end program.\n";
+		cin.ignore();
+		cin.get();
 	}
 	return 0;
 }
