@@ -5,7 +5,7 @@ GameStream cgame;
 
 // Constructor
 GameStream::GameStream(): std::ostream(this) {
-	logfile.open("Logfile.txt");
+	logfile.open(LOG_FILENAME);
 	std::clog.rdbuf(logfile.rdbuf());
 }
 
