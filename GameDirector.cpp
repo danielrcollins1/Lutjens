@@ -1,13 +1,11 @@
 #include "GameDirector.h"
 #include "PlayerGerman.h"
 #include "GameStream.h"
+#include "CmdArgs.h"
 #include "Utils.h"
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
-
-// Switch to turn on human UI
-const bool DO_HUMAN_UI = true;
 
 // Singleton instance
 GameDirector* GameDirector::theInstance = nullptr;
@@ -153,7 +151,7 @@ void GameDirector::doSeaMovementPhase() {
 void GameDirector::doSearchPhase() {
 	
 	// Ask human British player for search requests
-	if (DO_HUMAN_UI 
+	if (!CmdArgs::instance()->isAutomatedBrtish()
 		&& turn >= BRITISH_START_TURN
 		&& visibility < 9)
 	{
