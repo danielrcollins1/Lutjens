@@ -8,6 +8,7 @@
 */
 #ifndef GAMEDIRECTOR_H
 #define GAMEDIRECTOR_H
+#include "BritishPlayerInterface.h"
 #include "PlayerGerman.h"
 
 class GameDirector
@@ -21,15 +22,17 @@ class GameDirector
 		void msgSunkConvoy();
 		bool isInNight(const GridCoordinate& zone) const;
 		bool isInFog(const GridCoordinate& zone) const;
-		void checkShadow(Ship& target, bool inSearchPhase,
-			const GridCoordinate& knownPos);
+		void checkSearch(const GridCoordinate& zone);
+		void checkShadow(Ship& target,
+			const GridCoordinate& knownPos, bool inSearchPhase);
 		void checkAttack(Ship& target, bool inAirPhase);
 
 	private:
 
 		// Data
 		static GameDirector* theInstance;
-		PlayerGerman* playerGerman;
+		BritishPlayerInterface* britishPlayer;
+		PlayerGerman* germanPlayer;
 		int turn;
 		int visibility;
 		bool foggy;
@@ -53,7 +56,6 @@ class GameDirector
 		void checkNewDay();
 		void rollVisibility();
 		bool isGameOver() const;
-		void resolveAttack(Ship& target);
 		void reportNightState();
 		NightState getNightState() const;
 		

@@ -19,8 +19,7 @@ CmdArgs::CmdArgs() {
 // Print available options
 void CmdArgs::printOptions() const {
 	std::cout << "Command line options available:\n"
-		<< "\t-a automate British player\n"
-		<< std::endl;
+		<< "\t-a automate British player\n";
 }
 
 // Parse the command-line arguments

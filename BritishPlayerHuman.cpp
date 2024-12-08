@@ -1,0 +1,77 @@
+#include "BritishPlayerHuman.h"
+#include "GameDirector.h"
+#include "Utils.h"
+
+// Ask if we want to try searching
+bool BritishPlayerHuman::trySearch() {
+	cout << "Do you wish to search (y/n)? ";
+	return getUserYes();
+}
+
+// Ask if we want to try shadowing
+bool BritishPlayerHuman::tryShadow(const Ship& target, 
+	const GridCoordinate& knownPos, bool inSearchPhase)
+{
+	if (!inSearchPhase) {
+		cout << target.getTypeAndEvasion()
+			<< " was seen in " << knownPos << "\n";
+	}
+	cout << "Do you wish to shadow (y/n)? ";
+	return getUserYes();
+}
+
+// Ask if we want to try attacking
+bool BritishPlayerHuman::tryAttack(const Ship& target, bool inSeaPhase) {
+	cout << (inSeaPhase ? 
+		target.getTypeAndEvasion(): target.getTypeName())
+		<< 	" is seen in " << target.getPosition() << "\n";
+	cout << "Do you wish to attack by " 
+		<< (inSeaPhase ? "sea" : "air") << " (y/n)? ";
+	return getUserYes();
+}
+
+// Resolve attempt to search
+void BritishPlayerHuman::resolveSearch() {
+	const char END_SEARCH = '@';
+	cout << "Enter zones to search "
+		<< "(" <<  END_SEARCH << " to end):\n";
+	while (true) {
+		cout << "==> ";
+		string input;
+		cin >> input;
+		if (input[0] == END_SEARCH) {
+			break;
+		}
+		if (!GridCoordinate::isValid(input)) {
+			cout << "> Invalid grid coordinate.\n";
+			continue;
+		}
+		auto director = GameDirector::instance();
+		GridCoordinate zone(input);
+		if (director->isInFog(zone)) {
+			cout << "> Cannot search in fog.\n";
+			continue;
+		}
+		director->checkSearch(zone);
+	}
+}
+
+// Resolve attempt to shadow
+void BritishPlayerHuman::resolveShadow(const Ship& target, bool& heldContact) 
+{
+	string targetID = target.getTypeName();	
+	if (target.getSpeed() > 1) {
+		cout << targetID << " moves at high speed (apply +1).\n";
+	}
+	cout << "Resolve attempt on the Shadow Table.\n";
+	cout << "Did shadow attempt hold contact (y/n)? ";
+	heldContact = getUserYes();
+}
+
+// Resolve attempt to attack
+void BritishPlayerHuman::resolveAttack(int& midshipsLost, int& evasionLost) 
+{
+	cout << "Resolve attack on the Battle Board.\n";
+	cout << "Enter midships and evasion damage from table: ";
+	cin >> midshipsLost >> evasionLost;
+}

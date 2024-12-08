@@ -18,7 +18,7 @@ class CmdArgs
 
 		// Accessor functions
 		bool isExitAfterArgs() const { return exitAfterArgs; }
-		bool isAutomatedBrtish() const { return automateBritish; }
+		bool isAutomatedBritish() const { return automateBritish; }
 
 	private:
 

@@ -90,7 +90,7 @@ void PlayerGerman::doShadowPhase() {
 	for (auto& ship: shipList) {
 		if (ship.wasExposed(1)) {
 			GameDirector::instance()
-				->checkShadow(ship, false, ship.getPosition());
+				->checkShadow(ship, ship.getPosition(), false);
 		}
 	}
 }
@@ -116,7 +116,7 @@ void PlayerGerman::checkSearch(const GridCoordinate& zone) {
 		else if (ship.movedThrough(zone)) {
 			cgame << ship.getTypeAndEvasion()
 				<< " seen moving through " << zone << endl;
-			GameDirector::instance()->checkShadow(ship, true, zone);
+			GameDirector::instance()->checkShadow(ship, zone, true);
 		}
 	}
 }

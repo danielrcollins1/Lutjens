@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 	auto argsObj = CmdArgs::instance();		
 	argsObj->parseArgs(argc, argv);
 	if (argsObj->isExitAfterArgs()) {
-		argsObj->printOptions();	
+		argsObj->printOptions();
 	}
 	else {
 		auto game = GameDirector::instance();

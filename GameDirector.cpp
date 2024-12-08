@@ -1,5 +1,7 @@
 #include "GameDirector.h"
 #include "PlayerGerman.h"
+#include "BritishPlayerComputer.h"
+#include "BritishPlayerHuman.h"
 #include "GameStream.h"
 #include "CmdArgs.h"
 #include "Utils.h"
@@ -21,14 +23,22 @@ GameDirector* GameDirector::instance() {
 // Constructor
 GameDirector::GameDirector()
 {
-	logStartTime();
 	srand(time(0));
-	playerGerman = new PlayerGerman;
+	logStartTime();
 	turn = FIRST_TURN;
 	visibility = START_VISIBILITY;
 	foggy = START_FOG;
 	convoysSunk = 0;
 	convoySunkToday = false;
+	
+	// Select players
+	germanPlayer = new PlayerGerman;
+	if (CmdArgs::instance()->isAutomatedBritish()) {
+		britishPlayer = new BritishPlayerComputer;	
+	}
+	else {
+		britishPlayer = new BritishPlayerHuman;
+	}
 }
 
 // Log the start time
@@ -40,7 +50,7 @@ void GameDirector::logStartTime() {
 
 // Is the game over? (Rule 12.1)
 bool GameDirector::isGameOver() const {
-	auto bismarck = playerGerman->getBismarck();
+	auto bismarck = germanPlayer->getBismarck();
 	return bismarck.isSunk()        // Rule 12.11
 		|| bismarck.enteredPort()   // Rule 12.12
 		|| turn > FINISH_TURN;      // Rule 12.14
@@ -120,7 +130,7 @@ void GameDirector::checkNewDay() {
 
 // Do unit availability phase
 void GameDirector::doAvailabilityPhase() {
-	playerGerman->doAvailabilityPhase();
+	germanPlayer->doAvailabilityPhase();
 }
 
 // Do visibility phase
@@ -136,47 +146,33 @@ void GameDirector::doVisibilityPhase() {
 // Do shadow phase
 void GameDirector::doShadowPhase() {
 	if (turn > BRITISH_START_TURN) {
-		playerGerman->doShadowPhase();
+		germanPlayer->doShadowPhase();
 	}
 }
 
 // Do sea movement phase
 void GameDirector::doSeaMovementPhase() {
 	if (turn >= GERMAN_START_TURN) {
-		playerGerman->doSeaMovementPhase();
+		germanPlayer->doSeaMovementPhase();
 	}
 }
 
 // Do search phase
 void GameDirector::doSearchPhase() {
-	
-	// Ask human British player for search requests
-	if (!CmdArgs::instance()->isAutomatedBrtish()
-		&& turn >= BRITISH_START_TURN
+
+	// Ask British player for search attempts
+	if (turn >= BRITISH_START_TURN
 		&& visibility < 9)
 	{
-		const char END_SEARCH = '@';
-		cout << "Enter zones to search "
-			<< "(" <<  END_SEARCH << " to end):\n";
-		string input;
-		do {
-			cout << "==> ";
-			cin >> input;
-			if (input[0] == END_SEARCH) {
-				break;
-			}
-			if (!GridCoordinate::isValid(input)) {
-				cout << "> Invalid grid coordinate.\n";
-				continue;
-			}
-			GridCoordinate zone(input);
-			if (isInFog(zone)) {
-				cout << "> Cannot search in fog.\n";
-				continue;
-			}
-			playerGerman->checkSearch(zone);
-		} while (true);
+		if (britishPlayer->trySearch()) {
+			britishPlayer->resolveSearch();		
+		}
 	}
+}
+
+// Check British attempt to search a zone
+void GameDirector::checkSearch(const GridCoordinate& zone) {
+	germanPlayer->checkSearch(zone);
 }
 
 // Do chance phase
@@ -189,12 +185,12 @@ void GameDirector::doChancePhase() {
 		
 		// Huff-duff result
 		if (roll == 2) {
-			playerGerman->callHuffDuff();
+			germanPlayer->callHuffDuff();
 		}
 	
 		// General Search results
 		else if (roll <= 9) {
-			playerGerman->checkGeneralSearch(roll);
+			germanPlayer->checkGeneralSearch(roll);
 		}
 		
 		// Convoy results
@@ -202,7 +198,7 @@ void GameDirector::doChancePhase() {
 			if (!convoySunkToday     // Rule 10.26
 				&& visibility < 9)   // Errata in General 16/2
 			{			
-				playerGerman->checkConvoyResult(roll);
+				germanPlayer->checkConvoyResult(roll);
 			}
 		}
 	}
@@ -248,40 +244,28 @@ void GameDirector::msgSunkConvoy() {
 void GameDirector::doEndGame() {
 	cgame << "\nEND GAME\n";
 	cgame << "Convoys Sunk: " << convoysSunk << endl;
-	playerGerman->printAllShips();
+	germanPlayer->printAllShips();
 }
 
-// Check if the human player wants to shadow a ship
-//   Argument 'inSearchPhase' implies high-speed shadow (Rule 8.2)
-void GameDirector::checkShadow(Ship& target, bool inSearchPhase, 
-	const GridCoordinate& knownPos) 
+// Check for British shadowing a ship
+void GameDirector::checkShadow(Ship& target,
+	const GridCoordinate& knownPos, bool inSearchPhase) 
 {
-	// Ask for shadow attempt
-	if (!inSearchPhase) {
-		cout << target.getTypeAndEvasion()
-			<< " was seen in " << knownPos << "\n";
-	}
-	cout << "Do you wish to shadow (y/n)? ";
-
-	// Player tries to shadow
-	if (getUserYes()) {
-		string targetID = target.getTypeName();
+	// Ask if trying to shadow
+	if (britishPlayer->tryShadow(target, knownPos, inSearchPhase)) {
 
 		// Move target ship in shadow phase
 		if (!inSearchPhase) {
 			target.doMovement();
 		}
-		
-		// Ask for shadow resolution
-		if (target.getSpeed() > 1) {
-			cout << targetID << " moves at high speed (apply +1).\n";
-		}
-		cout << "Resolve attempt on the Shadow Table.\n";
-		cout << "Did shadow attempt hold contact (y/n)? ";
+
+		// Ask for resolution
+		bool holdContact;
+		britishPlayer->resolveShadow(target, holdContact);
 
 		// Player holds contact
-		if (getUserYes()) {
-			cgame << targetID << " shadowed to zone " 
+		if (holdContact) {
+			cgame << target.getTypeName() << " shadowed to zone " 
 				<< target.getPosition() << endl;
 			target.setExposed();
 		}
@@ -291,55 +275,39 @@ void GameDirector::checkShadow(Ship& target, bool inSearchPhase,
 // Do air attack phase
 void GameDirector::doAirAttackPhase() {
 	if (!isGameOver()) {
-		playerGerman->doAirAttackPhase();
+		germanPlayer->doAirAttackPhase();
 	}
 }
 
 // Do naval combat phase
 void GameDirector::doNavalCombatPhase() {
 	if (!isGameOver()) {
-		playerGerman->doNavalCombatPhase();
+		germanPlayer->doNavalCombatPhase();
 	}
 }
 
-// Check if the human player attacks this ship
+// Check if the British player attacks this ship
 void GameDirector::checkAttack(Ship& target, bool inSeaPhase) 
 {
-	// Prompt
-	cout << (inSeaPhase ? 
-		target.getTypeAndEvasion(): target.getTypeName())
-		<< 	" is seen in " << target.getPosition() << "\n";
-	string atkType = inSeaPhase ? "sea" : "air";
-	cout << "Do you wish to attack by " << atkType << " (y/n)? ";
-
-	// Get input
-	if (getUserYes()) {
-		cgame << "Attack by " << atkType 
+	// Ask if trying to attack
+	if (britishPlayer->tryAttack(target, inSeaPhase)) {
+		cgame << "Attack by " << (inSeaPhase ? "sea" : "air")
 			<< " on " << target.getShortDesc() << "\n";
-		resolveAttack(target);
-	}
-}
+		int midshipsLost, evasionLost;
+		britishPlayer->resolveAttack(midshipsLost, evasionLost);
 
-// Resolve a player attack on this ship
-void GameDirector::resolveAttack(Ship& target) {
-
-	// Ask for damage results
-	cout << "Resolve attack on the Battle Board.\n";
-	cout << "Enter midships and evasion damage from table: ";
-	int midshipsLost, evasionLost;
-	cin >> midshipsLost >> evasionLost;
-
-	// Process damage
-	//   (Note on tables, evasion loss only happens
-	//   in conjunction with midships loss.)
-	if (midshipsLost > 0) {
-		cgame << target.getName() << " takes "
-			<< midshipsLost << " midships and " 
-			<< evasionLost << " evasion damage.\n";
-		target.loseMidships(midshipsLost);
-		target.loseEvasion(evasionLost);
-		if (target.isSunk()) {
-			cgame << target.getName() << " is sunk!\n";	
+		// Process damage
+		//   (Note on tables, evasion loss only happens
+		//   in conjunction with midships loss.)
+		if (midshipsLost > 0) {
+			cgame << target.getName() << " takes "
+				<< midshipsLost << " midships and " 
+				<< evasionLost << " evasion damage.\n";
+			target.loseMidships(midshipsLost);
+			target.loseEvasion(evasionLost);
+			if (target.isSunk()) {
+				cgame << target.getName() << " is sunk!\n";	
+			}
 		}
 	}
 }
