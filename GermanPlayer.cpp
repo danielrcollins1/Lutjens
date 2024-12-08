@@ -107,16 +107,20 @@ void GermanPlayer::doSeaMovementPhase() {
 
 // Check for search by British player
 void GermanPlayer::checkSearch(const GridCoordinate& zone) {
+	auto director = GameDirector::instance();
 	for (auto& ship: shipList) {
- 		if (ship.getPosition() == zone) {
+ 		if (ship.getPosition() == zone) 
+		{
 			cgame << ship.getTypeName() 
 				<< " found in " << zone << endl;
 			ship.setExposed();
 		}
-		else if (ship.movedThrough(zone)) {
+		else if (ship.movedThrough(zone)
+			&& director->isPassThroughSearchOn())
+		{
 			cgame << ship.getTypeAndEvasion()
 				<< " seen moving through " << zone << endl;
-			GameDirector::instance()->checkShadow(ship, zone, true);
+			director->checkShadow(ship, zone, true);
 		}
 	}
 }

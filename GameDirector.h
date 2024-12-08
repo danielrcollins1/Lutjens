@@ -26,6 +26,7 @@ class GameDirector
 		void checkShadow(Ship& target,
 			const GridCoordinate& knownPos, bool inSearchPhase);
 		void checkAttack(Ship& target, bool inAirPhase);
+		bool isPassThroughSearchOn() const;
 
 	private:
 
