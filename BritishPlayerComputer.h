@@ -14,8 +14,7 @@ class BritishPlayerComputer: public BritishPlayerInterface
 	public:
 		
 		// Request intentions		
-		bool trySearch() override 
-			{ return false; }
+		bool trySearch() override;
 		bool tryShadow(const Ship& target, 
 			const GridCoordinate& knownPos, bool inSearchPhase) override
 			{ return false; }
@@ -23,9 +22,13 @@ class BritishPlayerComputer: public BritishPlayerInterface
 			{ return false; }
 		
 		// Resolve attempts
-		void resolveSearch() override {}
+		void resolveSearch() override;
 		void resolveShadow(const Ship& target, bool& heldContact) override {}
 		void resolveAttack(int& midshipsLost, int& evasionLost) override {}
+		
+	private:
+		void doFreeCoastalSearch();
+		bool isFreeSearchable(const GridCoordinate& zone);
 };
 
 #endif

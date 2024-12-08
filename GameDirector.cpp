@@ -169,6 +169,12 @@ void GameDirector::doSearchPhase() {
 	}
 }
 
+// Is pass-through search permitted?
+//   It's allowed after first turn (Rule 7.23)
+bool GameDirector::isPassThroughSearchOn() const {
+	return turn > BRITISH_START_TURN;
+}
+
 // Check British attempt to search a zone
 void GameDirector::checkSearch(const GridCoordinate& zone) {
 	germanPlayer->checkSearch(zone);
@@ -309,10 +315,4 @@ void GameDirector::checkAttack(Ship& target, bool inSeaPhase)
 			}
 		}
 	}
-}
-
-// Is pass-through search permitted?
-//   It's allowed after first turn (Rule 7.23)
-bool GameDirector::isPassThroughSearchOn() const {
-	return turn > BRITISH_START_TURN;
 }
