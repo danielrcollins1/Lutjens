@@ -1,5 +1,4 @@
 #include "GameDirector.h"
-#include "PlayerGerman.h"
 #include "BritishPlayerComputer.h"
 #include "BritishPlayerHuman.h"
 #include "GameStream.h"
@@ -32,7 +31,7 @@ GameDirector::GameDirector()
 	convoySunkToday = false;
 	
 	// Select players
-	germanPlayer = new PlayerGerman;
+	germanPlayer = new GermanPlayer;
 	if (CmdArgs::instance()->isAutomatedBritish()) {
 		britishPlayer = new BritishPlayerComputer;	
 	}

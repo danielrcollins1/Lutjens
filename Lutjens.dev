@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=5
 CompilerSettings=0;0;0;0;0;0;0;1;0;0;1;0;1;0;0;0;0;0;1;0;0;0;0;0;0;0
-UnitCount=19
+UnitCount=25
 
 [VersionInfo]
 Major=1
@@ -81,16 +81,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit11]
-FileName=GameDirector.h
-CompileCpp=1
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit12]
 FileName=GridCoordinate.h
 CompileCpp=1
 Folder=
@@ -101,26 +91,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit13]
-FileName=PlayerGerman.h
-CompileCpp=1
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit14]
-FileName=SearchBoard.h
-CompileCpp=1
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit15]
 FileName=SearchBoardLayer.h
 CompileCpp=1
 Folder=
@@ -130,8 +100,28 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit17]
+[Unit14]
+FileName=Ship.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit15]
 FileName=Utils.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit17]
+FileName=GameStream.cpp
 CompileCpp=1
 Folder=
 Compile=1
@@ -180,18 +170,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit9]
-FileName=PlayerGerman.cpp
-CompileCpp=1
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit10]
-FileName=CSVReader.h
+FileName=GameDirector.h
 CompileCpp=1
 Folder=
 Compile=1
@@ -211,7 +191,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit16]
-FileName=Ship.h
+FileName=GameStream.h
 CompileCpp=1
 Folder=
 Compile=1
@@ -221,7 +201,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit19]
-FileName=GameStream.cpp
+FileName=CmdArgs.cpp
 CompileCpp=1
 Folder=
 Compile=1
@@ -231,7 +211,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit20]
-FileName=GameStream.h
+FileName=BritishPlayerInterface.h
 CompileCpp=1
 Folder=
 Compile=1
@@ -241,7 +221,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit21]
-FileName=GameStream.cpp
+FileName=BritishPlayerComputer.h
 CompileCpp=1
 Folder=
 Compile=1
@@ -251,7 +231,67 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit18]
-FileName=GameStream.h
+FileName=CmdArgs.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit22]
+FileName=BritishPlayerHuman.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit23]
+FileName=BritishPlayerHuman.cpp
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit24]
+FileName=GermanPlayer.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit25]
+FileName=GermanPlayer.cpp
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit9]
+FileName=CSVReader.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit12]
+FileName=SearchBoard.h
 CompileCpp=1
 Folder=
 Compile=1

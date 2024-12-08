@@ -9,7 +9,7 @@
 #ifndef GAMEDIRECTOR_H
 #define GAMEDIRECTOR_H
 #include "BritishPlayerInterface.h"
-#include "PlayerGerman.h"
+#include "GermanPlayer.h"
 
 class GameDirector
 {
@@ -32,7 +32,7 @@ class GameDirector
 		// Data
 		static GameDirector* theInstance;
 		BritishPlayerInterface* britishPlayer;
-		PlayerGerman* germanPlayer;
+		GermanPlayer* germanPlayer;
 		int turn;
 		int visibility;
 		bool foggy;
