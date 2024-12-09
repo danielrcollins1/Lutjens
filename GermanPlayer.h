@@ -24,6 +24,7 @@ class GermanPlayer
 		void checkGeneralSearch(int roll);
 		void checkConvoyResult(int roll);
 		void printAllShips() const;
+		bool wasAnyShipExposed() const;
 
 	private:
 

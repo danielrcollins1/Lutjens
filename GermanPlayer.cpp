@@ -287,3 +287,13 @@ void GermanPlayer::printAllShips() const {
 		cgame << ship.getLongDesc() << endl;
 	}
 }
+
+// Was any ship ever located by search or shadow?
+bool GermanPlayer::wasAnyShipExposed() const {
+	for (auto& ship: shipList) {
+		if (ship.wasEverExposed()) {
+			return true;
+		}
+	}
+	return false;
+}

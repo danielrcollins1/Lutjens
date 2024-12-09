@@ -47,18 +47,30 @@ const int NUM_GAMES = 1000;
 // Run series of game & report stats
 void runLargeSeries() {
 	cout << "Running series of " << NUM_GAMES << " games...\n";
-	int numSomeConvoySunk = 0;
-	cgame.turnOff();
+	
+	// Initialize series
 	seedRandom();
+	cgame.turnOff();
+	int numGermansFound = 0;
+	int numSomeConvoySunk = 0;
+	
+	// Run series
 	for (int i = 0; i < NUM_GAMES; i++) {
 		GameDirector::initGame();
 		auto game = GameDirector::instance();
 		game->doGameLoop();
+		if (game->wasAnyShipExposed()) {
+			numGermansFound++;			
+		}
 		if (game->getConvoysSunk() > 0) {
 			numSomeConvoySunk++;	
 		}
 	}
-	float pctSomeConvoySunk = (float) numSomeConvoySunk / NUM_GAMES * 100;
-	cout << fixed << showpoint << setprecision(1);
-	cout << "Games some convoy sunk: " << pctSomeConvoySunk << "%" << endl;
+	
+	// Report statistics
+	cout << fixed << showpoint << setprecision(2);
+	cout << "Ratio Germans found: " 
+		<< (float) numGermansFound / NUM_GAMES << "\n";
+	cout << "Ratio some convoy sunk: " 
+		<< (float) numSomeConvoySunk / NUM_GAMES << "\n";
 }

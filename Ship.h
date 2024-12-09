@@ -35,6 +35,7 @@ class Ship
 		void doAvailability();
 		void setExposed();
 		bool wasExposed(int turnsAgo) const;
+		bool wasEverExposed() const;
 		void setLoseMoveTurn();
 		void loseMidships(int loss);
 		void loseEvasion(int loss);

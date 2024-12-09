@@ -31,6 +31,7 @@ class GameDirector
 		bool isPassThroughSearchOn() const;
 		void msgSunkConvoy();
 		int getConvoysSunk() const;
+		bool wasAnyShipExposed() const;
 
 	private:
 

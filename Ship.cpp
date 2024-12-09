@@ -271,6 +271,11 @@ bool Ship::wasExposed(int turnsAgo) const {
 	return exposureHistory.rbegin()[turnsAgo];
 }
 
+// Were we ever exposed?
+bool Ship::wasEverExposed() const {
+	return hasElem(exposureHistory, true);
+}
+
 // How far did we move on the search board this turn?
 int Ship::getSpeed() const {
 	assert(tookMoveTurn);

@@ -336,3 +336,8 @@ void GameDirector::checkAttack(Ship& target, bool inSeaPhase)
 		}
 	}
 }
+
+// Was any German ship ever found by search or shadow?
+bool GameDirector::wasAnyShipExposed() const {
+	return germanPlayer->wasAnyShipExposed();	
+}
