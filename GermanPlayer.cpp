@@ -3,6 +3,7 @@
 #include "GameStream.h"
 #include "Utils.h"
 #include <cassert>
+using namespace std;
 
 // Constructor
 GermanPlayer::GermanPlayer() {

@@ -8,6 +8,7 @@
 #include <ctime>
 #include <chrono>
 #include <cassert>
+using namespace std;
 
 // Singleton instance
 GameDirector* GameDirector::theInstance = nullptr;
@@ -44,6 +45,16 @@ GameDirector::GameDirector() {
 GameDirector::~GameDirector() {
 	delete germanPlayer;
 	delete britishPlayer;	
+}
+
+// Ask player(s) to start the game
+bool GameDirector::okPlayerStart() {
+	return britishPlayer->okStartGame();
+}
+		
+// Ask player(s) to end the game
+void GameDirector::okPlayerEnd() {
+	britishPlayer->okEndGame();	
 }
 
 // Log the start time

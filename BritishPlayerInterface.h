@@ -15,6 +15,10 @@ class BritishPlayerInterface
 	public:
 		virtual ~BritishPlayerInterface() {}
 		
+		// Start and end game confirmation
+		virtual bool okStartGame() = 0;
+		virtual void okEndGame() = 0;
+		
 		// Request intentions
 		virtual bool trySearch() = 0;
 		virtual bool tryShadow(const Ship& target, 

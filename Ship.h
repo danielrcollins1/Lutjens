@@ -10,18 +10,18 @@
 #include "GridCoordinate.h"
 #include "SearchBoard.h"
 #include <vector>
-using namespace std;
 
 class Ship
 {
 	public:
 		enum Type {BB, BC, PB, CA, CL, CV, DD, SS, NUM_TYPES};
-		Ship(string name, Type type, int evasion, int midships, int fuel);
-		string getName() const;
-		string getTypeName() const;
-		string getTypeAndEvasion() const;
-		string getShortDesc() const;
-		string getLongDesc() const;
+		Ship(std::string name, Type type, 
+			int evasion, int midships, int fuel);
+		std::string getName() const;
+		std::string getTypeName() const;
+		std::string getTypeAndEvasion() const;
+		std::string getShortDesc() const;
+		std::string getLongDesc() const;
 		int getEvasion() const;
 		int getMidships() const;
 		int getFuel() const;
@@ -52,7 +52,7 @@ class Ship
 	private:
 
 		// Data
-		string name;
+		std::string name;
 		Type type;
 		bool onPatrol;
 		bool tookMoveTurn;
@@ -61,13 +61,13 @@ class Ship
 		int midshipsMax, midshipsLost;
 		int evasionMax, evasionLostTemp, evasionLostPerm;
 		GridCoordinate position;
-		vector<vector<GridCoordinate>> moveHistory;
-		vector<GridCoordinate> waypoints;
-		vector<bool> exposureHistory;
+		std::vector<std::vector<GridCoordinate>> moveHistory;
+		std::vector<GridCoordinate> waypoints;
+		std::vector<bool> exposureHistory;
 
 		// Constants
-		static const string typeAbbr[NUM_TYPES];
-		static const string typeName[NUM_TYPES];
+		static const std::string typeAbbr[NUM_TYPES];
+		static const std::string typeName[NUM_TYPES];
 		
 		// Functions
 		GridCoordinate getNextZone() const;

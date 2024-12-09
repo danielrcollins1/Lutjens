@@ -15,12 +15,13 @@ class GameDirector
 {
 	public:
 		static GameDirector* instance();
-		void resetGame();
-		int getTurn() const;
-		int getVisibility() const;
+		static void resetGame();
+		bool okPlayerStart();
+		void okPlayerEnd();
 		void doGameLoop();
 		void doEndGame();
-		void msgSunkConvoy();
+		int getTurn() const;
+		int getVisibility() const;
 		bool isInNight(const GridCoordinate& zone) const;
 		bool isInFog(const GridCoordinate& zone) const;
 		void checkSearch(const GridCoordinate& zone);
@@ -28,6 +29,7 @@ class GameDirector
 			const GridCoordinate& knownPos, bool inSearchPhase);
 		void checkAttack(Ship& target, bool inAirPhase);
 		bool isPassThroughSearchOn() const;
+		void msgSunkConvoy();
 
 	private:
 

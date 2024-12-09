@@ -3,6 +3,7 @@
 #include "GameDirector.h"
 #include <cassert>
 #include <algorithm>
+using namespace std;
 
 // Ship type abbreviations
 const string Ship::typeAbbr[NUM_TYPES]
@@ -15,7 +16,9 @@ const string Ship::typeName[NUM_TYPES]
 		"Destroyer", "Submarine"};
 
 // Constructor
-Ship::Ship(string name, Type type, int evasion, int midships, int fuel) {
+Ship::Ship(string name, Type type, 
+	int evasion, int midships, int fuel) 
+{
 	this->name = name;
 	this->type = type;
 	this->evasionMax = evasion;

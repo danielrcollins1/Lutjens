@@ -22,8 +22,11 @@ int main(int argc, char** argv) {
 	}
 	else {
 		auto game = GameDirector::instance();
-		game->doGameLoop();
-		game->doEndGame();
+		if (game->okPlayerStart()) {
+			game->doGameLoop();
+			game->doEndGame();
+			game->okPlayerEnd();
+		}
 	}
 	return 0;
 }

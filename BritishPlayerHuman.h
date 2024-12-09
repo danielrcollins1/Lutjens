@@ -13,6 +13,10 @@ class BritishPlayerHuman: public BritishPlayerInterface
 {
 	public:
 
+		// Start and end game confirmation
+		bool okStartGame() override;
+		void okEndGame() override;
+
 		// Request intentions		
 		bool trySearch() override;
 		bool tryShadow(const Ship& target, 

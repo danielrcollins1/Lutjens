@@ -12,6 +12,10 @@
 class BritishPlayerComputer: public BritishPlayerInterface
 {
 	public:
+
+		// Start and end game confirmation
+		virtual bool okStartGame() override { return true; }
+		virtual void okEndGame() override {}
 		
 		// Request intentions		
 		bool trySearch() override;

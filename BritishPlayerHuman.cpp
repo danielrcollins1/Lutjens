@@ -1,6 +1,20 @@
 #include "BritishPlayerHuman.h"
 #include "GameDirector.h"
 #include "Utils.h"
+using namespace std;
+
+// Ask if we want to start game
+bool BritishPlayerHuman::okStartGame() {
+	cout << "Start game (y/n)? ";
+	return getUserYes();
+}
+
+// Confirm to end the game
+void BritishPlayerHuman::okEndGame() {
+	cout << "Press <Enter> to finish. ";
+	cin.ignore();
+	cin.get();	
+}
 
 // Ask if we want to try searching
 bool BritishPlayerHuman::trySearch() {
