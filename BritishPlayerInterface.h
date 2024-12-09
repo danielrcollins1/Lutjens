@@ -13,6 +13,7 @@
 class BritishPlayerInterface 
 {
 	public:
+		virtual ~BritishPlayerInterface() {}
 		
 		// Request intentions
 		virtual bool trySearch() = 0;

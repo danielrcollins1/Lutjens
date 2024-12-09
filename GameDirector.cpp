@@ -7,16 +7,24 @@
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
+#include <cassert>
 
 // Singleton instance
 GameDirector* GameDirector::theInstance = nullptr;
 
-// Singlton instance accessor
+// Singleton instance accessor
 GameDirector* GameDirector::instance() {
 	if (!theInstance) {
 		theInstance = new GameDirector;
 	}
 	return theInstance;
+}
+
+// Reset the game for multiple plays
+void GameDirector::resetGame() {
+	assert(theInstance);
+	delete theInstance;
+	theInstance = new GameDirector;
 }
 
 // Constructor
@@ -30,6 +38,12 @@ GameDirector::GameDirector() {
 	else {
 		britishPlayer = new BritishPlayerHuman;
 	}
+}
+
+// Destructor
+GameDirector::~GameDirector() {
+	delete germanPlayer;
+	delete britishPlayer;	
 }
 
 // Log the start time

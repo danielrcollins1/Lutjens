@@ -15,6 +15,7 @@ class GameDirector
 {
 	public:
 		static GameDirector* instance();
+		void resetGame();
 		int getTurn() const;
 		int getVisibility() const;
 		void doGameLoop();
@@ -51,6 +52,7 @@ class GameDirector
 		
 		// Functions
 		GameDirector();
+		~GameDirector();
 		void logStartTime();
 		void checkNewDay();
 		void rollVisibility();
