@@ -20,6 +20,9 @@ int main(int argc, char** argv) {
 	if (argsObj->isExitAfterArgs()) {
 		argsObj->printOptions();
 	}
+	else if (argsObj->isRunLargeSeries()) {
+		std::cout << "Large series run not yet implemented.\n";
+	}
 	else {
 		auto game = GameDirector::instance();
 		if (game->okPlayerStart()) {

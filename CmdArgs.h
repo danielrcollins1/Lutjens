@@ -19,6 +19,7 @@ class CmdArgs
 		// Accessor functions
 		bool isExitAfterArgs() const { return exitAfterArgs; }
 		bool isAutomatedBritish() const { return automateBritish; }
+		bool isRunLargeSeries() const { return runLargeSeries; }
 
 	private:
 
@@ -26,6 +27,7 @@ class CmdArgs
 		static CmdArgs* theInstance;
 		bool exitAfterArgs = false;
 		bool automateBritish = false;
+		bool runLargeSeries = false;
 
 		// Functions
 		CmdArgs();

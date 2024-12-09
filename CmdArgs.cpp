@@ -19,7 +19,8 @@ CmdArgs::CmdArgs() {
 // Print available options
 void CmdArgs::printOptions() const {
 	std::cout << "Command line options available:\n"
-		<< "\t-a automate British player\n";
+		<< "\t-a automate British player\n"
+		<< "\t-l large series of games\n";
 }
 
 // Parse the command-line arguments
@@ -29,6 +30,7 @@ void CmdArgs::parseArgs(int argc, char** argv) {
 		if (arg[0] == '-') {
 			switch (arg[1]) {
 				case 'a': automateBritish = true; break;
+				case 'l': runLargeSeries = true; break;
 				default: exitAfterArgs = true; break;
 			}
 		}
