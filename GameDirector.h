@@ -32,21 +32,19 @@ class GameDirector
 
 		// Data
 		static GameDirector* theInstance;
-		BritishPlayerInterface* britishPlayer;
-		GermanPlayer* germanPlayer;
-		int turn;
-		int visibility;
-		bool foggy;
-		int convoysSunk;
-		bool convoySunkToday;
+		GermanPlayer* germanPlayer = nullptr;
+		BritishPlayerInterface* britishPlayer = nullptr;
+		int turn = FIRST_TURN;
+		int visibility = 4;
+		bool foggy = true;
+		int convoysSunk = 0;
+		bool convoySunkToday = false;
 		
 		// Constants
 		static const int FIRST_TURN = 1;
 		static const int GERMAN_START_TURN = 2;
 		static const int BRITISH_START_TURN = 4;
 		static const int FINISH_TURN = 34;
-		static const int START_VISIBILITY = 4;
-		static const bool START_FOG = true;
 
 		// Enumeration
 		enum NightState {NIGHT_SOUTH, NIGHT_ALL, DAY};

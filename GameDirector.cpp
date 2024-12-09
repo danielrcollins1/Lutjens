@@ -20,17 +20,9 @@ GameDirector* GameDirector::instance() {
 }
 
 // Constructor
-GameDirector::GameDirector()
-{
+GameDirector::GameDirector() {
 	srand(time(0));
 	logStartTime();
-	turn = FIRST_TURN;
-	visibility = START_VISIBILITY;
-	foggy = START_FOG;
-	convoysSunk = 0;
-	convoySunkToday = false;
-	
-	// Select players
 	germanPlayer = new GermanPlayer;
 	if (CmdArgs::instance()->isAutomatedBritish()) {
 		britishPlayer = new BritishPlayerComputer;	
