@@ -15,7 +15,7 @@ class GameDirector
 {
 	public:
 		static GameDirector* instance();
-		static void resetGame();
+		static void initGame();
 		bool okPlayerStart();
 		void okPlayerEnd();
 		void doGameLoop();
@@ -30,6 +30,7 @@ class GameDirector
 		void checkAttack(Ship& target, bool inAirPhase);
 		bool isPassThroughSearchOn() const;
 		void msgSunkConvoy();
+		int getConvoysSunk() const;
 
 	private:
 

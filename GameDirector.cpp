@@ -4,8 +4,6 @@
 #include "GameStream.h"
 #include "CmdArgs.h"
 #include "Utils.h"
-#include <cstdlib>
-#include <ctime>
 #include <chrono>
 #include <cassert>
 using namespace std;
@@ -21,16 +19,16 @@ GameDirector* GameDirector::instance() {
 	return theInstance;
 }
 
-// Reset the game for multiple plays
-void GameDirector::resetGame() {
-	assert(theInstance);
-	delete theInstance;
+// Set or reset singleton for a new game
+void GameDirector::initGame() {
+	if (theInstance) {
+		delete theInstance;	
+	}
 	theInstance = new GameDirector;
 }
 
 // Constructor
 GameDirector::GameDirector() {
-	srand(time(0));
 	logStartTime();
 	germanPlayer = new GermanPlayer;
 	if (CmdArgs::instance()->isAutomatedBritish()) {
@@ -260,6 +258,11 @@ void GameDirector::msgSunkConvoy() {
 	convoysSunk++;
 	convoySunkToday = true;	
 	clog << "(sunk convoy #" << convoysSunk << ")\n";
+}
+
+// Get number of conoys sunk
+int GameDirector::getConvoysSunk() const {
+	return convoysSunk;	
 }
 
 // Do end-game reporting

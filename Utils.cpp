@@ -1,4 +1,11 @@
 #include "Utils.h"
+#include <cstdlib>
+#include <ctime>
+
+// Seed the random number generator.
+void seedRandom() {
+	srand(time(0));	
+}
 
 // Roll one die.
 int rollDie(int sides) {

@@ -12,6 +12,9 @@
 #include <iostream>
 #include <algorithm>
 
+// Seed the random number generator.
+void seedRandom();
+
 // Dice-rolling prototypes.
 int rollDie(int sides);
 int rollDice(int num, int sides);
