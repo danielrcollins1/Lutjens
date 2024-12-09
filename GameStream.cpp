@@ -17,7 +17,19 @@ GameStream::~GameStream() {
 
 // Overflow override
 int GameStream::overflow(int c) {
-	std::cout.put(c);
-	std::clog.put(c);
+	if (active) {
+		std::cout.put(c);
+		std::clog.put(c);
+	}
 	return 0;
+}
+
+// Turn on game messages
+void GameStream::turnOn() {
+	active = true;	
+}
+		
+// Turn off game messages		
+void GameStream::turnOff() {
+	active = false;	
 }

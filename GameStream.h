@@ -17,11 +17,14 @@ class GameStream: private std::streambuf, public std::ostream
 	public:
 		GameStream();
 		~GameStream();
+		void turnOn();
+		void turnOff();
 
 	private:
 		const std::string LOG_FILENAME = "Logfile.txt";
 		int overflow(int c) override;
 		std::ofstream logfile;
+		bool active = true;
 };
 
 // GameStream global object
