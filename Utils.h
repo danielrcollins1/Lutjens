@@ -25,6 +25,14 @@ bool getUserYes();
 // Check if a C-string is all digits.
 bool isAllDigits(const char* s);
 
+// Push an array onto a vector
+template <class T>
+void pushArray(std::vector<T>& vec, const T array[], int size) {
+	for (int i = 0; i < size; i++) {
+		vec.push_back(array[i]);
+	}
+}
+
 // Check if a vector has a given element
 template <class T>
 bool hasElem(const std::vector<T>& vec, const T& value) {
