@@ -8,10 +8,12 @@
 #ifndef BRITISHPLAYERCOMPUTER_H
 #define BRITISHPLAYERCOMPUTER_H
 #include "BritishPlayerInterface.h"
+#include <vector>
 
 class BritishPlayerComputer: public BritishPlayerInterface
 {
 	public:
+		BritishPlayerComputer();
 
 		// Start and end game confirmation
 		virtual bool okStartGame() override { return true; }
@@ -31,8 +33,10 @@ class BritishPlayerComputer: public BritishPlayerInterface
 		void resolveAttack(int& midshipsLost, int& evasionLost) override {}
 		
 	private:
-		void doFreeCoastalSearch();
-		bool isFreeSearchable(const GridCoordinate& zone);
+		std::vector<GridCoordinate> coastalFreeSearchList;
+		void searchZones(const std::vector<GridCoordinate>& zones,
+			int dayStrength, int nightStrength);
+		std::vector<GridCoordinate> compileCoastalFreeSearchZones();
 };
 
 #endif
