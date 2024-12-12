@@ -141,10 +141,10 @@ int Ship::maxSpeed() const {
 
 // Check if we reached a waypoint
 void Ship::checkForWaypoint() {
-	if (!waypoints.empty()) {
-		if (position == waypoints[0]) {
-			waypoints.erase(waypoints.begin());
-		}
+	while (!waypoints.empty() 
+		&& position == waypoints[0])
+	{
+		waypoints.erase(waypoints.begin());
 	}
 }
 
