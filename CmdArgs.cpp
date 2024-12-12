@@ -29,8 +29,8 @@ void CmdArgs::parseArgs(int argc, char** argv) {
 		char *arg = argv[count];
 		if (arg[0] == '-') {
 			switch (arg[1]) {
+				case 'l': runLargeSeries = true; // & fall through
 				case 'a': automateBritish = true; break;
-				case 'l': runLargeSeries = true; break;
 				default: exitAfterArgs = true; break;
 			}
 		}
