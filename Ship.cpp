@@ -164,7 +164,7 @@ void Ship::doMovement() {
 
 	// Select speed to move
 	int speed = maxSpeed();
-	if (getFuel() == 1 || rollDie(6) == 1) {
+	if (getFuel() == 1) {
 		speed = min(1, speed);	
 	}
 	if (onPatrol || loseMoveTurn) {

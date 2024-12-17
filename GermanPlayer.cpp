@@ -24,22 +24,25 @@ const Ship& GermanPlayer::getBismarck() const {
 void GermanPlayer::initWaypoints(Ship& ship) {
 	auto board = SearchBoard::instance();
 	ship.clearWaypoints();
+
+	// TODO:
+	// Initial speed should give 3, 4, or 5 zones at start
+	// Frequency (per MicroBismarck analysis) {4/9, 4/9, 1/9}
+	// Need to program desired speed per turn (or do real start rule)
 	
-	// Breakout path
-	switch(rollDie(6)) {
-		case 1: // near path
-			ship.addWaypoint(board->randSeaWithinOne("E17"));
-			ship.addWaypoint(GridCoordinate("G16"));
-			break;
-		case 2: case 3: // middle path
-			ship.addWaypoint(board->randSeaWithinOne("C14"));
-			ship.addWaypoint(board->randSeaWithinOne("E13"));
-			break;
-		default: // far path
-			ship.addWaypoint(board->randSeaWithinOne("B11"));
-			ship.addWaypoint(GridCoordinate("B7"));
-			ship.addWaypoint(board->randSeaWithinOne("C6"));
-			break;	
+	// Initial point spread near Norway (4x4 = 16 zones)
+	char row0 = 'A' + rollDie(4) - 1;
+	int col0 = 14 + rollDie(4);
+	ship.addWaypoint(GridCoordinate(row0, col0));
+	
+	// Pick east or west of Iceland
+	if (rollDie(100) < 65) {  // west (Denmark Strait)
+		ship.addWaypoint(GridCoordinate("B7"));
+		ship.addWaypoint(board->randSeaWithinOne("C6"));
+	}
+	else {  // east of Iceland
+		ship.addWaypoint(board->randSeaWithinOne("C13"));
+		ship.addWaypoint(board->randSeaWithinOne("E13"));
 	}
 	
 	// Initial convoy route target
