@@ -1,11 +1,13 @@
 #include "BritishPlayerComputer.h"
 #include "GameDirector.h"
+#include "Utils.h"
 #include <cassert>
 using namespace std;
 
 // Constructor
 BritishPlayerComputer::BritishPlayerComputer() {
-	coastalFreeSearchList = compileCoastalFreeSearchZones();
+	coastalFreeSearchList = getCoastalFreeSearchZones();
+	initialAirPatrols = planInitialAirPatrols();
 }
 
 // Try searching
@@ -21,72 +23,25 @@ void BritishPlayerComputer::searchZones(
 	auto director = GameDirector::instance();
 	int visibility = director->getVisibility();
 	for (auto zone: zones) {
-		int strength = director->isInNight(zone) ? 
-			nightStrength : dayStrength;
-		if (strength >= visibility) {
-			director->checkSearch(zone);			
+		if (!director->isInFog(zone)) {
+			int strength = director->isInNight(zone) ? 
+				nightStrength : dayStrength;
+			if (strength >= visibility) {
+				director->checkSearch(zone);			
+			}
 		}
 	}
 }
 
 // Basic search in first few turns
-//   Free coastal search & basic air search
 void BritishPlayerComputer::resolveSearch() {
 	searchZones(coastalFreeSearchList, 4, 3);
-	int turn = GameDirector::instance()->getTurn();
-	
-	// First turn: 2 spaces up to row A, and one up to row F
-	if (turn == 4) {
-		vector<GridCoordinate> search =
-			{"A15", "B15", "G16"};
-		searchZones(search, 4, 2);
-	}
-
-	// Second turn: Search all A15-F15
-	//   Patrol search strength 6, but 4 in one zone 
-	//     (Plymouth pair up to row C)
-	else if (turn == 5) {
-		vector<GridCoordinate> search = 
-			{"A15", "B15", "C15", "D15", "E15", "F16"};
-		searchZones(search, 6, 3);
-	}
-	
-	// Third turn: Patrol all A15-F15
-	//   Plus one extra around D16
-	else if (turn == 6) {
-		vector<GridCoordinate> search =
-			{"A15", "B15", "C15", "E15", "F16", "D17"};
-		searchZones(search, 6, 3);
-	}
-
-	// Fourth turn: Night turn (LR patrol search strength 3).
-	// Plymouth LR recon return from area.
-	// Eire units must be row F or below.
-	// No one can be on row A (if maximized search earlier)
-	// Can patrol B15-D15 w/Scapa & Hvaliford
-	// Consider: Land this turn to refit & go in morning?
-	//   (Esp. if visibility poor.)
-	else if (turn == 7) {
-		vector<GridCoordinate> search = 
-			{"B15", "C15", "D15", "F16"};
-		searchZones(search, 6, 3);
-	}
-
-	// Fifth turn: All LR recon units land
-	// (if maximized before this turn)
-	else if (turn == 8) {
-		// no search
-	}
-
-	// Sixth turn: All LR recon units refuel & refit
-	// (if maximized at start)
-	else if (turn == 9) {
-		// no search
-	}
+	searchZones(getShipPatrolZones(), 4, 2);
+	searchZones(getAirPatrolZones(), 6, 3);
 }
 
 // Compile the list of free coastal search spaces
-vector<GridCoordinate> BritishPlayerComputer::compileCoastalFreeSearchZones() 
+vector<GridCoordinate> BritishPlayerComputer::getCoastalFreeSearchZones() 
 {
 	
 	// Start with special island spaces
@@ -102,4 +57,61 @@ vector<GridCoordinate> BritishPlayerComputer::compileCoastalFreeSearchZones()
 		}
 	}
 	return list;
+}
+
+// Get list of ship patrol zones
+vector<GridCoordinate> BritishPlayerComputer::getShipPatrolZones()
+{
+	// Standard ship patrols
+	vector<GridCoordinate> list = {"B7", "D12", "E13", "F14", "G15", "H16"};
+	
+	// Suffolk somewhere off Iceland
+	GridCoordinate suffolk('D', 3 + rollDice(2, 3));
+	list.push_back(suffolk);
+	return list;
+}
+
+// Distribute initial air patrol numbers
+//   An abstracted estimate of early air search strength
+vector<int> BritishPlayerComputer::planInitialAirPatrols() {
+	const int NUM_DAYS = 5;
+	const int TOTAL_AIR_PATROLS = 20;
+	vector<int> patrolsPerDay(NUM_DAYS);
+	for (int i = 0; i < TOTAL_AIR_PATROLS; i++) {
+		int day = rollDice(2, 3) - 2;
+		patrolsPerDay[day]++;
+	}
+	return patrolsPerDay;
+}
+
+// Get list of air patrol zones
+vector<GridCoordinate> BritishPlayerComputer::getAirPatrolZones()
+{
+	vector<GridCoordinate> list;
+	int turnDelta = GameDirector::instance()->getTurn() - 4;
+	if (turnDelta < (int) initialAirPatrols.size()) {
+		int numPatrolsToday = initialAirPatrols[turnDelta];
+		for (int i = 0; i < numPatrolsToday; i++) {
+			GridCoordinate searchZone;
+			do {
+				searchZone = pickAirPatrolZone();
+			} while (hasElem(list, searchZone));
+			list.push_back(searchZone);			
+		}
+	}
+	return list;
+}
+
+// Get a random zone for an air patrol
+//   Column pick suggested by MicroBismarck LRS resultd
+GridCoordinate BritishPlayerComputer::pickAirPatrolZone() {
+	int col;
+	char row = 'A' + rollDie(6) - 1;
+	switch (rollDie(13)) {
+		case 1: col = 18; break;
+		case 2: col = 17; break;
+		case 3: col = 16; break;
+		default: col = 15; break;		
+	}
+	return GridCoordinate(row, col);	
 }

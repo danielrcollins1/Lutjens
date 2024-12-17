@@ -33,10 +33,15 @@ class BritishPlayerComputer: public BritishPlayerInterface
 		void resolveAttack(int& midshipsLost, int& evasionLost) override {}
 		
 	private:
+		std::vector<int> initialAirPatrols;
 		std::vector<GridCoordinate> coastalFreeSearchList;
 		void searchZones(const std::vector<GridCoordinate>& zones,
 			int dayStrength, int nightStrength);
-		std::vector<GridCoordinate> compileCoastalFreeSearchZones();
+		std::vector<GridCoordinate> getCoastalFreeSearchZones();
+		std::vector<GridCoordinate> getShipPatrolZones();
+		std::vector<GridCoordinate> getAirPatrolZones();		
+		std::vector<int> planInitialAirPatrols();
+		GridCoordinate pickAirPatrolZone();
 };
 
 #endif
