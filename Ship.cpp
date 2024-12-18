@@ -28,6 +28,7 @@ Ship::Ship(string name, Type type,
 	onPatrol = false;
 	tookMoveTurn = false;
 	loseMoveTurn = false;
+	isDetected = false;
 	fuelLost = 0;
 	midshipsLost = 0;
 	evasionLostTemp = 0;
@@ -105,7 +106,7 @@ bool Ship::isOnPatrol() const {
 // Do setup in first phase of turn
 void Ship::doAvailability() {
 	tookMoveTurn = false;
-	exposureHistory.push_back(false);
+	locatedHistory.push_back(false);
 }
 
 // Clear all waypoints
@@ -258,22 +259,29 @@ void Ship::setLoseMoveTurn() {
 	loseMoveTurn = true;
 }
 
-// Note that we have been located by the enemy
-void Ship::setExposed() {
-	assert(!exposureHistory.empty());
-	exposureHistory.back() = true;
+// Note that we have been detected by any means:
+//   Search, shadow, general search, or HUFF-DUFF.
+void Ship::setDetected() {
+	isDetected = true;	
 }
 
-// Check if we were exposed on a given turn
-bool Ship::wasExposed(int turnsAgo) const {
+// Check if we were ever detected by any means
+bool Ship::wasDetected() const {
+	return isDetected;
+}
+
+// Note that we have been located by search/shadow
+void Ship::setLocated() {
+	assert(!locatedHistory.empty());
+	locatedHistory.back() = true;
+	setDetected();
+}
+
+// Check if we were located by search/shdow on a given turn
+bool Ship::wasLocated(int turnsAgo) const {
 	assert(0 <= turnsAgo 
-		&& turnsAgo < (int) exposureHistory.size());
-	return exposureHistory.rbegin()[turnsAgo];
-}
-
-// Were we ever exposed?
-bool Ship::wasEverExposed() const {
-	return hasElem(exposureHistory, true);
+		&& turnsAgo < (int) locatedHistory.size());
+	return locatedHistory.rbegin()[turnsAgo];
 }
 
 // How far did we move on the search board this turn?

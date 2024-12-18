@@ -292,7 +292,7 @@ void GameDirector::checkShadow(Ship& target,
 		if (holdContact) {
 			cgame << target.getTypeName() << " shadowed to zone " 
 				<< target.getPosition() << endl;
-			target.setExposed();
+			target.setLocated();
 		}
 	}
 }
@@ -337,7 +337,7 @@ void GameDirector::checkAttack(Ship& target, bool inSeaPhase)
 	}
 }
 
-// Was any German ship ever found by search or shadow?
-bool GameDirector::wasAnyShipExposed() const {
-	return germanPlayer->wasAnyShipExposed();	
+// Was any German ship ever detected by any means?
+bool GameDirector::wasAnyShipDetected() const {
+	return germanPlayer->wasAnyShipDetected();	
 }

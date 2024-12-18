@@ -92,7 +92,7 @@ void GermanPlayer::doAvailabilityPhase() {
 // Do shadow phase
 void GermanPlayer::doShadowPhase() {
 	for (auto& ship: shipList) {
-		if (ship.wasExposed(1)) {
+		if (ship.wasLocated(1)) {
 			GameDirector::instance()
 				->checkShadow(ship, ship.getPosition(), false);
 		}
@@ -117,7 +117,7 @@ void GermanPlayer::checkSearch(const GridCoordinate& zone) {
 		{
 			cgame << ship.getTypeName() 
 				<< " found in " << zone << endl;
-			ship.setExposed();
+			ship.setLocated();
 		}
 		else if (ship.movedThrough(zone)
 			&& director->isPassThroughSearchOn())
@@ -132,7 +132,7 @@ void GermanPlayer::checkSearch(const GridCoordinate& zone) {
 // Do air attack phase
 void GermanPlayer::doAirAttackPhase() {
 	for (auto& ship: shipList) {
-		if (ship.wasExposed(0)) {
+		if (ship.wasLocated(0)) {
 			GameDirector::instance()->checkAttack(ship, false);
 		}
 	}
@@ -141,7 +141,7 @@ void GermanPlayer::doAirAttackPhase() {
 // Do naval combat phase
 void GermanPlayer::doNavalCombatPhase() {
 	for (auto& ship: shipList) {
-		if (ship.wasExposed(0)) {
+		if (ship.wasLocated(0)) {
 			GameDirector::instance()->checkAttack(ship, true);
 		}
 	}
@@ -149,9 +149,11 @@ void GermanPlayer::doNavalCombatPhase() {
 
 // Call result of British HUFF-DUFF detection
 void GermanPlayer::callHuffDuff() {
+	auto ship = bismarck;
+	ship->setDetected();
 	cgame << "HUFF-DUFF: German ship near "
 		<< SearchBoard::instance()
-			->randSeaWithinOne(bismarck->getPosition())
+			->randSeaWithinOne(ship->getPosition())
 		<< endl;
 }
 
@@ -192,6 +194,7 @@ void GermanPlayer::checkGeneralSearch(int roll) {
 		// Announce result
 		int visibility = GameDirector::instance()->getVisibility();
 		if (visibility <= searchStrength) {
+			ship->setDetected();
 			cgame << "General Search: " << ship->getName() 
 				<< " found in " << pos << endl;
 		}
@@ -229,7 +232,7 @@ void GermanPlayer::checkConvoyResult(int roll) {
 	auto board = SearchBoard::instance();
 	auto ship = bismarck;
 	auto pos = ship->getPosition();
-	if (!ship->wasExposed(0)     // Rule 10.231
+	if (!ship->wasLocated(0)     // Rule 10.231
 		&& !ship->isInNight())   // Rule 11.13
 	{
 		switch (roll) {
@@ -272,6 +275,7 @@ void GermanPlayer::destroyConvoy() {
 		<< " by " << ship->getName() << endl;
 	GameDirector::instance()->msgSunkConvoy();
 	ship->setLoseMoveTurn();   // Rule 10.25
+	ship->setDetected();
 	pickNewRoute();
 }
 
@@ -291,10 +295,10 @@ void GermanPlayer::printAllShips() const {
 	}
 }
 
-// Was any ship ever located by search or shadow?
-bool GermanPlayer::wasAnyShipExposed() const {
+// Was any ship ever detected by any means?
+bool GermanPlayer::wasAnyShipDetected() const {
 	for (auto& ship: shipList) {
-		if (ship.wasEverExposed()) {
+		if (ship.wasDetected()) {
 			return true;
 		}
 	}

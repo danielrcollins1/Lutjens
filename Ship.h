@@ -32,22 +32,23 @@ class Ship
 		bool isInNight() const;
 		bool isInFog() const;
 		bool enteredPort() const;
+		bool wasDetected() const;
+		bool wasLocated(int turnsAgo) const;
 		void doAvailability();
-		void setExposed();
-		bool wasExposed(int turnsAgo) const;
-		bool wasEverExposed() const;
+		void setLocated();
+		void setDetected();
 		void setLoseMoveTurn();
 		void loseMidships(int loss);
 		void loseEvasion(int loss);
 		void checkEvasionRepair();
 		
 		// Movement functions
+		GridCoordinate getPosition() const;
 		void doMovement();
 		void setPosition(const GridCoordinate& zone);
 		void addWaypoint(const GridCoordinate& zone);
 		bool isAccessible(const GridCoordinate& zone) const;
 		bool movedThrough(const GridCoordinate& zone) const;
-		GridCoordinate getPosition() const;
 		void clearWaypoints();
 		
 	private:
@@ -58,13 +59,14 @@ class Ship
 		bool onPatrol;
 		bool tookMoveTurn;
 		bool loseMoveTurn;
+		bool isDetected;
 		int fuelMax, fuelLost;
 		int midshipsMax, midshipsLost;
 		int evasionMax, evasionLostTemp, evasionLostPerm;
 		GridCoordinate position;
 		std::vector<std::vector<GridCoordinate>> moveHistory;
 		std::vector<GridCoordinate> waypoints;
-		std::vector<bool> exposureHistory;
+		std::vector<bool> locatedHistory;
 
 		// Constants
 		static const std::string typeAbbr[NUM_TYPES];

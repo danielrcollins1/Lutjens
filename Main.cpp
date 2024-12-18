@@ -59,7 +59,7 @@ void runLargeSeries() {
 		GameDirector::initGame();
 		auto game = GameDirector::instance();
 		game->doGameLoop();
-		if (game->wasAnyShipExposed()) {
+		if (game->wasAnyShipDetected()) {
 			numGermansFound++;			
 		}
 		if (game->getConvoysSunk() > 0) {
