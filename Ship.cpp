@@ -115,8 +115,16 @@ void Ship::clearWaypoints() {
 }
 
 // Add a waypoint
+//   But reject if we're already there
 void Ship::addWaypoint(const GridCoordinate& coord) {
-	waypoints.push_back(coord);
+	if (coord != position) {
+		waypoints.push_back(coord);
+	}
+}
+
+// Do we have any waypoints?
+bool Ship::hasWaypoints() const {
+	return !waypoints.empty();
 }
 
 // How many board spaces can we move this turn?
@@ -208,7 +216,7 @@ void Ship::doMovement() {
 			position = next;
 			moves.push_back(position);
 			checkForWaypoint();
-			//cout << position << endl;
+			//cout << *this << endl;
 		}
 	}
 
@@ -382,4 +390,10 @@ void Ship::checkEvasionRepair() {
 void Ship::printWaypoints() const {
 	cout << name << " waypoints: ";
 	printVec(waypoints);	
+}
+
+// Stream insertion operator
+std::ostream& operator<<(std::ostream& stream, const Ship& ship) {
+	stream << ship.getLongDesc();
+	return stream;
 }

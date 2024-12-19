@@ -37,7 +37,7 @@ void GermanPlayer::initWaypoints(Ship& ship) {
 		case 10: case 11: case 12: row = 'D'; break;
 		case 13: case 14: case 15: case 16: row = 'E'; break;
 		case 17: case 18: case 19: case 20: row = 'F'; break;
-		default: clog << "Invalid initial row choice.\n";		
+		default: cerr << "Invalid initial row choice.\n";		
 	}
 	
 	// Column location suggested by MicroBismarck LRS solution 
@@ -48,7 +48,7 @@ void GermanPlayer::initWaypoints(Ship& ship) {
 		case 2: case 3: case 4: case 5: col = 16; break;
 		case 6: case 7: case 8: case 9: col = 17; break;
 		case 10: case 11: case 12: case 13: col = 18; break;
-		default: clog << "Invalid initial column choice.\n";		
+		default: cerr << "Invalid initial column choice.\n";		
 	}
 
 	// Avoid Faeroe Islands
@@ -57,25 +57,35 @@ void GermanPlayer::initWaypoints(Ship& ship) {
 		firstMove = GridCoordinate("G16");
 	}
 	ship.addWaypoint(firstMove);
+	bool denmarkStrait = false;
 	
-	// Northerly escape then breaks out around Iceland
+	// Northerly escape then breaks out near Iceland
 	if (firstMove.getRow() <= 'D') {
 	
-		// Get past air picket to column 13
-		ship.addWaypoint(GridCoordinate(firstMove.getRow(), 13));
+		// Get past air picket on column 15
+		ship.addWaypoint(
+			GridCoordinate(firstMove.getRow(), 15 - rollDie(3)));
 
-		// Choose north or south of Iceland	
-		if (rollDie(100) <= 66) {  // north (Denmark Strait)
+		// North of Iceland (Denmark Straight)
+		if (rollDie(100) <= 66) {
 			ship.addWaypoint("B7");
+			denmarkStrait = true;
 		}
-		else {  // south of Iceland
-			ship.addWaypoint(board->randSeaWithinOne("E13"));
+
+		// South of Iceland
+		else {
+			switch (rollDie(6)) {
+				case 1: ship.addWaypoint("F14"); break;
+				case 2: case 3: ship.addWaypoint("E13"); break;
+				default: ship.addWaypoint("E12"); break;
+			}
 		}
 	}
 	
 	// Row 'E' breaks out north of Faeroe
 	else if (firstMove.getRow() == 'E') {
-		ship.addWaypoint(board->randSeaWithinOne("E13"));
+		ship.addWaypoint("E14");
+		ship.addWaypoint("F14");
 	}
 	
 	// Row 'F' breaks out south of Faeroe
@@ -84,41 +94,54 @@ void GermanPlayer::initWaypoints(Ship& ship) {
 	}
 	
 	// Initial convoy route target
-	pickConvoyTarget(ship, 4);
+	denmarkStrait ? 
+		targetAtlanticConvoy(ship) : targetAnyConvoyBreakout(ship);
 	//ship.printWaypoints();
 }
 
-// Pick a random convoy target
-//   Argument is chance in 6 to pick Atlantic route
-void GermanPlayer::pickConvoyTarget(Ship& ship, int chanceAtlantic) {
-	GridCoordinate target;
-	do {
-		target = rollDie(6) <= chanceAtlantic ? 
-			convoyTargetAtlantic() : convoyTargetAfrican();	
-	} while (target == ship.getPosition());
+// Target a convoy on the Atlantic line
+//   Around row H, on western edge past patrol line
+void GermanPlayer::targetAtlanticConvoy(Ship& ship) {
+	int col;
+	char row = 'F' + rollDie(3);
+	switch (row) {
+		case 'G': col = rollDie(4); break;
+		case 'H': col = rollDie(5); break;
+		case 'I': col = rollDie(5) + 1; break;
+		default: cerr << "Error in Atlantic convoy column selection.\n";				
+	}
+	GridCoordinate target(row, col);
 	ship.addWaypoint(target);
-	clog << ship.getName() << " picks target: " << target << endl;
+	clog << ship.getName() << " targets Atlantic convoy @ " << target << endl;
 }
 
-// Get a convoy target on the Atlantic line
-//   On row H, biased to western edge
-GridCoordinate GermanPlayer::convoyTargetAtlantic() const {
-	char row = 'H';
-	int col = min(rollDie(10), rollDie(10));
-	GridCoordinate goal(row, col);
-	assert(SearchBoard::instance()->isConvoyRoute(goal));
-	return goal;
-}
-
-// Get a convoy target on the African line
+// Target a convoy on the African line
 //   Row R to Z, centered on V18
-GridCoordinate GermanPlayer::convoyTargetAfrican() const {
+void GermanPlayer::targetAfricanConvoy(Ship& ship) {
 	int roll = rollDice(2, 5);
 	char row = 'P' + roll;
 	int col = 16 + (roll - 1) / 2;
-	GridCoordinate goal(row, col);
-	assert(SearchBoard::instance()->isConvoyRoute(goal));
-	return goal;
+	GridCoordinate target(row, col);
+	ship.addWaypoint(target);
+	clog << ship.getName() << " targets African convoy @ " << target << endl;
+}
+
+// Target any convoy right after initial breakout
+void GermanPlayer::targetAnyConvoyBreakout(Ship& ship) {
+	int rollRoute = rollDie(100);
+	
+	// Target Atlantic convoy
+	if (rollRoute <= 50) {
+		targetAtlanticConvoy(ship);		
+	}
+	
+	// Target African convoy
+	//   First, get past patrol line ASAP
+	else {
+		int roll = rollDie(5); // L11 to P15, past patrol
+		ship.addWaypoint(GridCoordinate('K' + roll, 10 + roll));
+		targetAfricanConvoy(ship);	
+	}
 }
 
 // Do unit availability phase
@@ -143,7 +166,7 @@ void GermanPlayer::doSeaMovementPhase() {
 	for (auto& ship: shipList) {
 		if (!ship.isSunk()) {
 			ship.doMovement();
-			clog << ship.getLongDesc() << endl;
+			clog << ship << endl;
 		}
 	}
 }
@@ -323,13 +346,18 @@ void GermanPlayer::pickNewRoute() {
 	ship->clearWaypoints();
 	bool isOnAtlantic = ship->getPosition().getRow() <= 'K';
 	int chanceAtlantic = isOnAtlantic ? 1: 5;
-	pickConvoyTarget(*ship, chanceAtlantic);
+	
+	// Make sure to not pick current position
+	while (!ship->hasWaypoints()) {
+		rollDie(6) <= chanceAtlantic ?
+			targetAtlanticConvoy(*ship) : targetAfricanConvoy(*ship);		
+	}
 }
 
 // Print all of our ships (e.g., for end game)
 void GermanPlayer::printAllShips() const {
 	for (auto& ship: shipList) {
-		cgame << ship.getLongDesc() << endl;
+		cgame << ship << endl;
 	}
 }
 

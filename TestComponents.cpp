@@ -102,7 +102,7 @@ void testPathRandDest(const GridCoordinate& src,
 void testShipConstruction() {
 	Ship ship("Bismarck", Ship::Type::BB, 29, 10, 13);
 	ship.setPosition("F20");
-	cout << "Ship test: " << ship.getLongDesc() << endl;
+	cout << "Ship test: " << ship << endl;
 }
 
 // Main test driver

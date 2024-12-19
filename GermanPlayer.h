@@ -34,9 +34,9 @@ class GermanPlayer
 		
 		// Functions
 		void initWaypoints(Ship& ship);
-		GridCoordinate convoyTargetAtlantic() const;
-		GridCoordinate convoyTargetAfrican() const;
-		void pickConvoyTarget(Ship& ship, int chanceAtlantic);
+		void targetAtlanticConvoy(Ship& ship);
+		void targetAfricanConvoy(Ship& ship);
+		void targetAnyConvoyBreakout(Ship& ship);
 		char generalSearchColumn(const GridCoordinate& zone);
 		void destroyConvoy();
 		void pickNewRoute();

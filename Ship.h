@@ -49,6 +49,7 @@ class Ship
 		void addWaypoint(const GridCoordinate& zone);
 		bool isAccessible(const GridCoordinate& zone) const;
 		bool movedThrough(const GridCoordinate& zone) const;
+		bool hasWaypoints() const;
 		void printWaypoints() const;
 		void clearWaypoints();
 		
@@ -80,5 +81,8 @@ class Ship
 		void applyTempEvasionLoss(int midshipsLost);
 		void doBreakoutBonusMove();
 };
+
+// Stream insertion operator
+std::ostream& operator<<(std::ostream& stream, const Ship& ship);
 
 #endif
