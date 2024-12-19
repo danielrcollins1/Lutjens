@@ -14,6 +14,11 @@
 class GameDirector
 {
 	public:
+		// Constants
+		static const int START_TURN = 4;
+		static const int FINISH_TURN = 34;
+
+		// Functions
 		static GameDirector* instance();
 		static void initGame();
 		bool okPlayerStart();
@@ -34,25 +39,18 @@ class GameDirector
 		bool wasAnyShipDetected() const;
 
 	private:
+		// Enumeration
+		enum NightState {NIGHT_SOUTH, NIGHT_ALL, DAY};
 
 		// Data
 		static GameDirector* theInstance;
 		GermanPlayer* germanPlayer = nullptr;
 		BritishPlayerInterface* britishPlayer = nullptr;
-		int turn = FIRST_TURN;
+		int turn = START_TURN;
 		int visibility = 4;
 		bool foggy = true;
 		int convoysSunk = 0;
 		bool convoySunkToday = false;
-		
-		// Constants
-		static const int FIRST_TURN = 1;
-		static const int GERMAN_START_TURN = 2;
-		static const int BRITISH_START_TURN = 4;
-		static const int FINISH_TURN = 34;
-
-		// Enumeration
-		enum NightState {NIGHT_SOUTH, NIGHT_ALL, DAY};
 		
 		// Functions
 		GameDirector();

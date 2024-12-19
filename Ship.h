@@ -49,7 +49,7 @@ class Ship
 		void addWaypoint(const GridCoordinate& zone);
 		bool isAccessible(const GridCoordinate& zone) const;
 		bool movedThrough(const GridCoordinate& zone) const;
-		void printWayPoints() const;
+		void printWaypoints() const;
 		void clearWaypoints();
 		
 	private:
@@ -78,6 +78,7 @@ class Ship
 		void checkForWaypoint();
 		int maxSpeed() const;
 		void applyTempEvasionLoss(int midshipsLost);
+		void doBreakoutBonusMove();
 };
 
 #endif

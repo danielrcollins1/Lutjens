@@ -149,7 +149,7 @@ void GameDirector::doAvailabilityPhase() {
 
 // Do visibility phase
 void GameDirector::doVisibilityPhase() {
-	if (turn > BRITISH_START_TURN) {
+	if (turn > START_TURN) {
 		rollVisibility();
 	}
 	cgame << "Visibility: " 
@@ -159,14 +159,14 @@ void GameDirector::doVisibilityPhase() {
 
 // Do shadow phase
 void GameDirector::doShadowPhase() {
-	if (turn > BRITISH_START_TURN) {
+	if (turn > START_TURN) {
 		germanPlayer->doShadowPhase();
 	}
 }
 
 // Do sea movement phase
 void GameDirector::doSeaMovementPhase() {
-	if (turn >= GERMAN_START_TURN) {
+	if (turn >= START_TURN) {
 		germanPlayer->doSeaMovementPhase();
 	}
 }
@@ -175,7 +175,7 @@ void GameDirector::doSeaMovementPhase() {
 void GameDirector::doSearchPhase() {
 
 	// Ask British player for search attempts
-	if (turn >= BRITISH_START_TURN
+	if (turn >= START_TURN
 		&& visibility < 9)
 	{
 		if (britishPlayer->trySearch()) {
@@ -187,7 +187,7 @@ void GameDirector::doSearchPhase() {
 // Is pass-through search permitted?
 //   It's allowed after first turn (Rule 7.23)
 bool GameDirector::isPassThroughSearchOn() const {
-	return turn > BRITISH_START_TURN;
+	return turn > START_TURN;
 }
 
 // Check British attempt to search a zone
@@ -198,7 +198,7 @@ void GameDirector::checkSearch(const GridCoordinate& zone) {
 // Do chance phase
 //   See Basic Game Tables Card: Chance Table
 void GameDirector::doChancePhase() {
-	if (turn >= BRITISH_START_TURN
+	if (turn >= START_TURN
 		&& !isGameOver())
 	{
 		int roll = rollDice(2, 6);

@@ -146,8 +146,26 @@ void Ship::checkForWaypoint() {
 		&& position == waypoints[0])
 	{
 		waypoints.erase(waypoints.begin());
-		//printWayPoints();
 	}
+}
+
+// Get one step towards destination
+GridCoordinate Ship::getNextZone() const {
+	if (!waypoints.empty()) {
+		GridCoordinate dest = waypoints[0];
+		int dist = position.distanceFrom(dest);
+		vector<GridCoordinate> adjacent = position.getAdjacent();
+		vector<GridCoordinate> options;
+		for (auto zone: adjacent) {
+			if (isAccessible(zone) 
+				&& zone.distanceFrom(dest) < dist) 
+			{
+				options.push_back(zone);
+			}
+		}
+		return randomElem(options);
+	}
+	return position;
 }
 
 // Do movement for turn
@@ -155,11 +173,20 @@ void Ship::doMovement() {
 	auto board = SearchBoard::instance();
 	vector<GridCoordinate> moves;
 
-	// Abort if we already moved
+	// Do movement only once per turn (phase 3 or 5)
 	if (tookMoveTurn) {
 		return;	
 	}
-	
+	tookMoveTurn = true;
+
+	// Do breakout bonus on first turn
+	if (GameDirector::instance()->getTurn() 
+		== GameDirector::START_TURN)
+	{
+		doBreakoutBonusMove();
+		return;		
+	}
+
 	// Set to patrol if no waypoints
 	onPatrol = waypoints.empty()
 		&& !board->isGermanPort(position);
@@ -190,27 +217,37 @@ void Ship::doMovement() {
 		fuelLost++;	
 	}
 	moveHistory.push_back(moves);
-	tookMoveTurn = true;
 	checkEvasionRepair();
 }
 
-// Get one step towards destination
-GridCoordinate Ship::getNextZone() const {
-	if (!waypoints.empty()) {
-		GridCoordinate dest = waypoints[0];
-		int dist = position.distanceFrom(dest);
-		vector<GridCoordinate> adjacent = position.getAdjacent();
-		vector<GridCoordinate> options;
-		for (auto zone: adjacent) {
-			if (isAccessible(zone) 
-				&& zone.distanceFrom(dest) < dist) 
-			{
-				options.push_back(zone);
-			}
-		}
-		return randomElem(options);
+// Do German ship first-turn breakout bonus move
+//   We use the first waypoint as our location at end of move
+//   Waive most other rules restrictions here
+void Ship::doBreakoutBonusMove() {
+
+	// Check first turn only
+	assert(GameDirector::instance()->getTurn() 
+		== GameDirector::START_TURN);
+	assert(!waypoints.empty());
+	auto goal = waypoints[0];
+	int distance = position.distanceFrom(goal);
+
+	// Set position & cycle waypoint
+	assert(distance <= 5);
+	position = goal;
+	checkForWaypoint();
+
+	// Add to move history
+	vector<GridCoordinate> move;
+	move.push_back(position);
+	moveHistory.push_back(move);
+
+	// Charge for fuel
+	switch (distance) {
+		case 5: fuelLost += 2; break;
+		case 4: fuelLost += 1; break;
+		default: break; // no loss
 	}
-	return position;
 }
 
 // Are we in port?
@@ -342,7 +379,7 @@ void Ship::checkEvasionRepair() {
 }
 
 // Print our waypoints (for testing)
-void Ship::printWayPoints() const {
+void Ship::printWaypoints() const {
 	cout << name << " waypoints: ";
 	printVec(waypoints);	
 }

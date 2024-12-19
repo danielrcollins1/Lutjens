@@ -85,7 +85,7 @@ void GermanPlayer::initWaypoints(Ship& ship) {
 	
 	// Initial convoy route target
 	pickConvoyTarget(ship, 4);
-	//ship.printWayPoints();
+	//ship.printWaypoints();
 }
 
 // Pick a random convoy target
