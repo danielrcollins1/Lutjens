@@ -16,11 +16,12 @@ class SearchBoard
 	public:
 		static SearchBoard* instance();
 		bool isSeaZone(const GridCoordinate& zone) const;
-		bool isFogZone(const GridCoordinate& zone) const;
-		bool isBritishCoast(const GridCoordinate& zone) const;		
-		bool isBritishPatrol(const GridCoordinate& zone) const;
+		bool isBritishCoast(const GridCoordinate& zone) const;
 		bool isBritishPort(const GridCoordinate& zone) const;
 		bool isGermanPort(const GridCoordinate& zone) const;
+		bool isFogZone(const GridCoordinate& zone) const;
+		bool isIrishSea(const GridCoordinate& zone) const;
+		bool isBritishPatrol(const GridCoordinate& zone) const;
 		bool isConvoyRoute(const GridCoordinate& zone) const;
 		bool isNearZoneType(const GridCoordinate& zone, 
 			int distance, bool (SearchBoard::*zoneType)
@@ -32,15 +33,16 @@ class SearchBoard
 	private:
 		SearchBoard();
 		static SearchBoard* theInstance;
-		enum Layers {SeaZones, FogZones, BritishCoast, BritishPatrol, 
-			BritishPorts, GermanPorts, ConvoyRoutes, NUM_LAYERS};
+		enum Layers {SeaZones, BritishCoast, BritishPorts, GermanPorts,
+			FogZones, IrishSea, BritishPatrol, ConvoyRoutes, NUM_LAYERS};
 		SearchBoardLayer layers[NUM_LAYERS] = {
 			SearchBoardLayer("SearchBoard-SeaZones.csv"),
-			SearchBoardLayer("SearchBoard-FogZones.csv"),
 			SearchBoardLayer("SearchBoard-BritishCoast.csv"),
-			SearchBoardLayer("SearchBoard-BritishPatrol.csv"),
 			SearchBoardLayer("SearchBoard-BritishPorts.csv"),
 			SearchBoardLayer("SearchBoard-GermanPorts.csv"),
+			SearchBoardLayer("SearchBoard-FogZones.csv"),
+			SearchBoardLayer("SearchBoard-IrishSea.csv"),
+			SearchBoardLayer("SearchBoard-BritishPatrol.csv"),
 			SearchBoardLayer("SearchBoard-ConvoyRoutes.csv")
 		};
 };

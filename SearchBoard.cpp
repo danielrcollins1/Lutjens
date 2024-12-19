@@ -54,6 +54,11 @@ bool SearchBoard::isGermanPort(const GridCoordinate& zone) const {
 	return layers[GermanPorts].isBitOn(zone);
 }
 
+// Is this zone in the Irish Sea?
+bool SearchBoard::isIrishSea(const GridCoordinate& zone) const {
+	return layers[IrishSea].isBitOn(zone);
+}
+
 // Is this zone on a convoy route?
 bool SearchBoard::isConvoyRoute(const GridCoordinate& zone) const {
 	return layers[ConvoyRoutes].isBitOn(zone);
