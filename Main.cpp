@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 }
 
 // Number of games in large series
-const int NUM_GAMES = 1000;	
+const int NUM_GAMES = 1000;
 
 // Run series of game & report stats
 void runLargeSeries() {

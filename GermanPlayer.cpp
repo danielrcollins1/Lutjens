@@ -25,28 +25,67 @@ void GermanPlayer::initWaypoints(Ship& ship) {
 	auto board = SearchBoard::instance();
 	ship.clearWaypoints();
 
-	// TODO:
-	// Initial speed should give 3, 4, or 5 zones at start
-	// Frequency (per MicroBismarck analysis) {4/9, 4/9, 1/9}
-	// Need to program desired speed per turn (or do real start rule)
-	
-	// Initial point spread near Norway (4x4 = 16 zones)
-	char row0 = 'A' + rollDie(4) - 1;
-	int col0 = 14 + rollDie(4);
-	ship.addWaypoint(GridCoordinate(row0, col0));
-	
-	// Pick east or west of Iceland
-	if (rollDie(100) < 65) {  // west (Denmark Strait)
-		ship.addWaypoint(GridCoordinate("B7"));
-		ship.addWaypoint(board->randSeaWithinOne("C6"));
+	// First-turn location spread widely in box A-F, 15-18
+
+	// Row location from LRS solver, including E-F in general search area
+	// (Surprisingly these get weighted more than other rows, ratio 3:3:4)
+	char row;
+	switch (rollDie(20)) {
+		case 1: case 2: case 3: row = 'A'; break;
+		case 4: case 5: case 6: row = 'B'; break;
+		case 7: case 8: case 9: row = 'C'; break;
+		case 10: case 11: case 12: row = 'D'; break;
+		case 13: case 14: case 15: case 16: row = 'E'; break;
+		case 17: case 18: case 19: case 20: row = 'F'; break;
+		default: clog << "Invalid initial row choice.\n";		
 	}
-	else {  // east of Iceland
-		ship.addWaypoint(board->randSeaWithinOne("C13"));
+	
+	// Column location suggested by MicroBismarck LRS solution 
+	// (Columns in ratio 1:4:4:4)
+	int col;
+	switch (rollDie(13)) {
+		case 1: col = 15; break;
+		case 2: case 3: case 4: case 5: col = 16; break;
+		case 6: case 7: case 8: case 9: col = 17; break;
+		case 10: case 11: case 12: case 13: col = 18; break;
+		default: clog << "Invalid initial column choice.\n";		
+	}
+
+	// Avoid Faeroe Islands
+	GridCoordinate firstMove(row, col);
+	if (firstMove == GridCoordinate("F15")) {
+		firstMove = GridCoordinate("G16");
+	}
+	ship.addWaypoint(firstMove);
+	
+	// Northerly escape then breaks out around Iceland
+	if (firstMove.getRow() <= 'D') {
+	
+		// Get past air picket to column 13
+		ship.addWaypoint(GridCoordinate(firstMove.getRow(), 13));
+
+		// Choose north or south of Iceland	
+		if (rollDie(100) <= 66) {  // north (Denmark Strait)
+			ship.addWaypoint("B7");
+		}
+		else {  // south of Iceland
+			ship.addWaypoint(board->randSeaWithinOne("E13"));
+		}
+	}
+	
+	// Row 'E' breaks out north of Faeroe
+	else if (firstMove.getRow() == 'E') {
 		ship.addWaypoint(board->randSeaWithinOne("E13"));
+	}
+	
+	// Row 'F' breaks out south of Faeroe
+	else {
+		ship.addWaypoint(board->randSeaWithinOne("G16"));
 	}
 	
 	// Initial convoy route target
 	pickConvoyTarget(ship, 4);
+	//ship.printWayPoints();
 }
 
 // Pick a random convoy target
@@ -275,7 +314,6 @@ void GermanPlayer::destroyConvoy() {
 		<< " by " << ship->getName() << endl;
 	GameDirector::instance()->msgSunkConvoy();
 	ship->setLoseMoveTurn();   // Rule 10.25
-	ship->setDetected();
 	pickNewRoute();
 }
 

@@ -146,6 +146,7 @@ void Ship::checkForWaypoint() {
 		&& position == waypoints[0])
 	{
 		waypoints.erase(waypoints.begin());
+		//printWayPoints();
 	}
 }
 
@@ -180,6 +181,7 @@ void Ship::doMovement() {
 			position = next;
 			moves.push_back(position);
 			checkForWaypoint();
+			//cout << position << endl;
 		}
 	}
 
@@ -225,12 +227,12 @@ bool Ship::enteredPort() const {
 }
 
 // Is this zone accessible to German ships?
+//   Note coastal zones allowed by errata (vs. Terrain Effects Chart)
 bool Ship::isAccessible(const GridCoordinate& zone) const {
 	auto board = SearchBoard::instance();
-	return board->isSeaZone(zone)         // Rule 5.17
-		&& !board->isBritishPort(zone)    // Rule 5.18
-		&& !board->isBritishCoast(zone);  // Allowed by errata, but
-		                                  // avoid for AI (b/c Rule 7.27)
+	return board->isSeaZone(zone)           // Rule 5.17
+		&& !board->isIrishSea(zone)         // Rule 5.18
+		&& !board->isBritishPort(zone);     // Rule 5.18
 }
 
 // Did we move into/through a given zone this turn?
@@ -249,7 +251,7 @@ bool Ship::isInNight() const {
 	return GameDirector::instance()->isInNight(position);	
 }
 
-// Ae we in fog?
+// Are we in fog?
 bool Ship::isInFog() const {
 	return GameDirector::instance()->isInFog(position);
 }
@@ -260,7 +262,9 @@ void Ship::setLoseMoveTurn() {
 }
 
 // Note that we have been detected by any means:
-//   Search, shadow, general search, or HUFF-DUFF.
+//   Search, shadow, general search, or HUFF-DUFF,
+//   but not reveal for convoy attack.
+//   Used for statistical models (not part of game).
 void Ship::setDetected() {
 	isDetected = true;	
 }
@@ -335,4 +339,10 @@ void Ship::checkEvasionRepair() {
 			assert(evasionLostTemp >= 0);			
 		}
 	}
+}
+
+// Print our waypoints (for testing)
+void Ship::printWayPoints() const {
+	cout << name << " waypoints: ";
+	printVec(waypoints);	
 }
