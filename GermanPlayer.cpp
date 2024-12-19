@@ -116,11 +116,11 @@ void GermanPlayer::targetAtlanticConvoy(Ship& ship) {
 }
 
 // Target a convoy on the African line
-//   Row R to Z, centered on V18
+//   Row P to Z, directly on convoy route
 void GermanPlayer::targetAfricanConvoy(Ship& ship) {
-	int roll = rollDice(2, 5);
-	char row = 'P' + roll;
-	int col = 16 + (roll - 1) / 2;
+	int roll = rollDie(11);
+	char row = 'O' + roll;
+	int col = 15 + roll / 2;
 	GridCoordinate target(row, col);
 	ship.addWaypoint(target);
 	clog << ship.getName() << " targets African convoy @ " << target << endl;
