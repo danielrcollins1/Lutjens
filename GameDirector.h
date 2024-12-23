@@ -36,7 +36,7 @@ class GameDirector
 		bool isPassThroughSearchOn() const;
 		void msgSunkConvoy();
 		int getConvoysSunk() const;
-		bool wasAnyShipDetected() const;
+		int getTimesFlagshipDetected() const;
 
 	private:
 		// Enumeration

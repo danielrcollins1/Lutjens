@@ -212,7 +212,7 @@ void GermanPlayer::doNavalCombatPhase() {
 // Call result of British HUFF-DUFF detection
 void GermanPlayer::callHuffDuff() {
 	auto ship = bismarck;
-	ship->setDetected();
+	ship->noteDetected();
 	cgame << "HUFF-DUFF: German ship near "
 		<< SearchBoard::instance()
 			->randSeaWithinOne(ship->getPosition())
@@ -256,7 +256,7 @@ void GermanPlayer::checkGeneralSearch(int roll) {
 		// Announce result
 		int visibility = GameDirector::instance()->getVisibility();
 		if (visibility <= searchStrength) {
-			ship->setDetected();
+			ship->noteDetected();
 			cgame << "General Search: " << ship->getName() 
 				<< " found in " << pos << endl;
 		}
@@ -361,12 +361,7 @@ void GermanPlayer::printAllShips() const {
 	}
 }
 
-// Was any ship ever detected by any means?
-bool GermanPlayer::wasAnyShipDetected() const {
-	for (auto& ship: shipList) {
-		if (ship.wasDetected()) {
-			return true;
-		}
-	}
-	return false;
+// How many times was our flagship detected?
+int GermanPlayer::getTimesFlagshipDetected() const {
+	return bismarck->getTimesDetected();
 }

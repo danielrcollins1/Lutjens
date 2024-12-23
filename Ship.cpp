@@ -28,11 +28,11 @@ Ship::Ship(string name, Type type,
 	onPatrol = false;
 	tookMoveTurn = false;
 	loseMoveTurn = false;
-	isDetected = false;
 	fuelLost = 0;
 	midshipsLost = 0;
 	evasionLostTemp = 0;
 	evasionLostPerm = 0;
+	timesDetected = 0;
 }
 
 // Get the name
@@ -310,20 +310,20 @@ void Ship::setLoseMoveTurn() {
 //   Search, shadow, general search, or HUFF-DUFF,
 //   but not reveal for convoy attack.
 //   Used for statistical models (not part of game).
-void Ship::setDetected() {
-	isDetected = true;	
+void Ship::noteDetected() {
+	timesDetected++;
 }
 
-// Check if we were ever detected by any means
-bool Ship::wasDetected() const {
-	return isDetected;
+// Check how many times we were detected by any means
+int Ship::getTimesDetected() const {
+	return timesDetected;	
 }
 
 // Note that we have been located by search/shadow
 void Ship::setLocated() {
 	assert(!locatedHistory.empty());
 	locatedHistory.back() = true;
-	setDetected();
+	noteDetected();
 }
 
 // Check if we were located by search/shdow on a given turn

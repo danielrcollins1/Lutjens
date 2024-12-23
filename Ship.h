@@ -26,21 +26,21 @@ class Ship
 		int getMidships() const;
 		int getFuel() const;
 		int getSpeed() const;
+		int getTimesDetected() const;
 		bool isOnPatrol() const;
 		bool isInPort() const;
 		bool isSunk() const;
 		bool isInNight() const;
 		bool isInFog() const;
 		bool enteredPort() const;
-		bool wasDetected() const;
 		bool wasLocated(int turnsAgo) const;
 		void doAvailability();
 		void setLocated();
-		void setDetected();
 		void setLoseMoveTurn();
 		void loseMidships(int loss);
 		void loseEvasion(int loss);
 		void checkEvasionRepair();
+		void noteDetected();
 		
 		// Movement functions
 		GridCoordinate getPosition() const;
@@ -61,10 +61,10 @@ class Ship
 		bool onPatrol;
 		bool tookMoveTurn;
 		bool loseMoveTurn;
-		bool isDetected;
 		int fuelMax, fuelLost;
 		int midshipsMax, midshipsLost;
 		int evasionMax, evasionLostTemp, evasionLostPerm;
+		int timesDetected;
 		GridCoordinate position;
 		std::vector<std::vector<GridCoordinate>> moveHistory;
 		std::vector<GridCoordinate> waypoints;

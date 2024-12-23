@@ -51,26 +51,36 @@ void runLargeSeries() {
 	// Initialize series
 	seedRandom();
 	cgame.turnOff();
-	int numGermansFound = 0;
-	int numSomeConvoySunk = 0;
+	int gamesFlagshipDetected = 0;
+	int gamesConvoySunk = 0;
+	int totalFlagshipDetections = 0;
+	int totalConvoysSunk = 0;
 	
 	// Run series
 	for (int i = 0; i < NUM_GAMES; i++) {
 		GameDirector::initGame();
 		auto game = GameDirector::instance();
 		game->doGameLoop();
-		if (game->wasAnyShipDetected()) {
-			numGermansFound++;			
+		if (game->getTimesFlagshipDetected() > 0) {
+			gamesFlagshipDetected++;			
 		}
 		if (game->getConvoysSunk() > 0) {
-			numSomeConvoySunk++;	
+			gamesConvoySunk++;	
 		}
+		totalFlagshipDetections += game->getTimesFlagshipDetected();
+		totalConvoysSunk += game->getConvoysSunk();
 	}
 	
 	// Report statistics
 	cout << fixed << showpoint << setprecision(2);
-	cout << "Ratio Germans found: " 
-		<< (float) numGermansFound / NUM_GAMES << "\n";
-	cout << "Ratio some convoy sunk: " 
-		<< (float) numSomeConvoySunk / NUM_GAMES << "\n";
+	cout << "Games flagship detected: " 
+		<< (float) gamesFlagshipDetected / NUM_GAMES << "\n";
+	cout << "Games convoy sunk: " 
+		<< (float) gamesConvoySunk / NUM_GAMES << "\n";
+	cout << "Mean flagship detections: "
+		<< (float) totalFlagshipDetections / NUM_GAMES << "\n";		
+	cout << "Mean convoys sunk: " 
+		<< (float) totalConvoysSunk / NUM_GAMES << "\n";
+	cout << "Convoys/detections ratio: "
+		<< (float) totalConvoysSunk / totalFlagshipDetections << "\n";
 }

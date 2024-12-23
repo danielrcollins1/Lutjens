@@ -337,7 +337,7 @@ void GameDirector::checkAttack(Ship& target, bool inSeaPhase)
 	}
 }
 
-// Was any German ship ever detected by any means?
-bool GameDirector::wasAnyShipDetected() const {
-	return germanPlayer->wasAnyShipDetected();	
+// Get the number of times the German flagship was detected
+int GameDirector::getTimesFlagshipDetected() const {
+	return germanPlayer->getTimesFlagshipDetected();	
 }

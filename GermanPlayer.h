@@ -24,7 +24,7 @@ class GermanPlayer
 		void checkGeneralSearch(int roll);
 		void checkConvoyResult(int roll);
 		void printAllShips() const;
-		bool wasAnyShipDetected() const;
+		int getTimesFlagshipDetected() const;
 
 	private:
 
