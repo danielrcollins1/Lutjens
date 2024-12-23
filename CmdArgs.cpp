@@ -20,7 +20,8 @@ CmdArgs::CmdArgs() {
 void CmdArgs::printOptions() const {
 	std::cout << "Command line options available:\n"
 		<< "\t-a automate British player\n"
-		<< "\t-l large series of games\n";
+		<< "\t-l large series of games\n"
+		<< "\t-f finish on turn number\n";
 }
 
 // Parse the command-line arguments
@@ -31,6 +32,7 @@ void CmdArgs::parseArgs(int argc, char** argv) {
 			switch (arg[1]) {
 				case 'l': runLargeSeries = true; // & fall through
 				case 'a': automateBritish = true; break;
+				case 'f': lastTurn = parseArgAsInt(arg); break;
 				default: exitAfterArgs = true; break;
 			}
 		}
@@ -38,4 +40,13 @@ void CmdArgs::parseArgs(int argc, char** argv) {
 			exitAfterArgs = true;
 		}
 	}
+}
+
+// Parse an argument as an integer
+//   Format as -a=###
+int CmdArgs::parseArgAsInt(char *s) {
+	if (strlen(s) > 3 && s[2] == '=') {
+		return atoi(s + 3);
+	}
+	return -1;
 }

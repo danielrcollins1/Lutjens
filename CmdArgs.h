@@ -20,6 +20,7 @@ class CmdArgs
 		bool isExitAfterArgs() const { return exitAfterArgs; }
 		bool isAutomatedBritish() const { return automateBritish; }
 		bool isRunLargeSeries() const { return runLargeSeries; }
+		int getLastTurn() const { return lastTurn; }
 
 	private:
 
@@ -28,9 +29,11 @@ class CmdArgs
 		bool exitAfterArgs = false;
 		bool automateBritish = false;
 		bool runLargeSeries = false;
+		int lastTurn = -1;
 
 		// Functions
 		CmdArgs();
+		int parseArgAsInt(char *s);
 };
 
 #endif

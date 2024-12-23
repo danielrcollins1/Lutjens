@@ -47,6 +47,7 @@ class GameDirector
 		GermanPlayer* germanPlayer = nullptr;
 		BritishPlayerInterface* britishPlayer = nullptr;
 		int turn = START_TURN;
+		int finishTurn = FINISH_TURN;
 		int visibility = 4;
 		bool foggy = true;
 		int convoysSunk = 0;

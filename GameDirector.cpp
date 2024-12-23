@@ -31,11 +31,12 @@ void GameDirector::initGame() {
 GameDirector::GameDirector() {
 	logStartTime();
 	germanPlayer = new GermanPlayer;
-	if (CmdArgs::instance()->isAutomatedBritish()) {
-		britishPlayer = new BritishPlayerComputer;	
-	}
-	else {
-		britishPlayer = new BritishPlayerHuman;
+	auto args = CmdArgs::instance();
+	britishPlayer = args->isAutomatedBritish() ?
+		(BritishPlayerInterface*) new BritishPlayerComputer :
+		(BritishPlayerInterface*) new BritishPlayerHuman;
+	if (args->getLastTurn() > 0) {
+		finishTurn = args->getLastTurn();	
 	}
 }
 
@@ -67,7 +68,7 @@ bool GameDirector::isGameOver() const {
 	auto bismarck = germanPlayer->getBismarck();
 	return bismarck.isSunk()        // Rule 12.11
 		|| bismarck.enteredPort()   // Rule 12.12
-		|| turn > FINISH_TURN;      // Rule 12.14
+		|| turn > finishTurn;       // Rule 12.14
 }
 
 // Do the game loop
