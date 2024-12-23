@@ -136,15 +136,22 @@ int Ship::maxSpeed() const {
 	}
 	else if (evasion <= 15 || getFuel() <= 0) {
 		int turn = GameDirector::instance()->getTurn();
-		return turn % 2 ? 0 : 1;
+		return turn % 2 ? 0 : 1; // speed 0.5
 	}
 	else if (evasion <= 24) {
 		return 1;		
 	}
-	else {
+	else if (evasion <= 34) {
 		int lastTurnSpeed = moveHistory.empty() ? 
 			0 : moveHistory.back().size();
-		return lastTurnSpeed > 1 ? 1 : 2;
+		return lastTurnSpeed > 1 ? 1 : 2; // speed 1.5
+	}
+	else {
+		// No ship in published game has a speed this high.
+		// At this point, search board speed would be full 2/turn.
+		// A few destroyers/cruisers in WWII had speeds up to 45 knots.
+		cerr << "Ship evasion above game allowances.\n";
+		return 2;		
 	}
 }
 
@@ -228,7 +235,7 @@ void Ship::doMovement() {
 	checkEvasionRepair();
 }
 
-// Do German ship first-turn breakout bonus move
+// Do German ship first-turn breakout bonus move (Rule 5.28)
 //   We use the first waypoint as our location at end of move
 //   Waive most other rules restrictions here
 void Ship::doBreakoutBonusMove() {

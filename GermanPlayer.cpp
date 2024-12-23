@@ -32,9 +32,7 @@ void GermanPlayer::initWaypoints(Ship& ship) {
 	char row = 'A' + rollDie(6) - 1;
 	int col = 14 + rollDie(4);
 	GridCoordinate firstMove(row, col);
-
-	// Avoid Faeroe Islands
-	if (firstMove == GridCoordinate("F15")) {
+	if (firstMove == GridCoordinate("F15")) { // Avoid Faeroe
 		firstMove = GridCoordinate("G16");
 	}
 	ship.addWaypoint(firstMove);
