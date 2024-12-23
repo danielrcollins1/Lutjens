@@ -21,7 +21,8 @@ void CmdArgs::printOptions() const {
 	std::cout << "Command line options available:\n"
 		<< "\t-a automate British player\n"
 		<< "\t-l large series of games\n"
-		<< "\t-f finish on turn number\n";
+		<< "\t-f finish on turn number\n"
+		<< "\t-n number of games to run\n";
 }
 
 // Parse the command-line arguments
@@ -33,6 +34,7 @@ void CmdArgs::parseArgs(int argc, char** argv) {
 				case 'l': runLargeSeries = true; // & fall through
 				case 'a': automateBritish = true; break;
 				case 'f': lastTurn = parseArgAsInt(arg); break;
+				case 'n': numTrials = parseArgAsInt(arg); break;
 				default: exitAfterArgs = true; break;
 			}
 		}

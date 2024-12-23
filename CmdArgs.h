@@ -21,6 +21,7 @@ class CmdArgs
 		bool isAutomatedBritish() const { return automateBritish; }
 		bool isRunLargeSeries() const { return runLargeSeries; }
 		int getLastTurn() const { return lastTurn; }
+		int getNumTrials() const { return numTrials; }
 
 	private:
 
@@ -30,6 +31,7 @@ class CmdArgs
 		bool automateBritish = false;
 		bool runLargeSeries = false;
 		int lastTurn = -1;
+		int numTrials = -1;
 
 		// Functions
 		CmdArgs();
