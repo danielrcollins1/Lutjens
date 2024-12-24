@@ -155,6 +155,39 @@ int Ship::maxSpeed() const {
 	}
 }
 
+// Cap speed in early phase of game when needed.
+int Ship::startGameSpeedCap() {
+	auto game = GameDirector::instance();
+	int turn = game->getTurn();
+	int visibility = game->getVisibility();
+
+	// Avoid standard air picket when visible
+	if (position.getRow() < 'F'
+		&& position.getCol() > 15
+		&& 4 < turn && turn < 9
+		&& rollDie(100) <= 93)
+	{
+		if ((!isInNight() && visibility <= 6)
+			|| visibility <= 3)
+		{
+			// Make a random move east of picket
+			GridCoordinate randMove;
+			do {
+				randMove = SearchBoard::instance()
+					->randSeaWithinOne(position);
+			} while (randMove.getCol() <= 15);
+			if (randMove == position) {
+				return 0;	
+			}
+			else {
+				waypoints.insert(waypoints.begin(), randMove);
+				return 1;
+			}
+		}
+	}
+	return 2;	
+}
+
 // Check if we reached a waypoint
 void Ship::checkForWaypoint() {
 	while (!waypoints.empty() 
@@ -199,6 +232,7 @@ void Ship::doMovement() {
 		== GameDirector::START_TURN)
 	{
 		doBreakoutBonusMove();
+		//cout << *this << endl;
 		return;		
 	}
 
@@ -215,6 +249,7 @@ void Ship::doMovement() {
 		speed = 0;
 		loseMoveTurn = false;
 	}
+	speed = min(speed, startGameSpeedCap());
 	assert(speed <= 2);
 	
 	// Try to perform movement

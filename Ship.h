@@ -78,6 +78,7 @@ class Ship
 		GridCoordinate getNextZone() const;
 		void checkForWaypoint();
 		int maxSpeed() const;
+		int startGameSpeedCap();
 		void applyTempEvasionLoss(int midshipsLost);
 		void doBreakoutBonusMove();
 };
