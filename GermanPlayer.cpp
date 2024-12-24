@@ -27,9 +27,9 @@ void GermanPlayer::initWaypoints(Ship& ship) {
 
 	// First-turn location random in box A-F, 15-18
 	//   (Note mini-game LRS solutions suggested row ratios 3:3:4,
-	//   and columns 1:4:4:4; but in testing columns made no difference,
-	//   and rows worse, so we use uniform distribution for simplicity.)
-	char row = 'A' + rollDie(6) - 1;
+	//   and columns 1:4:4:4; but testing here shows otherwise.)
+	char row = rollDie(100) <= 90 ?
+		'A' + rollDie(4) - 1 : 'E' + rollDie(2) - 1;
 	int col = 14 + rollDie(4);
 	GridCoordinate firstMove(row, col);
 	if (firstMove == GridCoordinate("F15")) { // Avoid Faeroe
