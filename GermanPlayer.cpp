@@ -11,13 +11,13 @@ GermanPlayer::GermanPlayer() {
 	bb.setPosition("F20");
 	initWaypoints(bb);
 	shipList.push_back(bb);
-	bismarck = &shipList[0];
+	flagship = &shipList[0];
 }
 
-// Get Bismarck for read-only
-const Ship& GermanPlayer::getBismarck() const {
-	assert(bismarck != nullptr);
-	return *bismarck;
+// Get flagship for read-only
+const Ship& GermanPlayer::getFlagship() const {
+	assert(flagship != nullptr);
+	return *flagship;
 }
 
 // Initialize a German ship's path waypoints
@@ -190,7 +190,7 @@ void GermanPlayer::doNavalCombatPhase() {
 
 // Call result of British HUFF-DUFF detection
 void GermanPlayer::callHuffDuff() {
-	auto ship = bismarck;
+	auto ship = flagship;
 	ship->noteDetected();
 	cgame << "HUFF-DUFF: German ship near "
 		<< SearchBoard::instance()
@@ -216,7 +216,7 @@ const int GS_VALUES[GS_ROWS][GS_COLS] = {
 //   See Basic Game Tables Card: Chance Table
 void GermanPlayer::checkGeneralSearch(int roll) {
 	assert(3 <= roll && roll <= 9);
-	auto ship = bismarck;
+	auto ship = flagship;
 	auto pos = ship->getPosition();
 	
 	// Check if general search possible
@@ -271,7 +271,7 @@ char GermanPlayer::generalSearchColumn(const GridCoordinate& zone) {
 void GermanPlayer::checkConvoyResult(int roll) {
 	assert(10 <= roll && roll <= 12);
 	auto board = SearchBoard::instance();
-	auto ship = bismarck;
+	auto ship = flagship;
 	auto pos = ship->getPosition();
 	if (!ship->wasLocated(0)     // Rule 10.231
 		&& !ship->isInNight())   // Rule 11.13
@@ -310,7 +310,7 @@ void GermanPlayer::checkConvoyResult(int roll) {
 // Score destruction of a convoy
 //   And re-route to new destination
 void GermanPlayer::destroyConvoy() {
-	auto ship = bismarck;
+	auto ship = flagship;
 	auto location = ship->getPosition();
 	cgame << "CONVOY SUNK: In zone " << location 
 		<< " by " << ship->getName() << endl;
@@ -321,7 +321,7 @@ void GermanPlayer::destroyConvoy() {
 
 // After destroying a convoy, pick a new target
 void GermanPlayer::pickNewRoute() {
-	auto ship = bismarck;
+	auto ship = flagship;
 	ship->clearWaypoints();
 	bool isOnAtlantic = ship->getPosition().getRow() <= 'K';
 	int chanceAtlantic = isOnAtlantic ? 1: 5;
@@ -342,13 +342,13 @@ void GermanPlayer::printAllShips() const {
 
 // How many times was our flagship detected?
 int GermanPlayer::getTimesFlagshipDetected() const {
-	return bismarck->getTimesDetected();
+	return flagship->getTimesDetected();
 }
 
 // Check if we want to search
 //   (Only in response to shadow this turn.)
 bool GermanPlayer::trySearch() {
-	return bismarck->wasShadowed(0);
+	return flagship->wasShadowed(0);
 }
 
 // Resolve any search attempts

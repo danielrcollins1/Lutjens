@@ -65,9 +65,9 @@ void GameDirector::logStartTime() {
 
 // Is the game over? (Rule 12.1)
 bool GameDirector::isGameOver() const {
-	auto bismarck = germanPlayer->getBismarck();
-	return bismarck.isSunk()        // Rule 12.11
-		|| bismarck.enteredPort()   // Rule 12.12
+	auto flagship = germanPlayer->getFlagship();
+	return flagship.isSunk()        // Rule 12.11
+		|| flagship.enteredPort()   // Rule 12.12
 		|| turn > finishTurn;       // Rule 12.14
 }
 

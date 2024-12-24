@@ -13,7 +13,7 @@ class GermanPlayer
 {
 	public:
 		GermanPlayer();
-		const Ship& getBismarck() const;
+		const Ship& getFlagship() const;
 		void doAvailabilityPhase();
 		void doShadowPhase();
 		void doSeaMovementPhase();
@@ -31,7 +31,7 @@ class GermanPlayer
 	private:
 
 		// Data
-		Ship* bismarck;
+		Ship* flagship;
 		std::vector<Ship> shipList;
 		
 		// Functions
