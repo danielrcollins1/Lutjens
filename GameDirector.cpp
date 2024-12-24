@@ -298,15 +298,17 @@ void GameDirector::checkShadow(Ship& target,
 }
 
 // Do air attack phase
+//   (Visibility must be less than X, per errata.)
 void GameDirector::doAirAttackPhase() {
-	if (!isGameOver()) {
+	if (!isGameOver() && visibility < 9) {
 		germanPlayer->doAirAttackPhase();
 	}
 }
 
 // Do naval combat phase
+//   (Visibility must be less than X, per errata.)
 void GameDirector::doNavalCombatPhase() {
-	if (!isGameOver()) {
+	if (!isGameOver() && visibility < 9) {
 		germanPlayer->doNavalCombatPhase();
 	}
 }
