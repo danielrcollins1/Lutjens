@@ -168,7 +168,7 @@ int Ship::startGameSpeedCap() {
 		&& 4 < turn && turn < 9
 		&& rollDie(100) <= 93)
 	{
-		if ((!isInNight() && visibility <= 6)
+		if ((isInDay() && visibility <= 6)
 			|| visibility <= 3)
 		{
 			// Make a random move east of picket
@@ -333,6 +333,11 @@ bool Ship::movedThrough(const GridCoordinate& zone) const {
 // Are we sunk?
 bool Ship::isSunk() const {
 	return getMidships() <= 0;	
+}
+
+// Are we in the day?
+bool Ship::isInDay() const {
+	return !isInNight();	
 }
 
 // Are we in the night?

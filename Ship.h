@@ -30,6 +30,7 @@ class Ship
 		bool isOnPatrol() const;
 		bool isInPort() const;
 		bool isSunk() const;
+		bool isInDay() const;
 		bool isInNight() const;
 		bool isInFog() const;
 		bool enteredPort() const;

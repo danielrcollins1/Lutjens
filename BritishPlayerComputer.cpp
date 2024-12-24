@@ -24,8 +24,8 @@ void BritishPlayerComputer::searchZones(
 	int visibility = director->getVisibility();
 	for (auto zone: zones) {
 		if (!director->isInFog(zone)) {
-			int strength = director->isInNight(zone) ? 
-				nightStrength : dayStrength;
+			int strength = director->isInDay(zone) ? 
+				dayStrength : nightStrength;
 			if (strength >= visibility) {
 				director->searchGermanShips(zone);			
 			}

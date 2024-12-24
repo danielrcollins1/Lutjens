@@ -100,7 +100,7 @@ int GameDirector::getVisibility() const {
 	return visibility;	
 }
 
-// Get the current night state
+// Get the current night state (Rule 11.11)
 GameDirector::NightState GameDirector::getNightState() const {
 	switch (turn % 6) {
 		case 0: return NIGHT_SOUTH;
@@ -130,6 +130,11 @@ bool GameDirector::isInNight(const GridCoordinate& zone) const {
 		case NIGHT_ALL: return true;
 		default: return false;
 	}
+}
+
+// Is this zone currently in day light?
+bool GameDirector::isInDay(const GridCoordinate& zone) const {
+	return !isInNight(zone);	
 }
 
 // Is this zone currently in fog?

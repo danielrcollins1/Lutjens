@@ -400,7 +400,7 @@ void GermanPlayer::resolveSearch() {
 			// Get search strength
 			int searchStrength = 1;
 			if (ship.isOnPatrol()) {
-				searchStrength = ship.isInNight() ? 3 : 4;
+				searchStrength = ship.isInDay() ? 4 : 3;
 			}
 			
 			// Do the search

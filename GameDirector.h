@@ -28,6 +28,7 @@ class GameDirector
 		void doEndGame();
 		int getTurn() const;
 		int getVisibility() const;
+		bool isInDay(const GridCoordinate& zone) const;
 		bool isInNight(const GridCoordinate& zone) const;
 		bool isInFog(const GridCoordinate& zone) const;
 		bool searchGermanShips(const GridCoordinate& zone);
