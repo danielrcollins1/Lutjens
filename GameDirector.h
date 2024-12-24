@@ -30,7 +30,8 @@ class GameDirector
 		int getVisibility() const;
 		bool isInNight(const GridCoordinate& zone) const;
 		bool isInFog(const GridCoordinate& zone) const;
-		void checkSearch(const GridCoordinate& zone);
+		bool searchGermanShips(const GridCoordinate& zone);
+		bool searchBritishShips(const GridCoordinate& zone);
 		void checkShadow(Ship& target,
 			const GridCoordinate& knownPos, bool inSearchPhase);
 		void checkAttack(Ship& target, bool inAirPhase);

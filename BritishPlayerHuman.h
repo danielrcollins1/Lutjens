@@ -27,6 +27,9 @@ class BritishPlayerHuman: public BritishPlayerInterface
 		void resolveSearch() override;
 		void resolveShadow(const Ship& target, bool& heldContact) override;
 		void resolveAttack(int& midshipsLost, int& evasionLost) override;
+		
+		// Response to enemy request
+		bool checkSearch(const GridCoordinate& zone);
 };
 
 #endif

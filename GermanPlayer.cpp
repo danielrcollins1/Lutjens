@@ -125,6 +125,7 @@ void GermanPlayer::targetAnyConvoyBreakout(Ship& ship) {
 
 // Do unit availability phase
 void GermanPlayer::doAvailabilityPhase() {
+	foundShipZones.clear();
 	for (auto& ship: shipList) {
 		ship.doAvailability();
 	}
@@ -151,7 +152,8 @@ void GermanPlayer::doSeaMovementPhase() {
 }
 
 // Check for search by British player
-void GermanPlayer::checkSearch(const GridCoordinate& zone) {
+bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
+	bool anyFound = false;
 	auto director = GameDirector::instance();
 	for (auto& ship: shipList) {
  		if (ship.getPosition() == zone) 
@@ -159,6 +161,7 @@ void GermanPlayer::checkSearch(const GridCoordinate& zone) {
 			cgame << ship.getTypeName() 
 				<< " found in " << zone << endl;
 			ship.setLocated();
+			anyFound = true;
 		}
 		else if (ship.movedThrough(zone)
 			&& director->isPassThroughSearchOn())
@@ -166,8 +169,10 @@ void GermanPlayer::checkSearch(const GridCoordinate& zone) {
 			cgame << ship.getTypeAndEvasion()
 				<< " seen moving through " << zone << endl;
 			director->checkShadow(ship, zone, true);
+			anyFound = true;
 		}
 	}
+	return anyFound;
 }
 
 // Do air attack phase
@@ -376,13 +381,36 @@ int GermanPlayer::getTimesFlagshipDetected() const {
 	return flagship->getTimesDetected();
 }
 
-// Check if we want to search
-//   (Only in response to shadow this turn.)
+// Do we want to search now?
 bool GermanPlayer::trySearch() {
-	return flagship->wasShadowed(0);
+	for (auto& ship: shipList) {
+		if (ship.wasShadowed(0)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 // Resolve any search attempts
 void GermanPlayer::resolveSearch() {
-	// TODO: stub
+	for (auto& ship: shipList) {
+		if (ship.wasShadowed(0)) {
+			auto game = GameDirector::instance();
+
+			// Get search strength
+			int searchStrength = 1;
+			if (ship.isOnPatrol()) {
+				searchStrength = ship.isInNight() ? 3 : 4;
+			}
+			
+			// Do the search
+			if (searchStrength >= game->getVisibility()) {
+				auto zone = ship.getPosition();
+				if (game->searchBritishShips(zone)) {
+					foundShipZones.push_back(zone);
+					clog << "British ships found in " << zone << "\n";
+				}
+			}
+		}
+	}
 }

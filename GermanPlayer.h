@@ -17,10 +17,10 @@ class GermanPlayer
 		void doAvailabilityPhase();
 		void doShadowPhase();
 		void doSeaMovementPhase();
-		void checkSearch(const GridCoordinate& zone);
 		void doAirAttackPhase();
 		void doNavalCombatPhase();
 		void doChancePhase();
+		bool checkSearch(const GridCoordinate& zone);
 		bool trySearch();
 		void resolveSearch();
 		void printAllShips() const;
@@ -31,6 +31,7 @@ class GermanPlayer
 		// Data
 		Ship* flagship;
 		std::vector<Ship> shipList;
+		std::vector<GridCoordinate> foundShipZones;
 		
 		// Functions
 		void initWaypoints(Ship& ship);

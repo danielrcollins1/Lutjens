@@ -29,6 +29,9 @@ class BritishPlayerInterface
 		virtual void resolveSearch() = 0;
 		virtual void resolveShadow(const Ship& target, bool& heldContact) = 0;
 		virtual void resolveAttack(int& midshipsLost, int& evasionLost) = 0;
+
+		// Response to enemy request
+		virtual bool checkSearch(const GridCoordinate& zone) = 0;
 };
 
 #endif

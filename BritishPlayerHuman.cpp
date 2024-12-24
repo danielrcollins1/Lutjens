@@ -66,7 +66,7 @@ void BritishPlayerHuman::resolveSearch() {
 			cout << "> Cannot search in fog.\n";
 			continue;
 		}
-		director->checkSearch(zone);
+		director->searchGermanShips(zone);
 	}
 }
 
@@ -88,4 +88,11 @@ void BritishPlayerHuman::resolveAttack(int& midshipsLost, int& evasionLost)
 	cout << "Resolve attack on the Battle Board.\n";
 	cout << "Enter midships and evasion damage from table: ";
 	cin >> midshipsLost >> evasionLost;
+}
+
+// Respond to enemy search attempt
+bool BritishPlayerHuman::checkSearch(const GridCoordinate& zone) {
+	cout << "Opponent searches in " << zone << ".\n";
+	cout << "Are ships present there (y/n)? ";
+	return getUserYes();
 }

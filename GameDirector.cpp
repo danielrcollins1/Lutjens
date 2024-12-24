@@ -195,9 +195,14 @@ bool GameDirector::isPassThroughSearchOn() const {
 	return turn > START_TURN;
 }
 
-// Check British attempt to search a zone
-void GameDirector::checkSearch(const GridCoordinate& zone) {
-	germanPlayer->checkSearch(zone);
+// Search a zone for German ships
+bool GameDirector::searchGermanShips(const GridCoordinate& zone) {
+	return germanPlayer->checkSearch(zone);
+}
+
+// Search a zone for British ships
+bool GameDirector::searchBritishShips(const GridCoordinate& zone) {
+	return britishPlayer->checkSearch(zone);
 }
 
 // Do chance phase

@@ -32,6 +32,10 @@ class BritishPlayerComputer: public BritishPlayerInterface
 		void resolveShadow(const Ship& target, bool& heldContact) override {}
 		void resolveAttack(int& midshipsLost, int& evasionLost) override {}
 		
+		// Response to enemy request
+		bool checkSearch(const GridCoordinate& zone) override
+			{ return false; }
+		
 	private:
 		std::vector<int> initialAirPatrols;
 		std::vector<GridCoordinate> coastalFreeSearchList;
