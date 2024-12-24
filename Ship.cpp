@@ -183,32 +183,6 @@ GridCoordinate Ship::getNextZone() const {
 	return position;
 }
 
-// Turn limit for start game speed cap
-const int EARLY_GAME_END_TURN = 8;
-
-// Randomly adjust speed at early stage of game
-//     Adds unpredictability & gets more aggressive as
-//     weather is more favorable (less visibility)
-int Ship::startGameSpeedCap() const {
-	int cap = 2;
-	auto game = GameDirector::instance();
-	if (position.getRow() < 'G'
-		&& position.getCol() > 15
-		&& game->getTurn() <= EARLY_GAME_END_TURN)
-	{
-		// Generate a number between 1 and 18
-		int roll = game->getVisibility() + rollDie(6);
-		if (this->isInNight()) {
-			roll += 3;	
-		}
-
-		// Cut in tiers of 3 units
-		cap = roll / 4;
-		cap = min(cap, 2);
-	}
-	return cap;
-}
-
 // Do movement for turn
 void Ship::doMovement() {
 	auto board = SearchBoard::instance();
@@ -241,7 +215,6 @@ void Ship::doMovement() {
 		speed = 0;
 		loseMoveTurn = false;
 	}
-	speed = min(speed, startGameSpeedCap());
 	assert(speed <= 2);
 	
 	// Try to perform movement
