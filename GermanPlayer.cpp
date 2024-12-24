@@ -344,3 +344,14 @@ void GermanPlayer::printAllShips() const {
 int GermanPlayer::getTimesFlagshipDetected() const {
 	return bismarck->getTimesDetected();
 }
+
+// Check if we want to search
+//   (Only in response to shadow this turn.)
+bool GermanPlayer::trySearch() {
+	return bismarck->wasShadowed(0);
+}
+
+// Resolve any search attempts
+void GermanPlayer::resolveSearch() {
+	// TODO: stub
+}

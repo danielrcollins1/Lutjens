@@ -34,8 +34,10 @@ class Ship
 		bool isInFog() const;
 		bool enteredPort() const;
 		bool wasLocated(int turnsAgo) const;
+		bool wasShadowed(int turnsAgo) const;
 		void doAvailability();
 		void setLocated();
+		void setShadowed();
 		void setLoseMoveTurn();
 		void loseMidships(int loss);
 		void loseEvasion(int loss);
@@ -68,6 +70,7 @@ class Ship
 		GridCoordinate position;
 		std::vector<std::vector<GridCoordinate>> moveHistory;
 		std::vector<GridCoordinate> waypoints;
+		std::vector<bool> shadowedHistory;
 		std::vector<bool> locatedHistory;
 
 		// Constants

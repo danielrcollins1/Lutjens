@@ -175,12 +175,15 @@ void GameDirector::doSeaMovementPhase() {
 // Do search phase
 void GameDirector::doSearchPhase() {
 
-	// Ask British player for search attempts
+	// Ask players for search attempts
 	if (turn >= START_TURN
 		&& visibility < 9)
 	{
 		if (britishPlayer->trySearch()) {
 			britishPlayer->resolveSearch();		
+		}
+		if (germanPlayer->trySearch()) {
+			germanPlayer->resolveSearch();		
 		}
 	}
 }
@@ -293,7 +296,7 @@ void GameDirector::checkShadow(Ship& target,
 		if (holdContact) {
 			cgame << target.getTypeName() << " shadowed to zone " 
 				<< target.getPosition() << endl;
-			target.setLocated();
+			target.setShadowed();
 		}
 	}
 }

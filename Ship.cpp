@@ -106,6 +106,7 @@ bool Ship::isOnPatrol() const {
 // Do setup in first phase of turn
 void Ship::doAvailability() {
 	tookMoveTurn = false;
+	shadowedHistory.push_back(false);
 	locatedHistory.push_back(false);
 }
 
@@ -369,11 +370,25 @@ void Ship::setLocated() {
 	noteDetected();
 }
 
-// Check if we were located by search/shdow on a given turn
+// Note that we have been shadowed
+void Ship::setShadowed() {
+	assert(!locatedHistory.empty());
+	locatedHistory.back() = true;
+	setLocated();
+}
+
+// Check if we were located by search/shadow on a given turn
 bool Ship::wasLocated(int turnsAgo) const {
 	assert(0 <= turnsAgo 
 		&& turnsAgo < (int) locatedHistory.size());
 	return locatedHistory.rbegin()[turnsAgo];
+}
+
+// Check if we were shadowed on a given turn
+bool Ship::wasShadowed(int turnsAgo) const {
+	assert(0 <= turnsAgo 
+		&& turnsAgo < (int) locatedHistory.size());
+	return shadowedHistory.rbegin()[turnsAgo];
 }
 
 // How far did we move on the search board this turn?

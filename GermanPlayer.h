@@ -23,6 +23,8 @@ class GermanPlayer
 		void callHuffDuff();
 		void checkGeneralSearch(int roll);
 		void checkConvoyResult(int roll);
+		bool trySearch();
+		void resolveSearch();
 		void printAllShips() const;
 		int getTimesFlagshipDetected() const;
 
