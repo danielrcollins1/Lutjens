@@ -46,7 +46,7 @@ void GermanPlayer::initWaypoints(Ship& ship) {
 			GridCoordinate(firstMove.getRow(), 15 - rollDie(3)));
 
 		// North of Iceland (Denmark Straight)
-		if (rollDie(100) <= 66) {
+		if (rollDie(100) <= 85) {
 			ship.addWaypoint("B7");
 			denmarkStrait = true;
 		}
