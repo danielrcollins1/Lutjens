@@ -20,9 +20,7 @@ class GermanPlayer
 		void checkSearch(const GridCoordinate& zone);
 		void doAirAttackPhase();
 		void doNavalCombatPhase();
-		void callHuffDuff();
-		void checkGeneralSearch(int roll);
-		void checkConvoyResult(int roll);
+		void doChancePhase();
 		bool trySearch();
 		void resolveSearch();
 		void printAllShips() const;
@@ -40,7 +38,10 @@ class GermanPlayer
 		void targetAfricanConvoy(Ship& ship);
 		void targetAnyConvoyBreakout(Ship& ship);
 		char generalSearchColumn(const GridCoordinate& zone);
-		void destroyConvoy();
+		void checkGeneralSearch(Ship& ship, int roll);
+		void checkConvoyResult(Ship& ship, int roll);
+		void callHuffDuff(Ship& ship);
+		void destroyConvoy(Ship& ship);
 		void pickNewRoute();
 };
 

@@ -34,6 +34,7 @@ class GameDirector
 			const GridCoordinate& knownPos, bool inSearchPhase);
 		void checkAttack(Ship& target, bool inAirPhase);
 		bool isPassThroughSearchOn() const;
+		bool wasConvoySunkToday() const;
 		void msgSunkConvoy();
 		int getConvoysSunk() const;
 		int getTimesFlagshipDetected() const;

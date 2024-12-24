@@ -202,29 +202,8 @@ void GameDirector::checkSearch(const GridCoordinate& zone) {
 // Do chance phase
 //   See Basic Game Tables Card: Chance Table
 void GameDirector::doChancePhase() {
-	if (turn >= START_TURN
-		&& !isGameOver())
-	{
-		int roll = rollDice(2, 6);
-		
-		// Huff-duff result
-		if (roll == 2) {
-			germanPlayer->callHuffDuff();
-		}
-	
-		// General Search results
-		else if (roll <= 9) {
-			germanPlayer->checkGeneralSearch(roll);
-		}
-		
-		// Convoy results
-		else if (roll <= 12) {
-			if (!convoySunkToday     // Rule 10.26
-				&& visibility < 9)   // Errata in General 16/2
-			{			
-				germanPlayer->checkConvoyResult(roll);
-			}
-		}
+	if (turn >= START_TURN && !isGameOver()) {
+		germanPlayer->doChancePhase();
 	}
 }
 
@@ -344,4 +323,9 @@ void GameDirector::checkAttack(Ship& target, bool inSeaPhase)
 // Get the number of times the German flagship was detected
 int GameDirector::getTimesFlagshipDetected() const {
 	return germanPlayer->getTimesFlagshipDetected();	
+}
+
+// Check if a convoy was sunk today
+bool GameDirector::wasConvoySunkToday() const {
+	return convoySunkToday;
 }

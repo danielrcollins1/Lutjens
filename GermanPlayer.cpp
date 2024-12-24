@@ -188,13 +188,47 @@ void GermanPlayer::doNavalCombatPhase() {
 	}
 }
 
+// Do chance phase
+//   See Basic Game Tables Card: Chance Table
+//   While RAW says British player makes this roll (Rule 10.1),
+//   it makes more sense for us with knowledge of ships on board.
+void GermanPlayer::doChancePhase() {
+	for (auto& ship: shipList) {
+		int roll = rollDice(2, 6);
+		
+		// Huff-duff result
+		if (roll == 2) {
+			callHuffDuff(ship);
+		}
+	
+		// General Search results
+		else if (roll <= 9) {
+			checkGeneralSearch(ship, roll);
+		}
+		
+		// Convoy results
+		else if (roll <= 12) {
+			auto game = GameDirector::instance();
+			if (!game->wasConvoySunkToday()     // Rule 10.26
+				&& game->getVisibility() < 9)   // Errata in General 16/2
+			{			
+				checkConvoyResult(ship, roll);
+			}
+		}
+		
+		// Error check
+		else {
+			cerr << "Unhandled roll in Chance Phase.\n";
+		}
+	}
+}
+
 // Call result of British HUFF-DUFF detection
-void GermanPlayer::callHuffDuff() {
-	auto ship = flagship;
-	ship->noteDetected();
+void GermanPlayer::callHuffDuff(Ship& ship) {
+	ship.noteDetected();
 	cgame << "HUFF-DUFF: German ship near "
 		<< SearchBoard::instance()
-			->randSeaWithinOne(ship->getPosition())
+			->randSeaWithinOne(ship.getPosition())
 		<< endl;
 }
 
@@ -214,14 +248,13 @@ const int GS_VALUES[GS_ROWS][GS_COLS] = {
 
 // Check a general search result
 //   See Basic Game Tables Card: Chance Table
-void GermanPlayer::checkGeneralSearch(int roll) {
+void GermanPlayer::checkGeneralSearch(Ship& ship, int roll) {
 	assert(3 <= roll && roll <= 9);
-	auto ship = flagship;
-	auto pos = ship->getPosition();
+	auto pos = ship.getPosition();
 	
 	// Check if general search possible
-	if (!ship->isInNight()       // Rule 11.13
-		&& !ship->isInFog()      // Rule 10.213
+	if (!ship.isInNight()       // Rule 11.13
+		&& !ship.isInFog()      // Rule 10.213
 		&& pos.getRow() >= 'E'   // Rule 10.211
 		&& pos.getCol() >= SearchBoard::instance()
 			->getPatrolLimitCol(pos.getRow()))
@@ -235,8 +268,8 @@ void GermanPlayer::checkGeneralSearch(int roll) {
 		// Announce result
 		int visibility = GameDirector::instance()->getVisibility();
 		if (visibility <= searchStrength) {
-			ship->noteDetected();
-			cgame << "General Search: " << ship->getName() 
+			ship.noteDetected();
+			cgame << "General Search: " << ship.getName() 
 				<< " found in " << pos << endl;
 		}
 	}
@@ -268,30 +301,29 @@ char GermanPlayer::generalSearchColumn(const GridCoordinate& zone) {
 }
 
 // Resolve a convoy result from the Chance Table
-void GermanPlayer::checkConvoyResult(int roll) {
+void GermanPlayer::checkConvoyResult(Ship& ship, int roll) {
 	assert(10 <= roll && roll <= 12);
 	auto board = SearchBoard::instance();
-	auto ship = flagship;
-	auto pos = ship->getPosition();
-	if (!ship->wasLocated(0)     // Rule 10.231
-		&& !ship->isInNight())   // Rule 11.13
+	auto pos = ship.getPosition();
+	if (!ship.wasLocated(0)     // Rule 10.231
+		&& !ship.isInNight())   // Rule 11.13
 	{
 		switch (roll) {
 	
 			// On convoy route
 			case 10:
 				if (board->isConvoyRoute(pos)) {
-					destroyConvoy();				
+					destroyConvoy(ship);				
 				}
 				break;
 	
 			// On patrol and within two
 			case 11:
-				if (ship->isOnPatrol()
+				if (ship.isOnPatrol()
 					&& board->isNearZoneType(pos, 2, 
 						&SearchBoard::isConvoyRoute))
 				{
-					destroyConvoy();				
+					destroyConvoy(ship);				
 				}
 				break;
 				
@@ -300,7 +332,7 @@ void GermanPlayer::checkConvoyResult(int roll) {
 				if (board->isNearZoneType(pos, 1, 
 					&SearchBoard::isConvoyRoute))
 				{
-					destroyConvoy();
+					destroyConvoy(ship);
 				}
 				break;
 		}
@@ -309,13 +341,12 @@ void GermanPlayer::checkConvoyResult(int roll) {
 
 // Score destruction of a convoy
 //   And re-route to new destination
-void GermanPlayer::destroyConvoy() {
-	auto ship = flagship;
-	auto location = ship->getPosition();
+void GermanPlayer::destroyConvoy(Ship& ship) {
+	auto location = ship.getPosition();
 	cgame << "CONVOY SUNK: In zone " << location 
-		<< " by " << ship->getName() << endl;
+		<< " by " << ship.getName() << endl;
 	GameDirector::instance()->msgSunkConvoy();
-	ship->setLoseMoveTurn();   // Rule 10.25
+	ship.setLoseMoveTurn();   // Rule 10.25
 	pickNewRoute();
 }
 
