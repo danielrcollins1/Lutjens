@@ -8,8 +8,9 @@
 */
 #ifndef GAMEDIRECTOR_H
 #define GAMEDIRECTOR_H
-#include "BritishPlayerInterface.h"
 #include "GermanPlayer.h"
+#include "BritishPlayerInterface.h"
+#include <vector>
 
 class GameDirector
 {
@@ -33,9 +34,9 @@ class GameDirector
 		void checkShadow(Ship& target,
 			const GridCoordinate& knownPos, bool inSearchPhase);
 		void checkAttack(Ship& target, bool inAirPhase);
-		bool isPassThroughSearchOn() const;
-		bool wasConvoySunkToday() const;
 		void msgSunkConvoy();
+		bool isPassThroughSearchOn() const;
+		bool wasConvoySunk(int daysAgo) const;
 		int getConvoysSunk() const;
 		int getTimesFlagshipDetected() const;
 
@@ -47,12 +48,11 @@ class GameDirector
 		static GameDirector* theInstance;
 		GermanPlayer* germanPlayer = nullptr;
 		BritishPlayerInterface* britishPlayer = nullptr;
+		std::vector<bool> dailyConvoySunk;
 		int turn = START_TURN;
 		int finishTurn = FINISH_TURN;
 		int visibility = 4;
 		bool foggy = true;
-		int convoysSunk = 0;
-		bool convoySunkToday = false;
 		
 		// Functions
 		GameDirector();

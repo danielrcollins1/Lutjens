@@ -365,15 +365,13 @@ int Ship::getTimesDetected() const {
 
 // Note that we have been located by search/shadow
 void Ship::setLocated() {
-	assert(!locatedHistory.empty());
 	locatedHistory.back() = true;
 	noteDetected();
 }
 
 // Note that we have been shadowed
 void Ship::setShadowed() {
-	assert(!locatedHistory.empty());
-	locatedHistory.back() = true;
+	shadowedHistory.back() = true;
 	setLocated();
 }
 

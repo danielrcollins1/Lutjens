@@ -30,14 +30,15 @@ void GameDirector::initGame() {
 // Constructor
 GameDirector::GameDirector() {
 	logStartTime();
-	germanPlayer = new GermanPlayer;
 	auto args = CmdArgs::instance();
+	germanPlayer = new GermanPlayer;
 	britishPlayer = args->isAutomatedBritish() ?
 		(BritishPlayerInterface*) new BritishPlayerComputer :
 		(BritishPlayerInterface*) new BritishPlayerHuman;
 	if (args->getLastTurn() > 0) {
 		finishTurn = args->getLastTurn();	
 	}
+	dailyConvoySunk.push_back(false);
 }
 
 // Destructor
@@ -139,7 +140,7 @@ bool GameDirector::isInFog(const GridCoordinate& zone) const {
 // Handle start of a new calendar day
 void GameDirector::checkNewDay() {
 	if (turn % 6 == 1) { // new day
-		convoySunkToday = false;
+		dailyConvoySunk.push_back(false);
 	}
 }
 
@@ -238,20 +239,26 @@ void GameDirector::rollVisibility() {
 
 // Get notice that a convoy was sunk
 void GameDirector::msgSunkConvoy() {
-	convoysSunk++;
-	convoySunkToday = true;	
-	clog << "(sunk convoy #" << convoysSunk << ")\n";
+	dailyConvoySunk.back() = true;
+	clog << "(sunk convoy #" << getConvoysSunk() << ")\n";
 }
 
-// Get number of conoys sunk
+// Get number of convoys sunk
 int GameDirector::getConvoysSunk() const {
-	return convoysSunk;	
+	return count(dailyConvoySunk.begin(), dailyConvoySunk.end(), true);
+}
+
+// Check if a convoy was sunk on a given day
+bool GameDirector::wasConvoySunk(int daysAgo) const {
+	assert(0 <= daysAgo 
+		&& daysAgo < (int) dailyConvoySunk.size());
+	return dailyConvoySunk.rbegin()[daysAgo];
 }
 
 // Do end-game reporting
 void GameDirector::doEndGame() {
 	cgame << "\nEND GAME\n";
-	cgame << "Convoys Sunk: " << convoysSunk << endl;
+	cgame << "Convoys Sunk: " << getConvoysSunk() << endl;
 	germanPlayer->printAllShips();
 }
 
@@ -323,9 +330,4 @@ void GameDirector::checkAttack(Ship& target, bool inSeaPhase)
 // Get the number of times the German flagship was detected
 int GameDirector::getTimesFlagshipDetected() const {
 	return germanPlayer->getTimesFlagshipDetected();	
-}
-
-// Check if a convoy was sunk today
-bool GameDirector::wasConvoySunkToday() const {
-	return convoySunkToday;
 }

@@ -209,7 +209,7 @@ void GermanPlayer::doChancePhase() {
 		// Convoy results
 		else if (roll <= 12) {
 			auto game = GameDirector::instance();
-			if (!game->wasConvoySunkToday()     // Rule 10.26
+			if (!game->wasConvoySunk(0)         // Rule 10.26
 				&& game->getVisibility() < 9)   // Errata in General 16/2
 			{			
 				checkConvoyResult(ship, roll);
