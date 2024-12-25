@@ -152,7 +152,7 @@ int Ship::maxSpeed() const {
 		// No ship in published game has a speed this high.
 		// At this point, search board speed would be full 2/turn.
 		// A few destroyers/cruisers in WWII had speeds up to 45 knots.
-		cerr << "Ship evasion above game allowances.\n";
+		cerr << "Error: Ship evasion above game allowances.\n";
 		return 2;		
 	}
 }
@@ -442,7 +442,7 @@ void Ship::applyTempEvasionLoss(int midshipsLost) {
 			break;		
 		default:
 			lossPerMidships = 0;
-			clog << "ERROR: Unhandled ship type "
+			cerr << "Error: Unhandled ship type "
 				<< " for temp evasion loss.\n";
 	}
 	evasionLostTemp += lossPerMidships * midshipsLost;

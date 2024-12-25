@@ -87,7 +87,7 @@ void GermanPlayer::targetAtlanticConvoy(Ship& ship) {
 		case 'G': col = rollDie(4); break;
 		case 'H': col = rollDie(5); break;
 		case 'I': col = rollDie(5) + 1; break;
-		default: cerr << "Error in Atlantic convoy column selection.\n";				
+		default: cerr << "Error: Unhandled Atlantic convoy column.\n";
 	}
 	GridCoordinate target(row, col);
 	ship.addWaypoint(target);
@@ -238,7 +238,7 @@ void GermanPlayer::doChancePhase() {
 		
 		// Error check
 		else {
-			cerr << "Unhandled roll in Chance Phase.\n";
+			cerr << "Error: Unhandled roll in Chance Phase.\n";
 		}
 	}
 }
