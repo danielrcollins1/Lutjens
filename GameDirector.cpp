@@ -76,7 +76,6 @@ bool GameDirector::isGameOver() const {
 void GameDirector::doGameLoop() {
 	while (!isGameOver()) {
 		cgame << "\nTURN " << turn << endl;
-		reportNightState();
 		checkNewDay();
 		doAvailabilityPhase();
 		doVisibilityPhase();
@@ -179,6 +178,7 @@ void GameDirector::doVisibilityPhase() {
 	cgame << "Visibility: " 
 		<< (visibility == VISIBILITY_X ? "X" : to_string(visibility))
 		<< (foggy ? ", with fog" : "") << endl;
+	reportNightState();
 }
 
 // Do shadow phase
@@ -268,7 +268,6 @@ void GameDirector::rollVisibility() {
 // Get notice that a convoy was sunk
 void GameDirector::msgSunkConvoy() {
 	dailyConvoySunk.back() = true;
-	clog << "(sunk convoy #" << getConvoysSunk() << ")\n";
 }
 
 // Get number of convoys sunk
