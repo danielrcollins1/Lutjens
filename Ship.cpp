@@ -177,7 +177,7 @@ int Ship::startGameSpeedCap() {
 			do {
 				randMove = SearchBoard::instance()
 					->randSeaWithinOne(position);
-			} while (randMove.getCol() <= 15);
+			} while (!isInInterval(16, randMove.getCol(), 18));
 			if (randMove == position) {
 				return 0;	
 			}
@@ -261,6 +261,10 @@ void Ship::doMovement() {
 			position = next;
 			moves.push_back(position);
 			checkForWaypoint();
+			if (isInPort()) {
+				clog << name << " entered port at " 
+					<< position << "\n";
+			}
 			//cout << *this << endl;
 		}
 	}
