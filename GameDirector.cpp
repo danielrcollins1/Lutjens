@@ -316,7 +316,6 @@ void GameDirector::checkShadow(Ship& target,
 }
 
 // Do air attack phase
-//   (Visibility must be less than X, per errata.)
 void GameDirector::doAirAttackPhase() {
 	if (!isGameOver() && !isVisibilityX()) {
 		germanPlayer->doAirAttackPhase();
@@ -324,7 +323,6 @@ void GameDirector::doAirAttackPhase() {
 }
 
 // Do naval combat phase
-//   (Visibility must be less than X, per errata.)
 void GameDirector::doNavalCombatPhase() {
 	if (!isGameOver() && !isVisibilityX()) {
 		germanPlayer->doNavalCombatPhase();
@@ -332,30 +330,40 @@ void GameDirector::doNavalCombatPhase() {
 }
 
 // Check if the British player attacks this ship
-void GameDirector::checkAttack(Ship& target, bool inSeaPhase) 
+void GameDirector::checkAttackOn(Ship& target, bool inSeaPhase) 
 {
-	// Ask if trying to attack
 	if (britishPlayer->tryAttack(target, inSeaPhase)) {
 		cgame << "Attack by " << (inSeaPhase ? "sea" : "air")
 			<< " on " << target.getShortDesc() << "\n";
 		if (inSeaPhase) {
 			target.setInCombat();
 		}
-		int midshipsLost, evasionLost;
-		britishPlayer->resolveAttack(midshipsLost, evasionLost);
+		resolveCombat(target);
+	}
+}
 
-		// Process damage
-		//   (Evasion loss only happens in conjunction with 
-		//    midships loss, per Battle Board combat tables.)
-		if (midshipsLost > 0) {
-			cgame << target.getName() << " takes "
-				<< midshipsLost << " midships and " 
-				<< evasionLost << " evasion damage.\n";
-			target.loseMidships(midshipsLost);
-			target.loseEvasion(evasionLost);
-			if (target.isSunk()) {
-				cgame << target.getName() << " is sunk!\n";	
-			}
+// Check if this ship attacks a British ship
+void GameDirector::checkAttackBy(Ship& attacker) {
+	cgame << attacker.getShortDesc() 
+		<< " attacks solo cruiser in " << attacker.getPosition() << "\n";
+	attacker.setInCombat();
+	resolveCombat(attacker);
+}
+
+// Get combat resolution with this German shop
+//   Note evasion loss only happens in conjunction
+//   with midships loss, per Battle Board tables
+void GameDirector::resolveCombat(Ship& ship) {
+	int midshipsLost, evasionLost;
+	britishPlayer->resolveAttack(midshipsLost, evasionLost);
+	if (midshipsLost > 0) {
+		cgame << ship.getName() << " takes "
+			<< midshipsLost << " midships and " 
+			<< evasionLost << " evasion damage.\n";
+		ship.loseMidships(midshipsLost);
+		ship.loseEvasion(evasionLost);
+		if (ship.isSunk()) {
+			cgame << ship.getName() << " is sunk!\n";	
 		}
 	}
 }

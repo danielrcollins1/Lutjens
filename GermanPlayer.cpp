@@ -179,16 +179,31 @@ bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 void GermanPlayer::doAirAttackPhase() {
 	for (auto& ship: shipList) {
 		if (ship.wasLocated(0)) {
-			GameDirector::instance()->checkAttack(ship, false);
+			GameDirector::instance()->checkAttackOn(ship, false);
 		}
 	}
 }
 
 // Do naval combat phase
 void GermanPlayer::doNavalCombatPhase() {
+	auto game = GameDirector::instance();
+
+	// Check for attacks by British on our ships
 	for (auto& ship: shipList) {
 		if (ship.wasLocated(0)) {
-			GameDirector::instance()->checkAttack(ship, true);
+			game->checkAttackOn(ship, true);
+		}
+	}
+	
+	// Check for attacks we can make on British ships
+	for (auto zone: foundShipZones) {
+		for (auto& ship: shipList) {
+			if (ship.getPosition() == zone
+				&& !ship.wasInCombat(0)
+				&& !ship.isSunk())
+			{
+				game->checkAttackBy(ship);							
+			}
 		}
 	}
 }
@@ -408,7 +423,8 @@ void GermanPlayer::resolveSearch() {
 			if (game->isSearchable(zone, strength)) {
 				if (game->searchBritishShips(zone)) {
 					foundShipZones.push_back(zone);
-					clog << "British ships found in " << zone << "\n";
+					cgame << "German player locates ship(s) in " 
+						<< zone << "\n";
 				}
 			}
 		}

@@ -37,7 +37,9 @@ class GameDirector
 		bool searchBritishShips(const GridCoordinate& zone);
 		void checkShadow(Ship& target,
 			const GridCoordinate& knownPos, bool inSearchPhase);
-		void checkAttack(Ship& target, bool inAirPhase);
+		void checkAttackBy(Ship& attacker);
+		void checkAttackOn(Ship& target, bool inAirPhase);
+		void resolveCombat(Ship& ship);
 		void msgSunkConvoy();
 		bool isPassThroughSearchOn() const;
 		bool wasConvoySunk(int daysAgo) const;
