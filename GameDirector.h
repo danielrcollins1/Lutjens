@@ -32,6 +32,7 @@ class GameDirector
 		bool isInDay(const GridCoordinate& zone) const;
 		bool isInNight(const GridCoordinate& zone) const;
 		bool isInFog(const GridCoordinate& zone) const;
+		bool isSearchable(const GridCoordinate& zone, int strength) const;
 		bool searchGermanShips(const GridCoordinate& zone);
 		bool searchBritishShips(const GridCoordinate& zone);
 		void checkShadow(Ship& target,

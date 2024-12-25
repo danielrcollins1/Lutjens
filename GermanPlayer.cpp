@@ -398,14 +398,14 @@ void GermanPlayer::resolveSearch() {
 			auto game = GameDirector::instance();
 
 			// Get search strength
-			int searchStrength = 1;
+			int strength = 1;
 			if (ship.isOnPatrol()) {
-				searchStrength = ship.isInDay() ? 4 : 3;
+				strength = ship.isInDay() ? 4 : 3;
 			}
 			
 			// Do the search
-			if (searchStrength >= game->getVisibility()) {
-				auto zone = ship.getPosition();
+			auto zone = ship.getPosition();
+			if (game->isSearchable(zone, strength)) {
 				if (game->searchBritishShips(zone)) {
 					foundShipZones.push_back(zone);
 					clog << "British ships found in " << zone << "\n";

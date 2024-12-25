@@ -150,6 +150,15 @@ bool GameDirector::isInFog(const GridCoordinate& zone) const {
 	return foggy && SearchBoard::instance()->isFogZone(zone);
 }
 
+// Is this zone currently searchable at the given search strength?
+bool GameDirector::isSearchable(
+	const GridCoordinate& zone, int strength) const
+{
+	return !isVisibilityX()
+		&& !isInFog(zone)
+		&& strength >= visibility;
+}
+
 // Handle start of a new calendar day
 void GameDirector::checkNewDay() {
 	if (turn % 6 == 1) { // new day

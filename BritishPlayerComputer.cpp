@@ -21,16 +21,11 @@ void BritishPlayerComputer::searchZones(
 	int dayStrength, int nightStrength)
 {
 	auto game = GameDirector::instance();
-	if (!game->isVisibilityX()) {
-		int visibility = game->getVisibility();
-		for (auto zone: zones) {
-			if (!game->isInFog(zone)) {
-				int strength = game->isInDay(zone) ? 
-					dayStrength : nightStrength;
-				if (strength >= visibility) {
-					game->searchGermanShips(zone);			
-				}
-			}
+	for (auto zone: zones) {
+		int strength = game->isInDay(zone) ? 
+			dayStrength : nightStrength;
+		if (game->isSearchable(zone, strength)) {
+			game->searchGermanShips(zone);			
 		}
 	}
 }
