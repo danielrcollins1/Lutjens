@@ -108,6 +108,7 @@ void Ship::doAvailability() {
 	tookMoveTurn = false;
 	shadowedHistory.push_back(false);
 	locatedHistory.push_back(false);
+	combatHistory.push_back(false);
 }
 
 // Clear all waypoints
@@ -380,6 +381,11 @@ void Ship::setShadowed() {
 	setLocated();
 }
 
+// Note that we have entered naval combat
+void Ship::setInCombat() {
+	combatHistory.back() = true;	
+}
+
 // Check if we were located by search/shadow on a given turn
 bool Ship::wasLocated(int turnsAgo) const {
 	assert(0 <= turnsAgo 
@@ -390,8 +396,15 @@ bool Ship::wasLocated(int turnsAgo) const {
 // Check if we were shadowed on a given turn
 bool Ship::wasShadowed(int turnsAgo) const {
 	assert(0 <= turnsAgo 
-		&& turnsAgo < (int) locatedHistory.size());
+		&& turnsAgo < (int) shadowedHistory.size());
 	return shadowedHistory.rbegin()[turnsAgo];
+}
+
+// Check if we were in naval combat on a given turn
+bool Ship::wasInCombat(int turnsAgo) const {
+	assert(0 <= turnsAgo 
+		&& turnsAgo < (int) combatHistory.size());
+	return combatHistory.rbegin()[turnsAgo];
 }
 
 // How far did we move on the search board this turn?

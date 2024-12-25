@@ -338,12 +338,15 @@ void GameDirector::checkAttack(Ship& target, bool inSeaPhase)
 	if (britishPlayer->tryAttack(target, inSeaPhase)) {
 		cgame << "Attack by " << (inSeaPhase ? "sea" : "air")
 			<< " on " << target.getShortDesc() << "\n";
+		if (inSeaPhase) {
+			target.setInCombat();
+		}
 		int midshipsLost, evasionLost;
 		britishPlayer->resolveAttack(midshipsLost, evasionLost);
 
 		// Process damage
-		//   (Note on tables, evasion loss only happens
-		//   in conjunction with midships loss.)
+		//   (Evasion loss only happens in conjunction with 
+		//    midships loss, per Battle Board combat tables.)
 		if (midshipsLost > 0) {
 			cgame << target.getName() << " takes "
 				<< midshipsLost << " midships and " 

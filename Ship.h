@@ -36,9 +36,11 @@ class Ship
 		bool enteredPort() const;
 		bool wasLocated(int turnsAgo) const;
 		bool wasShadowed(int turnsAgo) const;
+		bool wasInCombat(int turnsAgo) const;
 		void doAvailability();
 		void setLocated();
 		void setShadowed();
+		void setInCombat();
 		void setLoseMoveTurn();
 		void loseMidships(int loss);
 		void loseEvasion(int loss);
@@ -73,6 +75,7 @@ class Ship
 		std::vector<GridCoordinate> waypoints;
 		std::vector<bool> shadowedHistory;
 		std::vector<bool> locatedHistory;
+		std::vector<bool> combatHistory;
 
 		// Constants
 		static const std::string typeAbbr[NUM_TYPES];
