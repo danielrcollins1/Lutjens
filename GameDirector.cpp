@@ -97,7 +97,15 @@ int GameDirector::getTurn() const {
 
 // Get current visibility
 int GameDirector::getVisibility() const {
+	assert(visibility <= VISIBILITY_X);
 	return visibility;	
+}
+
+// Is visibility at the maximum level?
+//   Prevents search, combat, convoys (Rule 7.17 + errara)
+bool GameDirector::isVisibilityX() const {
+	assert(visibility <= VISIBILITY_X);
+	return visibility == VISIBILITY_X;	
 }
 
 // Get the current night state (Rule 11.11)
@@ -160,7 +168,7 @@ void GameDirector::doVisibilityPhase() {
 		rollVisibility();
 	}
 	cgame << "Visibility: " 
-		<< (visibility < 9 ? to_string(visibility) : "X")
+		<< (visibility == VISIBILITY_X ? "X" : to_string(visibility))
 		<< (foggy ? ", with fog" : "") << endl;
 }
 
@@ -183,7 +191,7 @@ void GameDirector::doSearchPhase() {
 
 	// Ask players for search attempts
 	if (turn >= START_TURN
-		&& visibility < 9)
+		&& visibility < VISIBILITY_X)
 	{
 		if (britishPlayer->trySearch()) {
 			britishPlayer->resolveSearch();		
@@ -221,7 +229,7 @@ void GameDirector::doChancePhase() {
 // Roll for visibility
 //   See Basic Player Aid Card: Visibility Track and Change
 void GameDirector::rollVisibility() {
-	assert(1 <= visibility && visibility <= 9);
+	assert(isInInterval(1, visibility, VISIBILITY_X));
 	int roll = rollDice(2, 6);
 	
 	// Modify roll for current visibility
@@ -237,6 +245,7 @@ void GameDirector::rollVisibility() {
 	visibility += roll - 7;
 	visibility = max(1, visibility);
 	visibility = min(9, visibility);
+	assert(isInInterval(1, visibility, VISIBILITY_X));
 	
 	// Determine fog
 	switch (roll) {
@@ -300,7 +309,7 @@ void GameDirector::checkShadow(Ship& target,
 // Do air attack phase
 //   (Visibility must be less than X, per errata.)
 void GameDirector::doAirAttackPhase() {
-	if (!isGameOver() && visibility < 9) {
+	if (!isGameOver() && !isVisibilityX()) {
 		germanPlayer->doAirAttackPhase();
 	}
 }
@@ -308,7 +317,7 @@ void GameDirector::doAirAttackPhase() {
 // Do naval combat phase
 //   (Visibility must be less than X, per errata.)
 void GameDirector::doNavalCombatPhase() {
-	if (!isGameOver() && visibility < 9) {
+	if (!isGameOver() && !isVisibilityX()) {
 		germanPlayer->doNavalCombatPhase();
 	}
 }

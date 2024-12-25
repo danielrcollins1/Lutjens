@@ -20,14 +20,16 @@ void BritishPlayerComputer::searchZones(
 	const std::vector<GridCoordinate>& zones,
 	int dayStrength, int nightStrength)
 {
-	auto director = GameDirector::instance();
-	int visibility = director->getVisibility();
-	for (auto zone: zones) {
-		if (!director->isInFog(zone)) {
-			int strength = director->isInDay(zone) ? 
-				dayStrength : nightStrength;
-			if (strength >= visibility) {
-				director->searchGermanShips(zone);			
+	auto game = GameDirector::instance();
+	if (!game->isVisibilityX()) {
+		int visibility = game->getVisibility();
+		for (auto zone: zones) {
+			if (!game->isInFog(zone)) {
+				int strength = game->isInDay(zone) ? 
+					dayStrength : nightStrength;
+				if (strength >= visibility) {
+					game->searchGermanShips(zone);			
+				}
 			}
 		}
 	}
@@ -43,7 +45,6 @@ void BritishPlayerComputer::resolveSearch() {
 // Compile the list of free coastal search spaces
 vector<GridCoordinate> BritishPlayerComputer::getCoastalFreeSearchZones() 
 {
-	
 	// Start with special island spaces
 	vector<GridCoordinate> list = {"D9", "F15", "G18"};
 			

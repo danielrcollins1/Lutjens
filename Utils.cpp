@@ -38,3 +38,8 @@ bool isAllDigits(const char* s) {
 	}
 	return true;
 }
+
+// Check if an integer is in a given interval
+bool isInInterval(int min, int value, int max) {
+	return min <= value && value <= max;	
+}

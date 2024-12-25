@@ -28,6 +28,7 @@ class GameDirector
 		void doEndGame();
 		int getTurn() const;
 		int getVisibility() const;
+		bool isVisibilityX() const;
 		bool isInDay(const GridCoordinate& zone) const;
 		bool isInNight(const GridCoordinate& zone) const;
 		bool isInFog(const GridCoordinate& zone) const;
@@ -45,6 +46,9 @@ class GameDirector
 	private:
 		// Enumeration
 		enum NightState {NIGHT_SOUTH, NIGHT_ALL, DAY};
+
+		// Constant
+		static const int VISIBILITY_X = 9;
 
 		// Data
 		static GameDirector* theInstance;

@@ -25,6 +25,9 @@ bool getUserYes();
 // Check if a C-string is all digits.
 bool isAllDigits(const char* s);
 
+// Check if an integer is in a given interval
+bool isInInterval(int min, int value, int max);
+
 // Push an array onto a vector
 template <class T>
 void pushArray(std::vector<T>& vec, const T array[], int size) {
