@@ -27,6 +27,10 @@ class GermanPlayer
 		int getTimesFlagshipDetected() const;
 
 	private:
+		// Enumeration
+		enum MapRegion {NORTH_SEA, EAST_NORWEGIAN,
+			WEST_NORWEGIAN, DENMARK_STRAIT,
+			WEST_ATLANTIC, EAST_ATLANTIC};
 
 		// Data
 		Ship* flagship;
@@ -44,6 +48,9 @@ class GermanPlayer
 		void callHuffDuff(Ship& ship);
 		void destroyConvoy(Ship& ship);
 		void pickNewRoute();
+
+		// Planning functions
+		static MapRegion getRegion(const GridCoordinate& zone);
 };
 
 #endif
