@@ -46,6 +46,7 @@ class Ship
 		void loseEvasion(int loss);
 		void checkEvasionRepair();
 		void noteDetected();
+		void logDestination();
 		
 		// Movement functions
 		GridCoordinate getPosition() const;

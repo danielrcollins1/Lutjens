@@ -73,54 +73,69 @@ void GermanPlayer::initWaypoints(Ship& ship) {
 	}
 	
 	// Initial convoy route target
-	denmarkStrait ? 
-		targetAtlanticConvoy(ship) : targetAnyConvoyBreakout(ship);
-	//ship.printWaypoints();
+	if (denmarkStrait || rollDie(100) <= 50) {
+		ship.addWaypoint(randAtlanticConvoyTarget());
+	}
+	else {
+		ship.addWaypoint(randMidAtlanticTarget());
+		ship.addWaypoint(randAfricanConvoyTarget());
+	}
+	ship.logDestination();
 }
 
-// Target a convoy on the Atlantic line
+// Randomize a convoy target near the Atlantic line
 //   Around row H, on western edge past patrol line
-void GermanPlayer::targetAtlanticConvoy(Ship& ship) {
+GridCoordinate GermanPlayer::randAtlanticConvoyTarget() {
 	int col;
-	char row = 'F' + rollDie(3);
+	char row = 'G' + rollDie(3) - 1;
 	switch (row) {
 		case 'G': col = rollDie(4); break;
 		case 'H': col = rollDie(5); break;
 		case 'I': col = rollDie(5) + 1; break;
 		default: cerr << "Error: Unhandled Atlantic convoy column.\n";
 	}
-	GridCoordinate target(row, col);
-	ship.addWaypoint(target);
-	clog << ship.getName() << " targets Atlantic convoy @ " << target << endl;
+	return GridCoordinate(row, col);
 }
 
-// Target a convoy on the African line
+// Randomize a convoy target near the African line
 //   Row P to Z, directly on convoy route
-void GermanPlayer::targetAfricanConvoy(Ship& ship) {
+GridCoordinate GermanPlayer::randAfricanConvoyTarget() {
 	int roll = rollDie(11);
-	char row = 'O' + roll;
+	char row = 'P' + roll - 1;
 	int col = 15 + roll / 2;
-	GridCoordinate target(row, col);
-	ship.addWaypoint(target);
-	clog << ship.getName() << " targets African convoy @ " << target << endl;
+	return GridCoordinate(row, col);
 }
 
-// Target any convoy right after initial breakout
-void GermanPlayer::targetAnyConvoyBreakout(Ship& ship) {
-	int rollRoute = rollDie(100);
+// Randomize a mid-Atlantic breakout target
+//   When breaking out east of Iceland:
+//   Target a zone mid-Atlantic beyond the general patrol line.
+//   (1) Reduces distance beyond general search,
+//   (2) Pulls path away from British coast
+//   (3) Maneuvers near African convoy line
+//   Zones L11 to Q16
+GridCoordinate GermanPlayer::randMidAtlanticTarget() {
+	int roll = rollDie(6);
+	int row = 'L' + roll - 1;
+	int col = 10 + roll;
+	return GridCoordinate(row, col);
+}
+
+// After destroying a convoy, pick a new target
+void GermanPlayer::pickNewRoute() {
+	auto ship = flagship;
+	auto position = ship->getPosition();
+	bool isOnAtlantic = position.getRow() < 'L';
+	int chanceAtlantic = isOnAtlantic ? 1: 5;
+	ship->clearWaypoints();
 	
-	// Target Atlantic convoy
-	if (rollRoute <= 50) {
-		targetAtlanticConvoy(ship);		
-	}
-	
-	// Target African convoy
-	//   First, get past patrol line ASAP
-	else {
-		int roll = rollDie(5); // L11 to P15, past patrol
-		ship.addWaypoint(GridCoordinate('K' + roll, 10 + roll));
-		targetAfricanConvoy(ship);	
-	}
+	// Avoid picking current position
+	GridCoordinate zone;
+	do {
+		zone = (rollDie(6) <= chanceAtlantic) ?
+			randAtlanticConvoyTarget() : randAfricanConvoyTarget();
+	} while (zone == position);
+	ship->addWaypoint(zone);
+	ship->logDestination();
 }
 
 // Do unit availability phase
@@ -368,20 +383,6 @@ void GermanPlayer::destroyConvoy(Ship& ship) {
 	GameDirector::instance()->msgSunkConvoy();
 	ship.setLoseMoveTurn();   // Rule 10.25
 	pickNewRoute();
-}
-
-// After destroying a convoy, pick a new target
-void GermanPlayer::pickNewRoute() {
-	auto ship = flagship;
-	ship->clearWaypoints();
-	bool isOnAtlantic = ship->getPosition().getRow() <= 'K';
-	int chanceAtlantic = isOnAtlantic ? 1: 5;
-	
-	// Make sure to not pick current position
-	while (!ship->hasWaypoints()) {
-		rollDie(6) <= chanceAtlantic ?
-			targetAtlanticConvoy(*ship) : targetAfricanConvoy(*ship);		
-	}
 }
 
 // Print all of our ships (e.g., for end game)

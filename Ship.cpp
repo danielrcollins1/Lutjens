@@ -470,6 +470,17 @@ void Ship::printWaypoints() const {
 	printVec(waypoints);	
 }
 
+// Log our final waypoint destination
+void Ship::logDestination() {
+	if (waypoints.empty()) {
+		clog << name << " has no goal\n";
+	}
+	else {
+		clog << name << " directed @ " 
+			<< waypoints.back() << "\n";
+	}
+}
+
 // Stream insertion operator
 std::ostream& operator<<(std::ostream& stream, const Ship& ship) {
 	stream << ship.getLongDesc();
