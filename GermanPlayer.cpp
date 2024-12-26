@@ -402,7 +402,7 @@ int GermanPlayer::getTimesFlagshipDetected() const {
 // Do we want to search now?
 bool GermanPlayer::trySearch() {
 	for (auto& ship: shipList) {
-		if (ship.wasShadowed(0)) {
+		if (ship.wasLocated(0)) {
 			return true;
 		}
 	}
@@ -412,7 +412,7 @@ bool GermanPlayer::trySearch() {
 // Resolve any search attempts
 void GermanPlayer::resolveSearch() {
 	for (auto& ship: shipList) {
-		if (ship.wasShadowed(0)) {
+		if (ship.wasLocated(0)) {
 			auto game = GameDirector::instance();
 
 			// Get search strength
