@@ -446,10 +446,11 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(const GridCoordinate& zone)
 	if (row >= 'H' && col >= 18 + row - 'H') { return NORTH_SEA; }
 	
 	// East Norwegian sea (area of first-turn breakout bonus)
-	else if (row <= 'G' && col >= 15) { return EAST_NORWEGIAN; }
+	else if (row <= 'G' && col > 15) { return EAST_NORWEGIAN; }
 
 	// West Norwegian sea (area above British northern patrol)
-	else if (row <= 'G' && col >= 9 + row - 'A') { return WEST_NORWEGIAN; }
+	else if (row <= 'G' && col >= 12 
+		&& col >= 12 + row - 'D') { return WEST_NORWEGIAN; }
 	
 	// Denmark Strait (foggy area north of Iceland)	
 	else if (row <= 'C') { return DENMARK_STRAIT; }
