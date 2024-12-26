@@ -21,6 +21,7 @@ void runLargeSeries();
 int main(int argc, char** argv) {
 	cgame << "LUTJENS: German player and game director\n"
 		<< "for the 1979 Avalon Hill game Bismarck\n\n";
+	seedRandom();
 	auto argsObj = CmdArgs::instance();
 	argsObj->parseArgs(argc, argv);
 	if (argsObj->isExitAfterArgs()) {
@@ -30,7 +31,6 @@ int main(int argc, char** argv) {
 		runLargeSeries();
 	}
 	else {
-		seedRandom();
 		auto game = GameDirector::instance();
 		if (game->okPlayerStart()) {
 			game->doGameLoop();
@@ -52,16 +52,19 @@ void runLargeSeries() {
 	if (numGames <= 0) {
 		numGames = DEFAULT_NUM_GAMES;	
 	}
-	cout << "Running series of " << numGames << " games...\n";
+	cgame << "Running series of " << numGames << " games...\n";
+
+	// Turn off normal game logging
+	cgame.turnOff();
+	std::ofstream nullstream;
+	std::clog.rdbuf(nullstream.rdbuf());
 	
 	// Initialize series
-	seedRandom();
-	cgame.turnOff();
 	int gamesFlagshipDetected = 0;
 	int gamesConvoySunk = 0;
 	int totalFlagshipDetections = 0;
 	int totalConvoysSunk = 0;
-	
+
 	// Run series
 	for (int i = 0; i < numGames; i++) {
 		GameDirector::initGame();
@@ -76,7 +79,7 @@ void runLargeSeries() {
 		totalFlagshipDetections += game->getTimesFlagshipDetected();
 		totalConvoysSunk += game->getConvoysSunk();
 	}
-	
+
 	// Report statistics
 	cout << fixed << showpoint << setprecision(2);
 	cout << "Games flagship detected: " 
