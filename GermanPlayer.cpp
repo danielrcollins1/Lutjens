@@ -159,11 +159,13 @@ void GermanPlayer::doShadowPhase() {
 // Do sea movement phase
 void GermanPlayer::doSeaMovementPhase() {
 	for (auto& ship: shipList) {
-		if (!ship.isSunk()) {
+		if (!ship.isSunk()
+			&& !ship.wasShadowed(0))
+		{
 			ship.doMovement();
 			clog << ship << endl;
-			clog << ship.getName() << " is in region "
-				<< getRegion(ship.getPosition()) << endl;
+			//clog << ship.getName() << " is in region "
+			//	<< getRegion(ship.getPosition()) << endl;
 		}
 	}
 }

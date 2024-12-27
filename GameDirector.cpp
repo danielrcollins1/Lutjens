@@ -94,6 +94,11 @@ int GameDirector::getTurn() const {
 	return turn;	
 }
 
+// Get number of turns completed
+int GameDirector::getTurnsElapsed() const {
+	return turn - START_TURN;	
+}
+
 // Get current visibility
 int GameDirector::getVisibility() const {
 	assert(visibility <= VISIBILITY_X);
@@ -300,6 +305,7 @@ void GameDirector::checkShadow(Ship& target,
 		if (!inSearchPhase) {
 			target.doMovement();
 		}
+		target.setShadowed();
 
 		// Ask for resolution
 		bool holdContact;
@@ -309,7 +315,7 @@ void GameDirector::checkShadow(Ship& target,
 		if (holdContact) {
 			cgame << target.getTypeName() << " shadowed to zone " 
 				<< target.getPosition() << endl;
-			target.setShadowed();
+			target.setLocated();
 		}
 	}
 }

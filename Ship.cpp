@@ -26,7 +26,6 @@ Ship::Ship(string name, Type type,
 	this->fuelMax = fuel;
 	position = GridCoordinate::NO_ZONE;
 	onPatrol = false;
-	tookMoveTurn = false;
 	loseMoveTurn = false;
 	fuelLost = 0;
 	midshipsLost = 0;
@@ -105,7 +104,6 @@ bool Ship::isOnPatrol() const {
 
 // Do setup in first phase of turn
 void Ship::doAvailability() {
-	tookMoveTurn = false;
 	shadowedHistory.push_back(false);
 	locatedHistory.push_back(false);
 	combatHistory.push_back(false);
@@ -127,6 +125,36 @@ void Ship::addWaypoint(const GridCoordinate& coord) {
 // Do we have any waypoints?
 bool Ship::hasWaypoints() const {
 	return !waypoints.empty();
+}
+
+// Do German ship first-turn breakout bonus move (Rule 5.28)
+//   We use the first waypoint as our location at end of move
+//   Waive most other rules restrictions here
+void Ship::doBreakoutBonusMove() {
+
+	// Check first turn only
+	auto game = GameDirector::instance();
+	assert(game->getTurnsElapsed() == 0);
+	assert(!waypoints.empty());
+	auto goal = waypoints[0];
+	int distance = position.distanceFrom(goal);
+
+	// Set position & cycle waypoint
+	assert(distance <= 5);
+	position = goal;
+	checkForWaypoint();
+
+	// Add to move history
+	vector<GridCoordinate> move;
+	move.push_back(position);
+	moveHistory.push_back(move);
+
+	// Charge for fuel
+	switch (distance) {
+		case 5: fuelLost += 2; break;
+		case 4: fuelLost += 1; break;
+		default: break; // no loss
+	}
 }
 
 // How many board spaces can we move this turn?
@@ -220,18 +248,13 @@ GridCoordinate Ship::getNextZone() const {
 
 // Do movement for turn
 void Ship::doMovement() {
+	assert(!movedThisTurn());
+	auto game = GameDirector::instance();
 	auto board = SearchBoard::instance();
-	vector<GridCoordinate> moves;
-
-	// Do movement only once per turn (phase 3 or 5)
-	if (tookMoveTurn) {
-		return;	
-	}
-	tookMoveTurn = true;
+	vector<GridCoordinate> moveThisTurn;
 
 	// Do breakout bonus on first turn
-	if (GameDirector::instance()->getTurn() 
-		== GameDirector::START_TURN)
+	if (game->getTurnsElapsed() == 0)
 	{
 		doBreakoutBonusMove();
 		//cout << *this << endl;
@@ -259,52 +282,18 @@ void Ship::doMovement() {
 		auto next = getNextZone();
 		if (next != position) {
 			position = next;
-			moves.push_back(position);
+			moveThisTurn.push_back(position);
 			checkForWaypoint();
-			if (isInPort()) {
-				clog << name << " entered port at " 
-					<< position << "\n";
-			}
 			//cout << *this << endl;
 		}
 	}
 
 	// Account for fuel, history
-	if (moves.size() == 2) {
+	if (moveThisTurn.size() == 2) {
 		fuelLost++;	
 	}
-	moveHistory.push_back(moves);
+	moveHistory.push_back(moveThisTurn);
 	checkEvasionRepair();
-}
-
-// Do German ship first-turn breakout bonus move (Rule 5.28)
-//   We use the first waypoint as our location at end of move
-//   Waive most other rules restrictions here
-void Ship::doBreakoutBonusMove() {
-
-	// Check first turn only
-	assert(GameDirector::instance()->getTurn() 
-		== GameDirector::START_TURN);
-	assert(!waypoints.empty());
-	auto goal = waypoints[0];
-	int distance = position.distanceFrom(goal);
-
-	// Set position & cycle waypoint
-	assert(distance <= 5);
-	position = goal;
-	checkForWaypoint();
-
-	// Add to move history
-	vector<GridCoordinate> move;
-	move.push_back(position);
-	moveHistory.push_back(move);
-
-	// Charge for fuel
-	switch (distance) {
-		case 5: fuelLost += 2; break;
-		case 4: fuelLost += 1; break;
-		default: break; // no loss
-	}
 }
 
 // Are we in port?
@@ -331,7 +320,7 @@ bool Ship::isAccessible(const GridCoordinate& zone) const {
 
 // Did we move into/through a given zone this turn?
 bool Ship::movedThrough(const GridCoordinate& zone) const {
-	assert(tookMoveTurn);
+	assert(movedThisTurn());
 	return hasElem(moveHistory.back(), zone);
 }
 
@@ -379,10 +368,11 @@ void Ship::setLocated() {
 	noteDetected();
 }
 
-// Note that we have been shadowed
+// Note that the enemy tried to shadow us
+//   And so we have moved earlier in the turn (Rule 8.11)
+//   Compare to Shadow marker usage (Rule 2.53)
 void Ship::setShadowed() {
 	shadowedHistory.back() = true;
-	setLocated();
 }
 
 // Note that we have entered naval combat
@@ -392,28 +382,28 @@ void Ship::setInCombat() {
 
 // Check if we were located by search/shadow on a given turn
 bool Ship::wasLocated(int turnsAgo) const {
-	assert(0 <= turnsAgo 
-		&& turnsAgo < (int) locatedHistory.size());
+	assert(0 <= turnsAgo);
+	assert(turnsAgo < (int) locatedHistory.size());
 	return locatedHistory.rbegin()[turnsAgo];
 }
 
 // Check if we were shadowed on a given turn
 bool Ship::wasShadowed(int turnsAgo) const {
-	assert(0 <= turnsAgo 
-		&& turnsAgo < (int) shadowedHistory.size());
+	assert(0 <= turnsAgo);
+	assert(turnsAgo < (int) shadowedHistory.size());
 	return shadowedHistory.rbegin()[turnsAgo];
 }
 
 // Check if we were in naval combat on a given turn
 bool Ship::wasInCombat(int turnsAgo) const {
-	assert(0 <= turnsAgo 
-		&& turnsAgo < (int) combatHistory.size());
+	assert(0 <= turnsAgo);
+	assert(turnsAgo < (int) combatHistory.size());
 	return combatHistory.rbegin()[turnsAgo];
 }
 
 // How far did we move on the search board this turn?
 int Ship::getSpeed() const {
-	assert(tookMoveTurn);
+	assert(movedThisTurn());
 	return 	moveHistory.back().size();
 }
 
@@ -450,7 +440,7 @@ void Ship::applyTempEvasionLoss(int midshipsLost) {
 
 // Check for evasion repair following movement (Rule 9.728)
 void Ship::checkEvasionRepair() {
-	assert(tookMoveTurn);
+	assert(movedThisTurn());
 	if (evasionLostTemp && getSpeed() <= 1) {
 		int repair = rollDie(6) * 2 - 4;
 		repair = max(0, repair);
@@ -479,6 +469,12 @@ void Ship::logDestination() {
 		clog << name << " directed @ " 
 			<< waypoints.back() << "\n";
 	}
+}
+
+// Check whether we moved previously this turn
+bool Ship::movedThisTurn() const {
+	return GameDirector::instance()->getTurnsElapsed()
+		== (int) moveHistory.size() - 1;
 }
 
 // Stream insertion operator

@@ -27,6 +27,7 @@ class GameDirector
 		void doGameLoop();
 		void doEndGame();
 		int getTurn() const;
+		int getTurnsElapsed() const;
 		int getVisibility() const;
 		bool isVisibilityX() const;
 		bool isInDay(const GridCoordinate& zone) const;

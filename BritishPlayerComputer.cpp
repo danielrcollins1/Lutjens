@@ -84,8 +84,7 @@ vector<int> BritishPlayerComputer::planInitialAirPatrols() {
 vector<GridCoordinate> BritishPlayerComputer::getAirPatrolZones()
 {
 	vector<GridCoordinate> list;
-	int turnsElapsed = GameDirector::instance()->getTurn()
-		- GameDirector::START_TURN;
+	int turnsElapsed = GameDirector::instance()->getTurnsElapsed();
 	if (turnsElapsed < (int) initialAirPatrols.size()) {
 		int numPatrolsToday = initialAirPatrols[turnsElapsed];
 		for (int i = 0; i < numPatrolsToday; i++) {

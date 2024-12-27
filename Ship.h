@@ -65,7 +65,6 @@ class Ship
 		std::string name;
 		Type type;
 		bool onPatrol;
-		bool tookMoveTurn;
 		bool loseMoveTurn;
 		int fuelMax, fuelLost;
 		int midshipsMax, midshipsLost;
@@ -89,6 +88,7 @@ class Ship
 		int startGameSpeedCap();
 		void applyTempEvasionLoss(int midshipsLost);
 		void doBreakoutBonusMove();
+		bool movedThisTurn() const;
 };
 
 // Stream insertion operator
