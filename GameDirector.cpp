@@ -302,10 +302,10 @@ void GameDirector::checkShadow(Ship& target,
 	if (britishPlayer->tryShadow(target, knownPos, inSearchPhase)) {
 
 		// Move target ship in shadow phase
+		target.setShadowed();
 		if (!inSearchPhase) {
 			target.doMovement();
 		}
-		target.setShadowed();
 
 		// Ask for resolution
 		bool holdContact;
@@ -313,9 +313,9 @@ void GameDirector::checkShadow(Ship& target,
 
 		// Player holds contact
 		if (holdContact) {
+			target.setLocated();
 			cgame << target.getTypeName() << " shadowed to zone " 
 				<< target.getPosition() << endl;
-			target.setLocated();
 		}
 	}
 }
