@@ -213,14 +213,14 @@ void GermanPlayer::checkGeneralSearch(Ship& ship, int roll) {
 	auto pos = ship.getPosition();
 	
 	// Check if general search possible
-	if (!ship.isInNight()       // Rule 11.13
-		&& !ship.isInFog()      // Rule 10.213
+	if (!ship.isInNight()        // Rule 11.13
+		&& !ship.isInFog()       // Rule 10.213
 		&& pos.getRow() >= 'E'   // Rule 10.211
 		&& pos.getCol() >= SearchBoard::instance()
 			->getPatrolLimitCol(pos.getRow()))
 	{
 		// Look up search strength
-		char colLetter = generalSearchColumn(pos);
+		char colLetter = getGeneralSearchColumn(pos);
 		int gsRowIdx = roll - 3;
 		int gsColIdx = colLetter - 'A';
 		int searchStrength = GS_VALUES[gsRowIdx][gsColIdx];
@@ -235,27 +235,23 @@ void GermanPlayer::checkGeneralSearch(Ship& ship, int roll) {
 	}
 }
 
-// Find the applicable general search table row
+// Get the applicable general search table row
 //   As per rule 10.214.
-char GermanPlayer::generalSearchColumn(const GridCoordinate& zone) {
+char GermanPlayer::getGeneralSearchColumn(const GridCoordinate& zone) {
+	auto board = SearchBoard::instance();
 	
-	// Case 'A': near patrol line limit
-	if (zone.getCol() <= SearchBoard::instance()
-		->getPatrolLimitCol(zone.getRow()) + 2)
-	{
+	// Case 'A': western edge, near patrol line limit
+	if (zone.getCol() <= board->getPatrolLimitCol(zone.getRow()) + 2) {
 		return 'A';	
 	}
 
-	// Case 'C': near coast of Britain/Ireland
-	else if (SearchBoard::instance()
-		->isNearZoneType(zone, 2, &SearchBoard::isBritishCoast))
-	{
+	// Case 'C': eastern edge, near coast of Britain/Ireland
+	else if (board->isNearZoneType(zone, 2, board->isBritishCoast)) {
 		return 'C';		
 	}
 
-	// Case 'B': any other location
-	else 
-	{
+	// Case 'B': in-between, any other location
+	else {
 		return 'B';	
 	}
 }

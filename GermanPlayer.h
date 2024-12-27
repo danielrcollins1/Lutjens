@@ -29,9 +29,8 @@ class GermanPlayer
 
 	private:
 		// Enumeration
-		enum MapRegion {NORTH_SEA, EAST_NORWEGIAN,
-			WEST_NORWEGIAN, DENMARK_STRAIT,
-			WEST_ATLANTIC, EAST_ATLANTIC};
+		enum MapRegion {NORTH_SEA, EAST_NORWEGIAN, WEST_NORWEGIAN, 
+			DENMARK_STRAIT, WEST_ATLANTIC, EAST_ATLANTIC};
 
 		// Data
 		Ship* flagship;
@@ -42,13 +41,13 @@ class GermanPlayer
 		GridCoordinate randAtlanticConvoyTarget();
 		GridCoordinate randAfricanConvoyTarget();
 		GridCoordinate randMidAtlanticTarget();
-		char generalSearchColumn(const GridCoordinate& zone);
 		void checkGeneralSearch(Ship& ship, int roll);
 		void checkConvoyResult(Ship& ship, int roll);
 		void callHuffDuff(Ship& ship);
 		void destroyConvoy(Ship& ship);
+		char getGeneralSearchColumn(const GridCoordinate& zone);
 
-		// Planning functions
+		// Plotting functions
 		static MapRegion getRegion(const GridCoordinate& zone);
 		GridCoordinate loiterInRegion(Ship& ship);
 };
