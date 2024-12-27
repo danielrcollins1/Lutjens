@@ -131,23 +131,15 @@ bool Ship::hasWaypoints() const {
 //   We use the first waypoint as our location at end of move
 //   Waive most other rules restrictions here
 void Ship::doBreakoutBonusMove() {
-
-	// Check first turn only
-	auto game = GameDirector::instance();
-	assert(game->getTurnsElapsed() == 0);
+	assert(GameDirector::instance()->getTurnsElapsed() == 0);
 	assert(!waypoints.empty());
-	auto goal = waypoints[0];
-	int distance = position.distanceFrom(goal);
 
 	// Set position & cycle waypoint
-	assert(distance <= 5);
+	auto goal = waypoints[0];
+	int distance = position.distanceFrom(goal);
 	position = goal;
 	checkForWaypoint();
-
-	// Add to move history
-	vector<GridCoordinate> move;
-	move.push_back(position);
-	moveHistory.push_back(move);
+	assert(distance <= 5);
 
 	// Charge for fuel
 	switch (distance) {
@@ -155,6 +147,11 @@ void Ship::doBreakoutBonusMove() {
 		case 4: fuelLost += 1; break;
 		default: break; // no loss
 	}
+	
+	// Add to move history
+	vector<GridCoordinate> move;
+	move.push_back(position);
+	moveHistory.push_back(move);
 }
 
 // How many board spaces can we move this turn?
@@ -249,17 +246,8 @@ GridCoordinate Ship::getNextZone() const {
 // Do movement for turn
 void Ship::doMovement() {
 	assert(!movedThisTurn());
-	auto game = GameDirector::instance();
 	auto board = SearchBoard::instance();
 	vector<GridCoordinate> moveThisTurn;
-
-	// Do breakout bonus on first turn
-	if (game->getTurnsElapsed() == 0)
-	{
-		doBreakoutBonusMove();
-		//cout << *this << endl;
-		return;		
-	}
 
 	// Set to patrol if no waypoints
 	onPatrol = waypoints.empty()
@@ -284,7 +272,6 @@ void Ship::doMovement() {
 			position = next;
 			moveThisTurn.push_back(position);
 			checkForWaypoint();
-			//cout << *this << endl;
 		}
 	}
 

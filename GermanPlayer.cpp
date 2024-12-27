@@ -162,7 +162,12 @@ void GermanPlayer::doSeaMovementPhase() {
 		if (!ship.isSunk()
 			&& !ship.wasShadowed(0))
 		{
-			ship.doMovement();
+			if (GameDirector::instance()->getTurnsElapsed() == 0) {
+				ship.doBreakoutBonusMove();
+			}
+			else {
+				ship.doMovement();
+			}
 			clog << ship << endl;
 			//clog << ship.getName() << " is in region "
 			//	<< getRegion(ship.getPosition()) << endl;

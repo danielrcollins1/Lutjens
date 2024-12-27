@@ -51,6 +51,7 @@ class Ship
 		// Movement functions
 		GridCoordinate getPosition() const;
 		void doMovement();
+		void doBreakoutBonusMove();
 		void setPosition(const GridCoordinate& zone);
 		void addWaypoint(const GridCoordinate& zone);
 		bool isAccessible(const GridCoordinate& zone) const;
@@ -87,7 +88,6 @@ class Ship
 		int maxSpeed() const;
 		int startGameSpeedCap();
 		void applyTempEvasionLoss(int midshipsLost);
-		void doBreakoutBonusMove();
 		bool movedThisTurn() const;
 };
 
