@@ -24,6 +24,7 @@ class GermanPlayer
 		bool trySearch();
 		void resolveSearch();
 		void printAllShips() const;
+		void getDirection(Ship& ship);
 		int getTimesFlagshipDetected() const;
 
 	private:
@@ -38,7 +39,6 @@ class GermanPlayer
 		std::vector<GridCoordinate> foundShipZones;
 		
 		// Functions
-		void initWaypoints(Ship& ship);
 		GridCoordinate randAtlanticConvoyTarget();
 		GridCoordinate randAfricanConvoyTarget();
 		GridCoordinate randMidAtlanticTarget();
@@ -47,10 +47,10 @@ class GermanPlayer
 		void checkConvoyResult(Ship& ship, int roll);
 		void callHuffDuff(Ship& ship);
 		void destroyConvoy(Ship& ship);
-		void pickNewRoute();
 
 		// Planning functions
 		static MapRegion getRegion(const GridCoordinate& zone);
+		GridCoordinate loiterInRegion(Ship& ship);
 };
 
 #endif

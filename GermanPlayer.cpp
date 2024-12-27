@@ -7,9 +7,8 @@ using namespace std;
 
 // Constructor
 GermanPlayer::GermanPlayer() {
-	Ship bb("Bismarck", Ship::Type::BB, 29, 10, 13);
+	Ship bb("Bismarck", Ship::Type::BB, 29, 10, 13, this);
 	bb.setPosition("F20");
-	initWaypoints(bb);
 	shipList.push_back(bb);
 	flagship = &shipList[0];
 }
@@ -18,69 +17,6 @@ GermanPlayer::GermanPlayer() {
 const Ship& GermanPlayer::getFlagship() const {
 	assert(flagship != nullptr);
 	return *flagship;
-}
-
-// Initialize a German ship's path waypoints
-void GermanPlayer::initWaypoints(Ship& ship) {
-	auto board = SearchBoard::instance();
-	ship.clearWaypoints();
-
-	// First-turn location random in box A-F, 15-18
-	//   (Note mini-game LRS solutions suggested row ratios 3:3:4,
-	//   and columns 1:4:4:4; but testing here shows otherwise.)
-	char row = rollDie(100) <= 90 ?
-		'A' + rollDie(4) - 1 : 'E' + rollDie(2) - 1;
-	int col = 14 + rollDie(4);
-	GridCoordinate firstMove(row, col);
-	if (firstMove == GridCoordinate("F15")) { // Avoid Faeroe
-		firstMove = GridCoordinate("G16");
-	}
-	ship.addWaypoint(firstMove);
-	bool denmarkStrait = false;
-	
-	// Northerly escape then breaks out near Iceland
-	if (firstMove.getRow() <= 'D') {
-	
-		// Get past air picket on column 15
-		ship.addWaypoint(
-			GridCoordinate(firstMove.getRow(), 15 - rollDie(3)));
-
-		// North of Iceland (Denmark Straight)
-		if (rollDie(100) <= 85) {
-			ship.addWaypoint("B7");
-			denmarkStrait = true;
-		}
-
-		// South of Iceland
-		else {
-			switch (rollDie(6)) {
-				case 1: ship.addWaypoint("F14"); break;
-				case 2: case 3: ship.addWaypoint("E13"); break;
-				default: ship.addWaypoint("E12"); break;
-			}
-		}
-	}
-	
-	// Row 'E' breaks out north of Faeroe
-	else if (firstMove.getRow() == 'E') {
-		ship.addWaypoint("E14");
-		ship.addWaypoint("F14");
-	}
-	
-	// Row 'F' breaks out south of Faeroe
-	else {
-		ship.addWaypoint(board->randSeaWithinOne("G16"));
-	}
-	
-	// Initial convoy route target
-	if (denmarkStrait || rollDie(100) <= 50) {
-		ship.addWaypoint(randAtlanticConvoyTarget());
-	}
-	else {
-		ship.addWaypoint(randMidAtlanticTarget());
-		ship.addWaypoint(randAfricanConvoyTarget());
-	}
-	ship.logDestination();
 }
 
 // Randomize a convoy target near the Atlantic line
@@ -120,24 +56,6 @@ GridCoordinate GermanPlayer::randMidAtlanticTarget() {
 	return GridCoordinate(row, col);
 }
 
-// After destroying a convoy, pick a new target
-void GermanPlayer::pickNewRoute() {
-	auto ship = flagship;
-	auto position = ship->getPosition();
-	bool isOnAtlantic = position.getRow() < 'L';
-	int chanceAtlantic = isOnAtlantic ? 1: 5;
-	ship->clearWaypoints();
-	
-	// Avoid picking current position
-	GridCoordinate zone;
-	do {
-		zone = (rollDie(6) <= chanceAtlantic) ?
-			randAtlanticConvoyTarget() : randAfricanConvoyTarget();
-	} while (zone == position);
-	ship->addWaypoint(zone);
-	ship->logDestination();
-}
-
 // Do unit availability phase
 void GermanPlayer::doAvailabilityPhase() {
 	foundShipZones.clear();
@@ -169,8 +87,6 @@ void GermanPlayer::doSeaMovementPhase() {
 				ship.doMovement();
 			}
 			clog << ship << endl;
-			//clog << ship.getName() << " is in region "
-			//	<< getRegion(ship.getPosition()) << endl;
 		}
 	}
 }
@@ -391,7 +307,7 @@ void GermanPlayer::destroyConvoy(Ship& ship) {
 		<< " by " << ship.getName() << endl;
 	GameDirector::instance()->msgSunkConvoy();
 	ship.setLoseMoveTurn();   // Rule 10.25
-	pickNewRoute();
+	ship.clearWaypoints();
 }
 
 // Print all of our ships (e.g., for end game)
@@ -467,4 +383,131 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(const GridCoordinate& zone)
 
 	// East Atlantic (closer to African Convoy line)
 	else { return EAST_ATLANTIC; }
+}
+
+// Get direction for a ship before its move
+void GermanPlayer::getDirection(Ship& ship) {
+
+	// Gather data
+	GameDirector* game = GameDirector::instance();
+	SearchBoard* board = SearchBoard::instance();
+	GridCoordinate position = ship.getPosition();
+	MapRegion region = getRegion(position);
+	int visibility = game->getVisibility();
+	if (ship.isInNight()) {
+		visibility += 2; // approximation
+	}
+	//cgame << ship.getName() << " in region " << region << endl;
+	
+	// Breakout bonus move destination
+	if (game->getTurnsElapsed() == 0) {
+		char row = 'A' + rollDie(5) - 1;
+		int col = 15 + rollDie(4) - 1;
+		ship.addWaypoint(GridCoordinate(row, col));
+	}
+
+	// Move away from Norway
+	else if (region == EAST_NORWEGIAN) {
+		if (!ship.hasWaypoints()) {
+
+			// Loiter near Norway in clear weather
+			if (visibility <= 6) {
+				ship.addWaypoint(loiterInRegion(ship));
+			}
+	
+			// Break out in bad weather
+			else {
+				ship.addWaypoint(GridCoordinate(position.getRow(), 14));
+			}
+		}
+	}
+	
+	// Move through west Norwegian sea
+	else if (region == WEST_NORWEGIAN) {
+		if (!ship.hasWaypoints()) {
+		
+			// Maybe break south if conditions right
+			if (visibility > 4
+				&& position.getRow() >= 'C'
+				&& rollDie(6) <= 3)
+			{
+				ship.addWaypoint(board->randSeaWithinOne("F13"));
+			}
+			
+			// Otherwise go for Denmark Strait
+			else {
+				ship.addWaypoint(rollDie(2) == 1 ? "A10" : "B11");
+			}
+		}
+	}
+	
+	// Move through Denmark Strait
+	else if (region == DENMARK_STRAIT) {
+		if (!ship.hasWaypoints()) {
+			ship.addWaypoint("B7");
+			int colOnRowC = 4 + rollDie(3);
+			ship.addWaypoint(GridCoordinate('C', colOnRowC));
+			ship.addWaypoint(GridCoordinate(
+				'E', colOnRowC + rollDie(3) - 1));
+			ship.addWaypoint(randAtlanticConvoyTarget());
+		}
+	}
+	
+	// Search for convoys near Atlantic line
+	else if (region == WEST_ATLANTIC) {
+		if (!ship.hasWaypoints()) {
+			
+			// Patrol for convoys if appropriate
+			if (position.getCol() <= 6
+				&& board->isNearZoneType(position, 1, board->isConvoyRoute)
+				&& !game->wasConvoySunk(0))
+			{
+				// Add no waypoints, patrol in place
+			}
+
+			// Pick a hunting ground
+			else {
+				ship.addWaypoint(rollDie(6) <= 4 ?
+					randAtlanticConvoyTarget() : randAfricanConvoyTarget());
+			}
+		}
+	}
+	
+	// Search for convoys near African line
+	else if (region == EAST_ATLANTIC) {
+		if (!ship.hasWaypoints()) {
+		
+			// Patrol for convoys if appropriate
+			if (position.getRow() >= 'P'
+				&& board->isNearZoneType(position, 1, board->isConvoyRoute)
+				&& !game->wasConvoySunk(0))
+			{
+				// Add no waypoints, patrol in place
+			}
+
+			// Pick a hunting ground
+			else {
+				ship.addWaypoint(rollDie(6) <= 2 ?
+					randAtlanticConvoyTarget() : randAfricanConvoyTarget());
+			}
+		}
+	}
+
+	// Error handler
+	else {
+		cerr << "Error: Unhandled map region in German director\n";
+	}
+}
+
+// Get a random nearby sea zone in same region
+GridCoordinate GermanPlayer::loiterInRegion(Ship& ship) {
+	GridCoordinate zone;
+	auto board = SearchBoard::instance();
+	MapRegion region = getRegion(ship.getPosition());
+	do {
+		zone = board->randSeaWithinOne(ship.getPosition());
+	} while (getRegion(zone) != region
+		|| !ship.isAccessible(zone)
+		|| board->isGermanPort(zone));
+	return zone;
 }

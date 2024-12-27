@@ -11,12 +11,17 @@
 #include "SearchBoard.h"
 #include <vector>
 
+// Forward for player
+class GermanPlayer;
+
+// Ship class
 class Ship
 {
 	public:
 		enum Type {BB, BC, PB, CA, CL, CV, DD, SS, NUM_TYPES};
 		Ship(std::string name, Type type, 
-			int evasion, int midships, int fuel);
+			int evasion, int midships, int fuel, 
+			GermanPlayer* player);
 		std::string getName() const;
 		std::string getTypeName() const;
 		std::string getTypeAndEvasion() const;
@@ -72,6 +77,7 @@ class Ship
 		int evasionMax, evasionLostTemp, evasionLostPerm;
 		int timesDetected;
 		GridCoordinate position;
+		GermanPlayer* player;
 		std::vector<std::vector<GridCoordinate>> moveHistory;
 		std::vector<GridCoordinate> waypoints;
 		std::vector<bool> shadowedHistory;
@@ -86,7 +92,6 @@ class Ship
 		GridCoordinate getNextZone() const;
 		void checkForWaypoint();
 		int maxSpeed() const;
-		int startGameSpeedCap();
 		void applyTempEvasionLoss(int midshipsLost);
 		bool movedThisTurn() const;
 };

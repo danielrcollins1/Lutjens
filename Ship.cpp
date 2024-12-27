@@ -1,6 +1,7 @@
 #include "Ship.h"
 #include "Utils.h"
 #include "GameDirector.h"
+#include "GermanPlayer.h"
 #include <cassert>
 #include <algorithm>
 using namespace std;
@@ -17,13 +18,15 @@ const string Ship::typeName[NUM_TYPES]
 
 // Constructor
 Ship::Ship(string name, Type type, 
-	int evasion, int midships, int fuel) 
+	int evasion, int midships, int fuel,
+	GermanPlayer* player) 
 {
 	this->name = name;
 	this->type = type;
 	this->evasionMax = evasion;
 	this->midshipsMax = midships;
 	this->fuelMax = fuel;
+	this->player = player;
 	position = GridCoordinate::NO_ZONE;
 	onPatrol = false;
 	loseMoveTurn = false;
@@ -120,6 +123,7 @@ void Ship::addWaypoint(const GridCoordinate& coord) {
 	if (coord != position) {
 		waypoints.push_back(coord);
 	}
+	logDestination();
 }
 
 // Do we have any waypoints?
@@ -132,7 +136,7 @@ bool Ship::hasWaypoints() const {
 //   Waive most other rules restrictions here
 void Ship::doBreakoutBonusMove() {
 	assert(GameDirector::instance()->getTurnsElapsed() == 0);
-	assert(!waypoints.empty());
+	player->getDirection(*this);
 
 	// Set position & cycle waypoint
 	auto goal = waypoints[0];
@@ -182,39 +186,6 @@ int Ship::maxSpeed() const {
 	}
 }
 
-// Cap speed in early phase of game when needed.
-int Ship::startGameSpeedCap() {
-	auto game = GameDirector::instance();
-	int turn = game->getTurn();
-	int visibility = game->getVisibility();
-
-	// Avoid standard air picket when visible
-	if (position.getRow() < 'F'
-		&& position.getCol() > 15
-		&& 4 < turn && turn < 9
-		&& rollDie(100) <= 93)
-	{
-		if ((isInDay() && visibility <= 6)
-			|| visibility <= 3)
-		{
-			// Make a random move east of picket
-			GridCoordinate randMove;
-			do {
-				randMove = SearchBoard::instance()
-					->randSeaWithinOne(position);
-			} while (!isInInterval(16, randMove.getCol(), 18));
-			if (randMove == position) {
-				return 0;	
-			}
-			else {
-				waypoints.insert(waypoints.begin(), randMove);
-				return 1;
-			}
-		}
-	}
-	return 2;	
-}
-
 // Check if we reached a waypoint
 void Ship::checkForWaypoint() {
 	while (!waypoints.empty() 
@@ -246,6 +217,7 @@ GridCoordinate Ship::getNextZone() const {
 // Do movement for turn
 void Ship::doMovement() {
 	assert(!movedThisTurn());
+	player->getDirection(*this);
 	auto board = SearchBoard::instance();
 	vector<GridCoordinate> moveThisTurn;
 
@@ -262,7 +234,6 @@ void Ship::doMovement() {
 		speed = 0;
 		loseMoveTurn = false;
 	}
-	speed = min(speed, startGameSpeedCap());
 	assert(speed <= 2);
 	
 	// Try to perform movement
@@ -272,6 +243,7 @@ void Ship::doMovement() {
 			position = next;
 			moveThisTurn.push_back(position);
 			checkForWaypoint();
+			//cout << *this << endl;
 		}
 	}
 
@@ -391,7 +363,7 @@ bool Ship::wasInCombat(int turnsAgo) const {
 // How far did we move on the search board this turn?
 int Ship::getSpeed() const {
 	assert(movedThisTurn());
-	return 	moveHistory.back().size();
+	return moveHistory.back().size();
 }
 
 // Take damage to our midships
