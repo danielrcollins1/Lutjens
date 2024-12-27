@@ -401,7 +401,10 @@ void GermanPlayer::getDirection(Ship& ship) {
 	
 	// Breakout bonus move destination
 	if (game->getTurnsElapsed() == 0) {
-		char row = 'A' + rollDie(5) - 1;
+		char row = 'A' + rollDie(4) - 1;
+		if (rollDie(100) <= 15) {
+			row = 'E' + rollDie(2) - 1;
+		}
 		int col = 15 + rollDie(4) - 1;
 		ship.addWaypoint(GridCoordinate(row, col));
 	}
