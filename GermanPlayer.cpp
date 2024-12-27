@@ -162,8 +162,8 @@ void GermanPlayer::doSeaMovementPhase() {
 		if (!ship.isSunk()) {
 			ship.doMovement();
 			clog << ship << endl;
-			//clog << ship.getName() << " is in region "
-			//	<< getRegion(ship.getPosition()) << endl;
+			clog << ship.getName() << " is in region "
+				<< getRegion(ship.getPosition()) << endl;
 		}
 	}
 }
@@ -443,20 +443,20 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(const GridCoordinate& zone)
 	int col = zone.getCol();
 	
 	// North Sea (east of Britain; don't expect to go here)
-	if (row >= 'H' && col >= 18 + row - 'H') { return NORTH_SEA; }
+	if (row >= 'H' && col >= row - 'H' + 18) { return NORTH_SEA; }
 	
 	// East Norwegian sea (area of first-turn breakout bonus)
 	else if (row <= 'G' && col > 15) { return EAST_NORWEGIAN; }
 
 	// West Norwegian sea (area above British northern patrol)
 	else if (row <= 'G' && col >= 12 
-		&& col >= 12 + row - 'D') { return WEST_NORWEGIAN; }
+		&& col > row - 'D' + 12) { return WEST_NORWEGIAN; }
 	
 	// Denmark Strait (foggy area north of Iceland)	
 	else if (row <= 'C') { return DENMARK_STRAIT; }
 	
 	// West Atlantic (closer to Atlantic Convoy line)
-	else if (col <= 16 - (row - 'G')) { return WEST_ATLANTIC; }
+	else if (col <= 'G' + 16 - row) { return WEST_ATLANTIC; }
 
 	// East Atlantic (closer to African Convoy line)
 	else { return EAST_ATLANTIC; }
