@@ -384,6 +384,11 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(const GridCoordinate& zone)
 // Get direction for a ship before its move
 void GermanPlayer::getDirection(Ship& ship) {
 
+	// Skip rest if ship has waypoints
+	if (ship.hasWaypoints()) {
+		return;	
+	}
+
 	// Gather data
 	GameDirector* game = GameDirector::instance();
 	SearchBoard* board = SearchBoard::instance();
@@ -412,88 +417,78 @@ void GermanPlayer::getDirection(Ship& ship) {
 
 	// Move away from Norway
 	else if (region == EAST_NORWEGIAN) {
-		if (!ship.hasWaypoints()) {
 
-			// Loiter near Norway in clear weather
-			if (visibility <= 6) {
-				ship.addWaypoint(loiterInRegion(ship));
-			}
-	
-			// Break out in bad weather
-			else {
-				ship.addWaypoint(GridCoordinate(position.getRow(), 14));
-			}
+		// Loiter near Norway in clear weather
+		if (visibility <= 6) {
+			ship.addWaypoint(loiterInRegion(ship));
+		}
+
+		// Break out in bad weather
+		else {
+			ship.addWaypoint(GridCoordinate(position.getRow(), 14));
 		}
 	}
 	
 	// Move through west Norwegian sea
 	else if (region == WEST_NORWEGIAN) {
-		if (!ship.hasWaypoints()) {
 		
-			// Maybe break south if conditions right
-			if (visibility > 4
-				&& position.getRow() >= 'C'
-				&& rollDie(6) <= 3)
-			{
-				ship.addWaypoint(board->randSeaWithinOne("F13"));
-			}
-			
-			// Otherwise go for Denmark Strait
-			else {
-				ship.addWaypoint(rollDie(2) == 1 ? "A10" : "B11");
-			}
+		// Maybe break south if conditions right
+		if (visibility > 4
+			&& position.getRow() >= 'C'
+			&& rollDie(6) <= 3)
+		{
+			ship.addWaypoint(board->randSeaWithinOne("F13"));
+		}
+		
+		// Otherwise go for Denmark Strait
+		else {
+			ship.addWaypoint(rollDie(2) == 1 ? "A10" : "B11");
 		}
 	}
 	
 	// Move through Denmark Strait
 	else if (region == DENMARK_STRAIT) {
-		if (!ship.hasWaypoints()) {
-			ship.addWaypoint("B7");
-			int colOnRowC = 4 + rollDie(3);
-			ship.addWaypoint(GridCoordinate('C', colOnRowC));
-			ship.addWaypoint(GridCoordinate(
-				'E', colOnRowC + rollDie(3) - 1));
-			ship.addWaypoint(randAtlanticConvoyTarget());
-		}
+		ship.addWaypoint("B7");
+		int colOnRowC = 4 + rollDie(3);
+		ship.addWaypoint(GridCoordinate('C', colOnRowC));
+		ship.addWaypoint(GridCoordinate(
+			'E', colOnRowC + rollDie(3) - 1));
+		ship.addWaypoint(randAtlanticConvoyTarget());
 	}
 	
 	// Search for convoys near Atlantic line
 	else if (region == WEST_ATLANTIC) {
-		if (!ship.hasWaypoints()) {
 			
-			// Patrol for convoys if appropriate
-			if (position.getCol() <= 6
-				&& board->isNearZoneType(position, 1, board->isConvoyRoute)
-				&& !game->wasConvoySunk(0))
-			{
-				// Add no waypoints, patrol in place
-			}
+		// Patrol for convoys if appropriate
+		if (position.getCol() <= 6
+			&& board->isNearZoneType(position, 1, board->isConvoyRoute)
+			&& !game->wasConvoySunk(0))
+		{
+			// Add no waypoints, patrol in place
+		}
 
-			// Pick a hunting ground
-			else {
-				ship.addWaypoint(rollDie(6) <= 4 ?
-					randAtlanticConvoyTarget() : randAfricanConvoyTarget());
-			}
+		// Pick a hunting ground
+		else {
+			ship.addWaypoint(rollDie(6) <= 4 ?
+				randAtlanticConvoyTarget() : randAfricanConvoyTarget());
 		}
 	}
 	
 	// Search for convoys near African line
 	else if (region == EAST_ATLANTIC) {
-		if (!ship.hasWaypoints()) {
 		
-			// Patrol for convoys if appropriate
-			if (position.getRow() >= 'P'
-				&& board->isNearZoneType(position, 1, board->isConvoyRoute)
-				&& !game->wasConvoySunk(0))
-			{
-				// Add no waypoints, patrol in place
-			}
+		// Patrol for convoys if appropriate
+		if (position.getRow() >= 'P'
+			&& board->isNearZoneType(position, 1, board->isConvoyRoute)
+			&& !game->wasConvoySunk(0))
+		{
+			// Add no waypoints, patrol in place
+		}
 
-			// Pick a hunting ground
-			else {
-				ship.addWaypoint(rollDie(6) <= 2 ?
-					randAtlanticConvoyTarget() : randAfricanConvoyTarget());
-			}
+		// Pick a hunting ground
+		else {
+			ship.addWaypoint(rollDie(6) <= 2 ?
+				randAtlanticConvoyTarget() : randAfricanConvoyTarget());
 		}
 	}
 
