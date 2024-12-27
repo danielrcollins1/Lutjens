@@ -203,11 +203,16 @@ GridCoordinate Ship::getNextZone() const {
 		vector<GridCoordinate> adjacent = position.getAdjacent();
 		vector<GridCoordinate> options;
 		for (auto zone: adjacent) {
-			if (isAccessible(zone) 
-				&& zone.distanceFrom(dest) < dist) 
-			{
+			if (isAccessible(zone) && zone.distanceFrom(dest) < dist) {
 				options.push_back(zone);
 			}
+		}
+
+		// If options list is empty, ship is stuck
+		// Avoid map concavities or get a better pathfinding algorithm
+		if (options.empty()) {
+			cerr << "Error: Pathfinding failed, ship is stuck\n";
+			assert(false);			
 		}
 		return randomElem(options);
 	}
