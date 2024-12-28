@@ -51,7 +51,7 @@ class Ship
 		void loseEvasion(int loss);
 		void checkEvasionRepair();
 		void noteDetected();
-		void logDestination();
+		void clogDestination();
 		
 		// Movement functions
 		GridCoordinate getPosition() const;
@@ -67,6 +67,12 @@ class Ship
 		
 	private:
 
+		// Logging structure
+		struct LogTurn {
+			std::vector<GridCoordinate> moves;
+			bool shadowed = false, located = false, battled = false;
+		};
+
 		// Data
 		std::string name;
 		Type type;
@@ -78,11 +84,8 @@ class Ship
 		int timesDetected;
 		GridCoordinate position;
 		GermanPlayer* player;
-		std::vector<std::vector<GridCoordinate>> moveHistory;
 		std::vector<GridCoordinate> waypoints;
-		std::vector<bool> shadowedHistory;
-		std::vector<bool> locatedHistory;
-		std::vector<bool> combatHistory;
+		std::vector<LogTurn> log;
 
 		// Constants
 		static const std::string typeAbbr[NUM_TYPES];
@@ -93,7 +96,7 @@ class Ship
 		void checkForWaypoint();
 		int maxSpeed() const;
 		void applyTempEvasionLoss(int midshipsLost);
-		bool movedThisTurn() const;
+		LogTurn& logNow();
 };
 
 // Stream insertion operator
