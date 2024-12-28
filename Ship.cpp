@@ -6,6 +6,12 @@
 #include <algorithm>
 using namespace std;
 
+// Stream insertion operator
+std::ostream& operator<<(std::ostream& stream, const Ship& ship) {
+	stream << ship.getLongDesc();
+	return stream;
+}
+
 // Ship type abbreviations
 const string Ship::typeAbbr[NUM_TYPES]
 	= {"BB", "BC", "PB", "CA", "CL", "CV", "DD", "SS"};
@@ -426,8 +432,8 @@ Ship::LogTurn& Ship::logNow() {
 	return log.back();	
 }
 
-// Stream insertion operator
-std::ostream& operator<<(std::ostream& stream, const Ship& ship) {
-	stream << ship.getLongDesc();
-	return stream;
+// Add to our list of orders
+void Ship::giveOrder(OrderType type, const GridCoordinate& zone) {
+	Order order = {type, zone};
+	orders.push_back(order);
 }

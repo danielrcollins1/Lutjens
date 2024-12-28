@@ -18,7 +18,12 @@ class GermanPlayer;
 class Ship
 {
 	public:
+		
+		// Enumerations
 		enum Type {BB, BC, PB, CA, CL, CV, DD, SS, NUM_TYPES};
+		enum OrderType {MOVE, PATROL, LOITER};
+
+		// Functions
 		Ship(std::string name, Type type, 
 			int evasion, int midships, int fuel, 
 			GermanPlayer* player);
@@ -64,8 +69,18 @@ class Ship
 		bool hasWaypoints() const;
 		void printWaypoints() const;
 		void clearWaypoints();
+
+		// Plotting functions
+		void giveOrder(OrderType type, 
+			const GridCoordinate& zone = GridCoordinate::NO_ZONE);
 		
 	private:
+
+		// Orders structure
+		struct Order {
+			OrderType type;
+			GridCoordinate zone = GridCoordinate::NO_ZONE;
+		};
 
 		// Logging structure
 		struct LogTurn {
@@ -85,6 +100,7 @@ class Ship
 		GridCoordinate position;
 		GermanPlayer* player;
 		std::vector<GridCoordinate> waypoints;
+		std::vector<Order> orders;
 		std::vector<LogTurn> log;
 
 		// Constants
