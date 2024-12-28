@@ -3,7 +3,7 @@
 #include <cassert>
 
 // Off-map marker
-const GridCoordinate GridCoordinate::NO_ZONE('!', 0);
+const GridCoordinate GridCoordinate::NO_ZONE('~', 0);
 
 // Default constructor
 GridCoordinate::GridCoordinate() {
