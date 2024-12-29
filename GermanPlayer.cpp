@@ -452,15 +452,17 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 			ship.orderMove(board->randSeaWithinOne("B13"));
 		}
 
-		// Loiter near Norway in clear weather
-		else if (visibility <= 6) {
-			ship.orderMove(getLoiterZone(ship));
-			ship.orderAction(Ship::STOP);
+		// Break out in bad weather or late game
+		else if (visibility > 6
+			|| rollDie(6) < game->getTurn() - 6)
+		{
+			ship.orderMove(GridCoordinate(position.getRow(), 14));
 		}
 
-		// Break out in bad weather
+		// Loiter near Norway
 		else {
-			ship.orderMove(GridCoordinate(position.getRow(), 14));
+			ship.orderMove(getLoiterZone(ship));
+			ship.orderAction(Ship::STOP);
 		}
 	}
 	
