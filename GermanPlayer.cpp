@@ -437,16 +437,15 @@ void GermanPlayer::requestOrders(Ship& ship) {
 	// Move away from Norway
 	else if (region == EAST_NORWEGIAN) {
 
-		// If on high-risk breakout, get out ASAP
+		// If on highest-risk zone, breakout ASAP
 		if (position == GridCoordinate("G16")) {
 			ship.orderMove(randAnyConvoyTarget(ship));
 			ship.orderAction(Ship::PATROL);
 		}
 
-		// If located, run for Denmark Strait
+		// If located, move out ASAP
 		else if (ship.wasLocated(1)) {
-			ship.orderMove(board->randSeaWithinOne("B11"));
-			ship.orderMove("B7");
+			ship.orderMove(board->randSeaWithinOne("B13"));
 		}
 
 		// Loiter near Norway in clear weather
