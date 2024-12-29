@@ -47,7 +47,7 @@ class Ship
 		bool enteredPort() const;
 		bool wasLocated(unsigned turnsAgo) const;
 		bool wasShadowed(unsigned turnsAgo) const;
-		bool wasInCombat(unsigned turnsAgo) const;
+		bool wasCombated(unsigned turnsAgo) const;
 		void doAvailability();
 		void setLocated();
 		void setShadowed();

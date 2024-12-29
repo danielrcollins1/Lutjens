@@ -139,10 +139,10 @@ void GermanPlayer::doNavalCombatPhase() {
 	for (auto zone: foundShipZones) {
 		for (auto& ship: shipList) {
 			if (ship.getPosition() == zone
-				&& !ship.wasInCombat(0)
+				&& !ship.wasCombated(0)
 				&& !ship.isSunk())
 			{
-				game->checkAttackBy(ship);							
+				game->checkAttackBy(ship);
 			}
 		}
 	}
@@ -387,7 +387,7 @@ void GermanPlayer::requestOrders(Ship& ship) {
 	bool needsNewGoal = false;
 
 	// Redirect if we saw combat or found patroling
-	if (ship.wasInCombat(1)
+	if (ship.wasCombated(1)
 		|| (ship.wasLocated(1)
 			&& ship.getFirstOrder() == Ship::PATROL))
 	{
@@ -501,11 +501,18 @@ void GermanPlayer::requestOrders(Ship& ship) {
 // Pick an appropriate convoy target after breakout
 GridCoordinate GermanPlayer::randAnyConvoyTarget(Ship& ship) const {
 	int pctAtlantic;
+
+	// Minimize travel distance
 	switch (getRegion(ship.getPosition())) {
 		case EAST_ATLANTIC: pctAtlantic = 20; break;
 		case WEST_ATLANTIC: pctAtlantic = 80; break;
 		case DENMARK_STRAIT: pctAtlantic = 100;	break;
-		default: pctAtlantic = 50; break;				
+		default: pctAtlantic = 50; break;
+	}
+	
+	// If we saw combat, widen variation
+	if (ship.wasCombated(1)) {
+		pctAtlantic = 50;	
 	}
 	return rollDie(100) <= pctAtlantic ?
 		randAtlanticConvoyTarget() : randAfricanConvoyTarget();

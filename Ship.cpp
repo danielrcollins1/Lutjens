@@ -348,7 +348,7 @@ bool Ship::wasShadowed(unsigned turnsAgo) const {
 }
 
 // Check if we were in naval combat on a given turn
-bool Ship::wasInCombat(unsigned turnsAgo) const {
+bool Ship::wasCombated(unsigned turnsAgo) const {
 	return turnsAgo < log.size() ?
 		log.rbegin()[turnsAgo].combated : false;
 }
