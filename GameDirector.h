@@ -43,7 +43,7 @@ class GameDirector
 		void resolveCombat(Ship& ship);
 		void msgSunkConvoy();
 		bool isPassThroughSearchOn() const;
-		bool wasConvoySunk(int daysAgo) const;
+		bool wasConvoySunk(unsigned daysAgo) const;
 		int getConvoysSunk() const;
 		int getTimesFlagshipDetected() const;
 

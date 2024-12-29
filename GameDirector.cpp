@@ -281,10 +281,9 @@ int GameDirector::getConvoysSunk() const {
 }
 
 // Check if a convoy was sunk on a given day
-bool GameDirector::wasConvoySunk(int daysAgo) const {
-	assert(0 <= daysAgo 
-		&& daysAgo < (int) dailyConvoySunk.size());
-	return dailyConvoySunk.rbegin()[daysAgo];
+bool GameDirector::wasConvoySunk(unsigned daysAgo) const {
+	return daysAgo < dailyConvoySunk.size() ?
+		dailyConvoySunk.rbegin()[daysAgo] : false;
 }
 
 // Do end-game reporting

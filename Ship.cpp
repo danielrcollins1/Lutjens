@@ -336,18 +336,21 @@ void Ship::setInCombat() {
 }
 
 // Check if we were located by search/shadow on a given turn
-bool Ship::wasLocated(int turnsAgo) const {
-	return log.rbegin()[turnsAgo].located;
+bool Ship::wasLocated(unsigned turnsAgo) const {
+	return turnsAgo < log.size() ?
+		log.rbegin()[turnsAgo].located : false;
 }
 
 // Check if we were shadowed on a given turn
-bool Ship::wasShadowed(int turnsAgo) const {
-	return log.rbegin()[turnsAgo].shadowed;
+bool Ship::wasShadowed(unsigned turnsAgo) const {
+	return turnsAgo < log.size() ?
+		log.rbegin()[turnsAgo].shadowed : false;
 }
 
 // Check if we were in naval combat on a given turn
-bool Ship::wasInCombat(int turnsAgo) const {
-	return log.rbegin()[turnsAgo].combated;
+bool Ship::wasInCombat(unsigned turnsAgo) const {
+	return turnsAgo < log.size() ?
+		log.rbegin()[turnsAgo].combated : false;
 }
 
 // How far did we move on the search board this turn?
@@ -448,11 +451,6 @@ bool Ship::hasOrders() const {
 	return !orders.empty();	
 }
 
-// Are we now working on an active order?
-bool Ship::hasActiveOrder() const {
-	return (!orders.empty() && orders.front().type != STOP);
-}
-
 // Clear the pending orders list
 void Ship::clearOrders() {
 	queue<Order> empty;
@@ -468,4 +466,21 @@ string Ship::Order::toString() const {
 		default: cerr << "Error: Unknown order type\n";
 			return "Unknown";
 	}
+}
+
+// Get a random adjacent space to which we can move
+GridCoordinate Ship::randAdjacentMove() const {
+	GridCoordinate move;
+	auto board = SearchBoard::instance();
+	do {
+		move = board->randSeaWithinOne(position);
+	} while (!isAccessible(move)
+		|| board->isGermanPort(move));
+	return move;
+}
+
+// Return type of the frontmost order
+Ship::OrderType Ship::getFirstOrder() const {
+	return !orders.empty() ?
+		orders.front().type : STOP;
 }

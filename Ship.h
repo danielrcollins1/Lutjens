@@ -45,9 +45,9 @@ class Ship
 		bool isInNight() const;
 		bool isInFog() const;
 		bool enteredPort() const;
-		bool wasLocated(int turnsAgo) const;
-		bool wasShadowed(int turnsAgo) const;
-		bool wasInCombat(int turnsAgo) const;
+		bool wasLocated(unsigned turnsAgo) const;
+		bool wasShadowed(unsigned turnsAgo) const;
+		bool wasInCombat(unsigned turnsAgo) const;
 		void doAvailability();
 		void setLocated();
 		void setShadowed();
@@ -65,12 +65,13 @@ class Ship
 		void setPosition(const GridCoordinate& zone);
 		bool isAccessible(const GridCoordinate& zone) const;
 		bool movedThrough(const GridCoordinate& zone) const;
+		GridCoordinate randAdjacentMove() const;
 
 		// Plotting functions
 		void orderAction(OrderType type);
 		void orderMove(const GridCoordinate& dest);
 		bool hasOrders() const;
-		bool hasActiveOrder() const;
+		OrderType getFirstOrder() const;
 		void clearOrders();
 		
 	private:

@@ -169,7 +169,7 @@ void GermanPlayer::doChancePhase() {
 		// Convoy results
 		else if (roll <= 12) {
 			auto game = GameDirector::instance();
-			if (!game->wasConvoySunk(0)         // Rule 10.26
+			if (!game->wasConvoySunk(0)      // Rule 10.26
 				&& !game->isVisibilityX())   // Errata in General 16/2
 			{			
 				checkConvoyResult(ship, roll);
@@ -384,13 +384,29 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(
 
 // Request orders for a ship before its move
 void GermanPlayer::requestOrders(Ship& ship) {
+	bool needsNewGoal = false;
 
-	// Skip if ship has active order
-	if (ship.hasActiveOrder()) {
-		return;
+	// Redirect if we saw combat or found patroling
+	if (ship.wasInCombat(1)
+		|| (ship.wasLocated(1)
+			&& ship.getFirstOrder() == Ship::PATROL))
+	{
+		ship.clearOrders();
+		ship.orderMove(ship.randAdjacentMove());
+		needsNewGoal = true;
 	}
-	else {
-		ship.clearOrders(); // clear STOP		
+
+	// Check other reasons for new goal
+	if (!ship.hasOrders() 
+		|| ship.getFirstOrder() == Ship::STOP)
+	{
+		ship.clearOrders();
+		needsNewGoal = true;
+	}
+
+	// Only proceed if we need a new goal
+	if (!needsNewGoal) {
+		return;	
 	}
 
 	// Gather data
@@ -421,8 +437,20 @@ void GermanPlayer::requestOrders(Ship& ship) {
 	// Move away from Norway
 	else if (region == EAST_NORWEGIAN) {
 
+		// If on high-risk breakout, get out ASAP
+		if (position == GridCoordinate("G16")) {
+			ship.orderMove(randAnyConvoyTarget(ship));
+			ship.orderAction(Ship::PATROL);
+		}
+
+		// If located, run for Denmark Strait
+		else if (ship.wasLocated(1)) {
+			ship.orderMove(board->randSeaWithinOne("B11"));
+			ship.orderMove("B7");
+		}
+
 		// Loiter near Norway in clear weather
-		if (visibility <= 6) {
+		else if (visibility <= 6) {
 			ship.orderMove(loiterTarget(ship));
 			ship.orderAction(Ship::STOP);
 		}
@@ -485,13 +513,9 @@ GridCoordinate GermanPlayer::randAnyConvoyTarget(Ship& ship) const {
 
 // Have a ship loiter within current region
 GridCoordinate GermanPlayer::loiterTarget(const Ship& ship) const {
-	GridCoordinate next;
-	auto position = ship.getPosition();
-	auto board = SearchBoard::instance();
+	GridCoordinate move;
 	do {
-		next = board->randSeaWithinOne(position);
-	} while (!ship.isAccessible(next)
-		|| getRegion(next) != getRegion(position)
-		|| board->isGermanPort(next));
-	return next;
+		move = ship.randAdjacentMove();
+	} while (getRegion(move) != getRegion(ship.getPosition()));
+	return move;
 }
