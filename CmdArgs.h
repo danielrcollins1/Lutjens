@@ -20,6 +20,8 @@ class CmdArgs
 		bool isExitAfterArgs() const { return exitAfterArgs; }
 		bool isAutomatedBritish() const { return automateBritish; }
 		bool isRunLargeSeries() const { return runLargeSeries; }
+		bool useFuelExpenditure() const { return optFuelExpenditure; }
+		bool useFuelDamage() const { return optFuelDamage; }
 		int getLastTurn() const { return lastTurn; }
 		int getNumTrials() const { return numTrials; }
 
@@ -30,12 +32,16 @@ class CmdArgs
 		bool exitAfterArgs = false;
 		bool automateBritish = false;
 		bool runLargeSeries = false;
+		bool optFuelExpenditure = false;
+		bool optFuelDamage = false;
 		int lastTurn = -1;
 		int numTrials = -1;
 
 		// Functions
 		CmdArgs();
 		int parseArgAsInt(char *s);
+		void parseOptionalRule(char *s);
+		void setExitAfterArgs();
 };
 
 #endif

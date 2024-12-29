@@ -1,5 +1,6 @@
 #include "CmdArgs.h"
 #include <iostream>
+using namespace std;
 
 // Pointer to the singleton object.
 CmdArgs* CmdArgs::theInstance = nullptr;
@@ -22,7 +23,9 @@ void CmdArgs::printOptions() const {
 		<< "\t-a automate British player\n"
 		<< "\t-l large series of games\n"
 		<< "\t-f finish on turn number\n"
-		<< "\t-n number of games to run\n";
+		<< "\t-n number of games to run\n"
+		<< "\t-ofe use optional fuel expenditure (rule 16.0)\n"
+		<< "\t-ofd use optional fuel damage (rule 21.0)\n";
 }
 
 // Parse the command-line arguments
@@ -35,13 +38,19 @@ void CmdArgs::parseArgs(int argc, char** argv) {
 				case 'a': automateBritish = true; break;
 				case 'f': lastTurn = parseArgAsInt(arg); break;
 				case 'n': numTrials = parseArgAsInt(arg); break;
-				default: exitAfterArgs = true; break;
+				case 'o': parseOptionalRule(arg); break;
+				default: setExitAfterArgs(); break;
 			}
 		}
 		else {
-			exitAfterArgs = true;
+			setExitAfterArgs();
 		}
 	}
+}
+
+// Set to exit program after argument parsing error
+void CmdArgs::setExitAfterArgs() {
+	exitAfterArgs = true;
 }
 
 // Parse an argument as an integer
@@ -50,5 +59,23 @@ int CmdArgs::parseArgAsInt(char *s) {
 	if (strlen(s) > 3 && s[2] == '=') {
 		return atoi(s + 3);
 	}
-	return -1;
+	else {
+		setExitAfterArgs();
+		return -1;
+	}
+}
+
+// Parse switch for optional (intermediate) rule
+void CmdArgs::parseOptionalRule(char *s) {
+	string arg(s);
+	string optCode = arg.substr(2, 2);
+	if (optCode == "fd") {
+		optFuelDamage = true;
+	}
+	else if (optCode == "fe") {
+		optFuelExpenditure = true;
+	}
+	else {
+		setExitAfterArgs();
+	}
 }
