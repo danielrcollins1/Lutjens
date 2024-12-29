@@ -386,7 +386,7 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(
 void GermanPlayer::getOrders(Ship& ship) {
 	bool needsNewGoal = false;
 
-	// Redirect if we saw combat or found patroling
+	// Redirect if we saw combat or were found patroling
 	if (ship.wasCombated(1)
 		|| (ship.wasLocated(1)
 			&& ship.getFirstOrder() == Ship::PATROL))
@@ -404,10 +404,14 @@ void GermanPlayer::getOrders(Ship& ship) {
 		needsNewGoal = true;
 	}
 
-	// Only proceed if we need a new goal
-	if (!needsNewGoal) {
-		return;	
+	// Set new strategic goal if needed
+	if (needsNewGoal) {
+		orderNewGoal(ship);
 	}
+}
+
+// Set a new strategic goal for a ship
+void GermanPlayer::orderNewGoal(Ship& ship) {
 
 	// Gather data
 	GameDirector* game = GameDirector::instance();
