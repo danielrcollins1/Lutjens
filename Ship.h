@@ -10,6 +10,7 @@
 #include "GridCoordinate.h"
 #include "SearchBoard.h"
 #include <vector>
+#include <queue>
 
 // Forward for player
 class GermanPlayer;
@@ -21,7 +22,7 @@ class Ship
 		
 		// Enumerations
 		enum Type {BB, BC, PB, CA, CL, CV, DD, SS, NUM_TYPES};
-		enum OrderType {MOVE, PATROL, LOITER};
+		enum OrderType {MOVE, PATROL, STOP};
 
 		// Functions
 		Ship(std::string name, Type type, 
@@ -56,23 +57,21 @@ class Ship
 		void loseEvasion(int loss);
 		void checkEvasionRepair();
 		void noteDetected();
-		void clogDestination();
 		
 		// Movement functions
 		GridCoordinate getPosition() const;
 		void doMovement();
 		void doBreakoutBonusMove();
 		void setPosition(const GridCoordinate& zone);
-		void addWaypoint(const GridCoordinate& zone);
 		bool isAccessible(const GridCoordinate& zone) const;
 		bool movedThrough(const GridCoordinate& zone) const;
-		bool hasWaypoints() const;
-		void printWaypoints() const;
-		void clearWaypoints();
 
 		// Plotting functions
-		void giveOrder(OrderType type, 
-			const GridCoordinate& zone = GridCoordinate::NO_ZONE);
+		void orderAction(OrderType type);
+		void orderMove(const GridCoordinate& dest);
+		bool hasOrders() const;
+		bool hasActiveOrder() const;
+		void clearOrders();
 		
 	private:
 
@@ -80,14 +79,19 @@ class Ship
 		struct Order {
 			OrderType type;
 			GridCoordinate zone = GridCoordinate::NO_ZONE;
+			std::string toString() const;
 		};
 
 		// Logging structure
 		struct LogTurn {
 			std::vector<GridCoordinate> moves;
-			bool shadowed = false, located = false, battled = false;
+			bool shadowed = false, located = false, combated = false;
 		};
 
+		// Constants
+		static const std::string typeAbbr[NUM_TYPES];
+		static const std::string typeName[NUM_TYPES];
+		
 		// Data
 		std::string name;
 		Type type;
@@ -99,20 +103,17 @@ class Ship
 		int timesDetected;
 		GridCoordinate position;
 		GermanPlayer* player;
-		std::vector<GridCoordinate> waypoints;
-		std::vector<Order> orders;
+		std::queue<Order> orders;
 		std::vector<LogTurn> log;
 
-		// Constants
-		static const std::string typeAbbr[NUM_TYPES];
-		static const std::string typeName[NUM_TYPES];
-		
 		// Functions
 		GridCoordinate getNextZone() const;
-		void checkForWaypoint();
 		int maxSpeed() const;
 		void applyTempEvasionLoss(int midshipsLost);
 		LogTurn& logNow();
+		void updateOrders();
+		void doMoveOrder();
+		void pushOrder(Order order);
 };
 
 // Stream insertion operator

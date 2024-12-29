@@ -114,28 +114,6 @@ bool Ship::isOnPatrol() const {
 // Do setup in first phase of turn
 void Ship::doAvailability() {
 	log.push_back(LogTurn());
-//	shadowedHistory.push_back(false);
-//	locatedHistory.push_back(false);
-//	combatHistory.push_back(false);
-}
-
-// Clear all waypoints
-void Ship::clearWaypoints() {
-	waypoints.clear();	
-}
-
-// Add a waypoint
-//   But reject if we're already there
-void Ship::addWaypoint(const GridCoordinate& coord) {
-	if (coord != position) {
-		waypoints.push_back(coord);
-	}
-	clogDestination();
-}
-
-// Do we have any waypoints?
-bool Ship::hasWaypoints() const {
-	return !waypoints.empty();
 }
 
 // Do German ship first-turn breakout bonus move (Rule 5.28)
@@ -145,12 +123,15 @@ void Ship::doBreakoutBonusMove() {
 	assert(GameDirector::instance()->getTurnsElapsed() == 0);
 	player->getDirection(*this);
 
-	// Set position & cycle waypoint
-	auto goal = waypoints[0];
+	// Get ordered position
+	assert(orders.front().type == MOVE);
+	auto goal = orders.front().zone;
 	int distance = position.distanceFrom(goal);
-	position = goal;
-	checkForWaypoint();
+
+	// Move to that position
 	assert(distance <= 5);
+	position = goal;
+	updateOrders();
 
 	// Charge for fuel
 	switch (distance) {
@@ -182,27 +163,73 @@ int Ship::maxSpeed() const {
 		return lastTurnSpeed > 1 ? 1 : 2; // speed 1.5
 	}
 	else {
-		// No ship in published game has a speed this high.
-		// At this point, search board speed would be full 2/turn.
+		// No ship in published game has speed this high.
+		// In this case, search board speed would be full 2/turn.
 		// A few destroyers/cruisers in WWII had speeds up to 45 knots.
 		cerr << "Error: Ship evasion above game allowances.\n";
 		return 2;		
 	}
 }
 
-// Check if we reached a waypoint
-void Ship::checkForWaypoint() {
-	while (!waypoints.empty() 
-		&& position == waypoints[0])
-	{
-		waypoints.erase(waypoints.begin());
+// Do movement for turn
+void Ship::doMovement() {
+	player->getDirection(*this);
+
+	// Check if we lose a turn
+	if (loseMoveTurn) {
+		loseMoveTurn = false;
+	}
+
+	// Follow the next order
+	else if (hasOrders()) {
+		onPatrol = false;
+		switch (orders.front().type) {
+			case MOVE: doMoveOrder(); break;
+			case PATROL: onPatrol = true; break;
+			case STOP: break;
+		}
+	}
+	
+	// Expend fuel
+	switch(logNow().moves.size()) {
+		case 0: case 1: break; // no expense
+		case 2: fuelLost++; break;
+		default: cerr << "Error: Invalid move distance\n";
+			assert(false);		
+	}
+
+	// Repair evasion
+	checkEvasionRepair();
+}
+
+// Perform orders to move on search board
+void Ship::doMoveOrder() {
+	assert(orders.front().type == MOVE);
+
+	// Select speed to move
+	int speed = maxSpeed();
+	if (getFuel() == 1) {
+		speed = min(1, speed);	
+	}
+	
+	// Try to perform movement
+	for (int step = 0; step < speed; step++) {
+		auto next = getNextZone();
+		if (next != GridCoordinate::NO_ZONE) {
+			position = next;
+			logNow().moves.push_back(position);
+			updateOrders();
+			//cout << *this << endl;
+		}
 	}
 }
 
 // Get one step towards destination
 GridCoordinate Ship::getNextZone() const {
-	if (!waypoints.empty()) {
-		GridCoordinate dest = waypoints[0];
+	if (!orders.empty()
+		&& orders.front().type == MOVE)
+	{		
+		GridCoordinate dest = orders.front().zone;
 		int dist = position.distanceFrom(dest);
 		vector<GridCoordinate> adjacent = position.getAdjacent();
 		vector<GridCoordinate> options;
@@ -215,60 +242,22 @@ GridCoordinate Ship::getNextZone() const {
 		// If options list is empty, ship is stuck
 		// Avoid map concavities or get a better pathfinding algorithm
 		if (options.empty()) {
-			cerr << "Error: Pathfinding failed, ship is stuck\n";
-			assert(false);			
+			cerr << "Error: Pathfinding failed, ship is stuck @ " 
+				<< position << "\n";
+			assert(false);
 		}
 		return randomElem(options);
 	}
-	return position;
-}
-
-// Do movement for turn
-void Ship::doMovement() {
-	player->getDirection(*this);
-	auto board = SearchBoard::instance();
-
-	// Set to patrol if no waypoints
-	onPatrol = waypoints.empty()
-		&& !board->isGermanPort(position);
-
-	// Select speed to move
-	int speed = maxSpeed();
-	if (getFuel() == 1) {
-		speed = min(1, speed);	
-	}
-	if (onPatrol || loseMoveTurn) {
-		speed = 0;
-		loseMoveTurn = false;
-	}
-	assert(speed <= 2);
-	
-	// Try to perform movement
-	for (int step = 0; step < speed; step++) {
-		auto next = getNextZone();
-		if (next != position) {
-			position = next;
-			logNow().moves.push_back(position);
-			checkForWaypoint();
-			//cout << *this << endl;
-		}
-	}
-
-	// Account for fuel, history
-	if (logNow().moves.size() == 2) {
-		fuelLost++;	
-	}
-	checkEvasionRepair();
+	return GridCoordinate::NO_ZONE;
 }
 
 // Are we in port?
 bool Ship::isInPort() const {
-	auto board = SearchBoard::instance();
-	return board->isGermanPort(position);
+	return SearchBoard::instance()->isGermanPort(position);
 }
 
 // Have we entered a port?
-//   Assumes we moved from port on first turn
+//   Assumes we moved out of port on first turn
 bool Ship::enteredPort() const {
 	return isInPort()
 		&& GameDirector::instance()->getTurnsElapsed() > 0;
@@ -341,7 +330,7 @@ void Ship::setShadowed() {
 
 // Note that we have entered naval combat
 void Ship::setInCombat() {
-	logNow().battled = true;
+	logNow().combated = true;
 }
 
 // Check if we were located by search/shadow on a given turn
@@ -356,7 +345,7 @@ bool Ship::wasShadowed(int turnsAgo) const {
 
 // Check if we were in naval combat on a given turn
 bool Ship::wasInCombat(int turnsAgo) const {
-	return log.rbegin()[turnsAgo].battled;
+	return log.rbegin()[turnsAgo].combated;
 }
 
 // How far did we move on the search board this turn?
@@ -410,30 +399,66 @@ void Ship::checkEvasionRepair() {
 	}
 }
 
-// Print our waypoints (for testing)
-void Ship::printWaypoints() const {
-	cout << name << " waypoints: ";
-	printVec(waypoints);	
-}
-
-// Log our final waypoint destination
-void Ship::clogDestination() {
-	if (waypoints.empty()) {
-		clog << name << " has no goal\n";
-	}
-	else {
-		clog << name << " directed @ " 
-			<< waypoints.back() << "\n";
-	}
-}
-
 // Return the log record for the current turn
 Ship::LogTurn& Ship::logNow() {
 	return log.back();	
 }
 
-// Add to our list of orders
-void Ship::giveOrder(OrderType type, const GridCoordinate& zone) {
-	Order order = {type, zone};
-	orders.push_back(order);
+// Receive a non-move order
+void Ship::orderAction(OrderType type) {
+	assert(type != MOVE);
+	Order order = {type, GridCoordinate::NO_ZONE};
+	pushOrder(order);
+}
+
+// Receive a movement order
+//   Ignored if we're already there
+void Ship::orderMove(const GridCoordinate& dest) {
+	if (position != dest) {
+		Order order = {MOVE, dest};
+		pushOrder(order);
+	}
+}
+
+// Push a new order onto our queue
+void Ship::pushOrder(Order order) {
+	orders.push(order);
+	clog << name << " ordered to " << order.toString() << endl;
+}
+
+// Check if we've achived the next order & cycle
+void Ship::updateOrders() {
+	while (!orders.empty()
+		&& orders.front().type == MOVE
+		&& orders.front().zone == position)
+	{
+		orders.pop();	
+	}
+}
+
+// Do we have any pending orders?
+bool Ship::hasOrders() const {
+	return !orders.empty();	
+}
+
+// Are we now working on an active order?
+bool Ship::hasActiveOrder() const {
+	return (!orders.empty() && orders.front().type != STOP);
+}
+
+// Clear the pending orders list
+void Ship::clearOrders() {
+	queue<Order> empty;
+	swap(orders, empty);
+}
+
+// Get a string descriptor for an order
+string Ship::Order::toString() const {
+	switch (type) {
+		case MOVE: return "Move-" + zone.toString();
+		case PATROL: return "Patrol";
+		case STOP: return "Stop";
+		default: cerr << "Error: Unknown order type\n";
+			return "Unknown";
+	}
 }

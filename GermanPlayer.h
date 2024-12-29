@@ -38,9 +38,10 @@ class GermanPlayer
 		std::vector<GridCoordinate> foundShipZones;
 		
 		// Functions
-		GridCoordinate randAtlanticConvoyTarget();
-		GridCoordinate randAfricanConvoyTarget();
-		GridCoordinate randMidAtlanticTarget();
+		GridCoordinate randAtlanticConvoyTarget() const;
+		GridCoordinate randAfricanConvoyTarget() const;
+		GridCoordinate randMidAtlanticTarget() const;
+		GridCoordinate randAnyConvoyTarget(Ship& ship) const;
 		void checkGeneralSearch(Ship& ship, int roll);
 		void checkConvoyResult(Ship& ship, int roll);
 		void callHuffDuff(Ship& ship);
@@ -48,8 +49,8 @@ class GermanPlayer
 		char getGeneralSearchColumn(const GridCoordinate& zone);
 
 		// Plotting functions
-		static MapRegion getRegion(const GridCoordinate& zone);
-		GridCoordinate loiterInRegion(Ship& ship);
+		MapRegion getRegion(const GridCoordinate& zone) const;
+		GridCoordinate loiterTarget(const Ship& ship) const;
 };
 
 #endif
