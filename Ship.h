@@ -22,6 +22,7 @@ class Ship
 		
 		// Enumerations
 		enum Type {BB, BC, PB, CA, CL, CV, DD, SS, NUM_TYPES};
+		enum ClassType {BATTLESHIP, CRUISER, DESTROYER, OTHER};
 		enum OrderType {MOVE, PATROL, STOP};
 
 		// Functions
@@ -33,6 +34,7 @@ class Ship
 		std::string getTypeAndEvasion() const;
 		std::string getShortDesc() const;
 		std::string getLongDesc() const;
+		ClassType getClassType() const;
 		int getEvasion() const;
 		int getMidships() const;
 		int getFuel() const;

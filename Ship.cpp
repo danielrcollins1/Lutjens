@@ -80,6 +80,20 @@ string Ship::getLongDesc() const {
 		+ ")";
 }
 
+// Get the category of ship
+//   For purposes of movement, fueling, withdrawal, etc.
+//   E.g., Rules 5.21, 9.72, 9.93, 16.4, 58.5, 67.22
+Ship::ClassType Ship::getClassType() const {
+	switch (type) {
+		case BB: case BC: case PB: case CV: return BATTLESHIP;
+		case CA: case CL: return CRUISER;
+		case DD: return DESTROYER;
+		default: cerr << "Error: Unhandled ship class type\n";
+			assert(false);
+			return OTHER;
+	}
+}
+
 // Get the current evasion
 int Ship::getEvasion() const {
 	return max(0, evasionMax - evasionLostTemp - evasionLostPerm);
@@ -374,18 +388,18 @@ void Ship::loseEvasion(int loss) {
 //   For simplicity, we use the Bismarck & Prinz Eugen reductions
 //   for all ships here (presumably only German ships)
 void Ship::applyTempEvasionLoss(int midshipsLost) {
-	int lossPerMidships;
-	switch (type) {
-		case BB: case BC: case PB:
+	int lossPerMidships = 0;
+	switch (getClassType()) {
+		case BATTLESHIP:
 			lossPerMidships = 1;   // Rule 9.724
 			break;
-		case CA: case CL:
+		case CRUISER:
 			lossPerMidships = 3;   // Rule 9.725
 			break;		
 		default:
-			lossPerMidships = 0;
-			cerr << "Error: Unhandled ship type "
+			cerr << "Error: Unhandled class type "
 				<< " for temp evasion loss.\n";
+			assert(false);
 	}
 	evasionLostTemp += lossPerMidships * midshipsLost;
 }
