@@ -298,8 +298,8 @@ void GermanPlayer::checkConvoyResult(Ship& ship, int roll) {
 // Score destruction of a convoy
 //   And re-route to new destination
 void GermanPlayer::destroyConvoy(Ship& ship) {
-	auto location = ship.getPosition();
-	cgame << "CONVOY SUNK: In zone " << location 
+	cgame << "CONVOY SUNK:"
+		<< " In zone " << ship.getPosition()
 		<< " by " << ship.getName() << endl;
 	GameDirector::instance()->msgSunkConvoy();
 	ship.setLoseMoveTurn();   // Rule 10.25
