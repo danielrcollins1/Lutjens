@@ -498,7 +498,12 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	
 	// Breakout accomplished, now search for convoys
 	else if (region == EAST_ATLANTIC || region == WEST_ATLANTIC) {
-		ship.orderMove(randAnyConvoyTarget(ship));
+		auto target = randAnyConvoyTarget(ship);
+		if (getRegion(position) != getRegion(target) && rollDie(6) <= 4) {
+			// Transition regions via Q15 increases time near convoy line
+			ship.orderMove(board->randSeaWithinOne("Q15"));
+		}
+		ship.orderMove(target);
 		ship.orderAction(Ship::PATROL);
 	}
 	
