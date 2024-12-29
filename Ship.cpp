@@ -242,7 +242,8 @@ GridCoordinate Ship::getNextZone() const {
 		}
 
 		// If options list is empty, ship is stuck
-		// Avoid map concavities or get a better pathfinding algorithm
+		// Avoid map concavities or get a better pathing algorithm (A*)
+		// (And if so done, fix Irish sea layer data)
 		if (options.empty()) {
 			cerr << "Error: Pathfinding failed, ship is stuck @ " 
 				<< position << "\n";
@@ -443,7 +444,7 @@ void Ship::updateOrders() {
 	}
 	
 	// Note: Do NOT ask for new orders at this point (if empty)
-	// We need to see visibility in next turn for best choice
+	// We need to see state/visibility in next turn for best choice
 }
 
 // Do we have any pending orders?
