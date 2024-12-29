@@ -121,7 +121,7 @@ void Ship::doAvailability() {
 //   Waive most other rules restrictions here
 void Ship::doBreakoutBonusMove() {
 	assert(GameDirector::instance()->getTurnsElapsed() == 0);
-	player->requestOrders(*this);
+	player->getOrders(*this);
 	assert(hasOrders());
 
 	// Get ordered position
@@ -147,7 +147,7 @@ void Ship::doBreakoutBonusMove() {
 
 // Do normal movement for turn
 void Ship::doMovement() {
-	player->requestOrders(*this);
+	player->getOrders(*this);
 	assert(hasOrders());
 
 	// Lose a turn if required

@@ -382,8 +382,8 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(
 	else { return EAST_ATLANTIC; }
 }
 
-// Request orders for a ship before its move
-void GermanPlayer::requestOrders(Ship& ship) {
+// Get orders for a ship before its move
+void GermanPlayer::getOrders(Ship& ship) {
 	bool needsNewGoal = false;
 
 	// Redirect if we saw combat or found patroling
@@ -419,7 +419,7 @@ void GermanPlayer::requestOrders(Ship& ship) {
 		visibility += 2; // approximation
 	}
 	
-	// Breakout bonus move destination
+	// On first turn, choose breakout bonus move
 	if (game->getTurnsElapsed() == 0) {
 		char row = rollDie(100) <= 85 ?
 			'A' + rollDie(4) - 1: 'E' + rollDie(2) - 1;
@@ -450,7 +450,7 @@ void GermanPlayer::requestOrders(Ship& ship) {
 
 		// Loiter near Norway in clear weather
 		else if (visibility <= 6) {
-			ship.orderMove(loiterTarget(ship));
+			ship.orderMove(getLoiterZone(ship));
 			ship.orderAction(Ship::STOP);
 		}
 
@@ -491,9 +491,15 @@ void GermanPlayer::requestOrders(Ship& ship) {
 	}
 	
 	// Breakout accomplished, now search for convoys
-	else {
+	else if (region == EAST_ATLANTIC || region == WEST_ATLANTIC) {
 		ship.orderMove(randAnyConvoyTarget(ship));
 		ship.orderAction(Ship::PATROL);
+	}
+	
+	// Error-handler
+	else {
+		cerr << "Error: Unhandled region in GermanPlayer\n";		
+		assert(false);		
 	}
 }
 
@@ -517,8 +523,8 @@ GridCoordinate GermanPlayer::randAnyConvoyTarget(Ship& ship) const {
 		randAtlanticConvoyTarget() : randAfricanConvoyTarget();
 }
 
-// Have a ship loiter within current region
-GridCoordinate GermanPlayer::loiterTarget(const Ship& ship) const {
+// Get an adjacent zone for a ship loitering in a region
+GridCoordinate GermanPlayer::getLoiterZone(const Ship& ship) const {
 	GridCoordinate move;
 	do {
 		move = ship.randAdjacentMove();

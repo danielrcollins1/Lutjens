@@ -24,7 +24,7 @@ class GermanPlayer
 		bool trySearch();
 		void resolveSearch();
 		void printAllShips() const;
-		void requestOrders(Ship& ship);
+		void getOrders(Ship& ship);
 		int getTimesFlagshipDetected() const;
 
 	private:
@@ -50,7 +50,7 @@ class GermanPlayer
 
 		// Plotting functions
 		MapRegion getRegion(const GridCoordinate& zone) const;
-		GridCoordinate loiterTarget(const Ship& ship) const;
+		GridCoordinate getLoiterZone(const Ship& ship) const;
 };
 
 #endif
