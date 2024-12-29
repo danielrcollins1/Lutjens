@@ -382,8 +382,8 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(
 	else { return EAST_ATLANTIC; }
 }
 
-// Get direction for a ship before its move
-void GermanPlayer::getDirection(Ship& ship) {
+// Request orders for a ship before its move
+void GermanPlayer::requestOrders(Ship& ship) {
 
 	// Skip if ship has active order
 	if (ship.hasActiveOrder()) {
@@ -408,13 +408,13 @@ void GermanPlayer::getDirection(Ship& ship) {
 		char row = rollDie(100) <= 85 ?
 			'A' + rollDie(4) - 1: 'E' + rollDie(2) - 1;
 		int col = 15 + rollDie(4) - 1;
-		ship.orderMove(GridCoordinate(row, col));
-
-		// Redirect away from Faeroe Islands
-		if (row == 'F' && col == 15) {
-			ship.clearOrders();
+		if (row == 'F' && col == 15) { // Avoid Faeroe
 			ship.orderMove("G16");
 			ship.orderMove(board->randSeaWithinOne("H15"));
+		} 
+		else {
+			ship.orderMove(GridCoordinate(row, col));
+			ship.orderAction(Ship::STOP);
 		}
 	}
 

@@ -121,7 +121,8 @@ void Ship::doAvailability() {
 //   Waive most other rules restrictions here
 void Ship::doBreakoutBonusMove() {
 	assert(GameDirector::instance()->getTurnsElapsed() == 0);
-	player->getDirection(*this);
+	player->requestOrders(*this);
+	assert(hasOrders());
 
 	// Get ordered position
 	assert(orders.front().type == MOVE);
@@ -144,44 +145,18 @@ void Ship::doBreakoutBonusMove() {
 	logNow().moves.push_back(position);
 }
 
-// How many board spaces can we move this turn?
-//   See Basic Game Tables Card: Movement on Search Board
-int Ship::maxSpeed() const {
-	int evasion = getEvasion();
-	if (evasion <= 6) {
-		return 0;
-	}
-	else if (evasion <= 15 || getFuel() <= 0) {
-		int turn = GameDirector::instance()->getTurn();
-		return turn % 2 ? 0 : 1; // speed 0.5
-	}
-	else if (evasion <= 24) {
-		return 1;		
-	}
-	else if (evasion <= 34) {
-		int lastTurnSpeed = log.rbegin()[1].moves.size();
-		return lastTurnSpeed > 1 ? 1 : 2; // speed 1.5
-	}
-	else {
-		// No ship in published game has speed this high.
-		// In this case, search board speed would be full 2/turn.
-		// A few destroyers/cruisers in WWII had speeds up to 45 knots.
-		cerr << "Error: Ship evasion above game allowances.\n";
-		return 2;		
-	}
-}
-
-// Do movement for turn
+// Do normal movement for turn
 void Ship::doMovement() {
-	player->getDirection(*this);
+	player->requestOrders(*this);
+	assert(hasOrders());
 
-	// Check if we lose a turn
+	// Lose a turn if required
 	if (loseMoveTurn) {
 		loseMoveTurn = false;
 	}
 
 	// Follow the next order
-	else if (hasOrders()) {
+	else {
 		onPatrol = false;
 		switch (orders.front().type) {
 			case MOVE: doMoveOrder(); break;
@@ -221,6 +196,33 @@ void Ship::doMoveOrder() {
 			updateOrders();
 			//cout << *this << endl;
 		}
+	}
+}
+
+// How many board spaces can we move this turn?
+//   See Basic Game Tables Card: Movement on Search Board
+int Ship::maxSpeed() const {
+	int evasion = getEvasion();
+	if (evasion <= 6) {
+		return 0;
+	}
+	else if (evasion <= 15 || getFuel() <= 0) {
+		int turn = GameDirector::instance()->getTurn();
+		return turn % 2 ? 0 : 1; // speed 0.5
+	}
+	else if (evasion <= 24) {
+		return 1;		
+	}
+	else if (evasion <= 34) {
+		int lastTurnSpeed = log.rbegin()[1].moves.size();
+		return lastTurnSpeed > 1 ? 1 : 2; // speed 1.5
+	}
+	else {
+		// No ship in published game has speed this high.
+		// In this case, search board speed would be full 2/turn.
+		// A few destroyers/cruisers in WWII had speeds up to 45 knots.
+		cerr << "Error: Ship evasion above game allowances.\n";
+		return 2;		
 	}
 }
 
@@ -426,14 +428,19 @@ void Ship::pushOrder(Order order) {
 	clog << name << " ordered to " << order.toString() << endl;
 }
 
-// Check if we've achived the next order & cycle
+// Check if orders need updating
 void Ship::updateOrders() {
+
+	// If we achieved move destination, cycle to next
 	while (!orders.empty()
 		&& orders.front().type == MOVE
 		&& orders.front().zone == position)
 	{
 		orders.pop();	
 	}
+	
+	// Note: Do NOT ask for new orders at this point (if empty)
+	// We need to see visibility in next turn for best choice
 }
 
 // Do we have any pending orders?

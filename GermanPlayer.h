@@ -24,7 +24,7 @@ class GermanPlayer
 		bool trySearch();
 		void resolveSearch();
 		void printAllShips() const;
-		void getDirection(Ship& ship);
+		void requestOrders(Ship& ship);
 		int getTimesFlagshipDetected() const;
 
 	private:
