@@ -146,17 +146,17 @@ void Ship::doBreakoutBonusMove() {
 	// Move to that position
 	assert(distance <= 5);
 	position = goal;
+	logNow().moves.push_back(position);
 	updateOrders();
 
-	// Charge for fuel
-	switch (distance) {
-		case 5: fuelLost += 2; break;
-		case 4: fuelLost += 1; break;
-		default: break; // no loss
+	// Expend fuel
+	if (isFuelConsumer()) {
+		switch (distance) {
+			case 5: fuelLost += 2; break;
+			case 4: fuelLost += 1; break;
+			default: break; // no loss
+		}
 	}
-	
-	// Add to move history
-	logNow().moves.push_back(position);
 }
 
 // Do normal movement for turn
@@ -180,11 +180,13 @@ void Ship::doMovement() {
 	}
 	
 	// Expend fuel
-	switch(logNow().moves.size()) {
-		case 0: case 1: break; // no expense
-		case 2: fuelLost++; break;
-		default: cerr << "Error: Invalid move distance\n";
-			assert(false);		
+	if (isFuelConsumer()) {
+		switch(logNow().moves.size()) {
+			case 0: case 1: break; // no expense
+			case 2: fuelLost++; break;
+			default: cerr << "Error: Invalid movement\n";
+				assert(false);		
+		}
 	}
 
 	// Repair evasion
@@ -498,4 +500,10 @@ GridCoordinate Ship::randAdjacentMove() const {
 Ship::OrderType Ship::getFirstOrder() const {
 	return !orders.empty() ?
 		orders.front().type : STOP;
+}
+
+// Do we track fuel expenditures?
+//   See Rules 5.21 and/or 16.2
+bool Ship::isFuelConsumer() const {
+	return getClassType() == BATTLESHIP;	
 }

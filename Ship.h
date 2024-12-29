@@ -117,6 +117,7 @@ class Ship
 		void updateOrders();
 		void doMoveOrder();
 		void pushOrder(Order order);
+		bool isFuelConsumer() const;
 };
 
 // Stream insertion operator
