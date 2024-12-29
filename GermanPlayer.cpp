@@ -23,11 +23,11 @@ const Ship& GermanPlayer::getFlagship() const {
 //   Around row H, on western edge past patrol line
 GridCoordinate GermanPlayer::randAtlanticConvoyTarget() const {
 	int col;
-	char row = 'G' + rollDie(3) - 1;
+	char row = 'G' + rand(3);
 	switch (row) {
-		case 'G': col = rollDie(4); break;
-		case 'H': col = rollDie(5); break;
-		case 'I': col = rollDie(5) + 1; break;
+		case 'G': col = dieRoll(4); break;
+		case 'H': col = dieRoll(5); break;
+		case 'I': col = dieRoll(5) + 1; break;
 		default: cerr << "Error: Unhandled Atlantic convoy column.\n";
 	}
 	return GridCoordinate(row, col);
@@ -36,9 +36,9 @@ GridCoordinate GermanPlayer::randAtlanticConvoyTarget() const {
 // Randomize a convoy target near the African line
 //   Row P to Z, directly on convoy route
 GridCoordinate GermanPlayer::randAfricanConvoyTarget() const {
-	int roll = rollDie(11);
-	char row = 'P' + roll - 1;
-	int col = 15 + roll / 2;
+	int inc = rand(11);
+	char row = 'P' + inc;
+	int col = 15 + (inc + 1) / 2;
 	return GridCoordinate(row, col);
 }
 
@@ -50,9 +50,9 @@ GridCoordinate GermanPlayer::randAfricanConvoyTarget() const {
 //   (3) Maneuvers near African convoy line
 //   Zones L11 to Q16
 GridCoordinate GermanPlayer::randMidAtlanticTarget() const {
-	int roll = rollDie(6);
-	int row = 'L' + roll - 1;
-	int col = 10 + roll;
+	int inc = rand(6);
+	int row = 'L' + inc;
+	int col = 11 + inc;
 	return GridCoordinate(row, col);
 }
 
@@ -154,7 +154,7 @@ void GermanPlayer::doNavalCombatPhase() {
 //   it makes more sense for us with knowledge of ships on board.
 void GermanPlayer::doChancePhase() {
 	for (auto& ship: shipList) {
-		int roll = rollDice(2, 6);
+		int roll = diceRoll(2, 6);
 		
 		// Huff-duff result
 		if (roll == 2) {
@@ -425,9 +425,9 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	
 	// On first turn, choose breakout bonus move
 	if (game->getTurnsElapsed() == 0) {
-		char row = rollDie(100) <= 85 ?
-			'A' + rollDie(4) - 1: 'E' + rollDie(2) - 1;
-		int col = 15 + rollDie(4) - 1;
+		char row = dieRoll(100) <= 85 ? 
+			'A' + rand(4): 'E' + rand(2);
+		int col = 15 + rand(4);
 		if (row == 'F' && col == 15) { // Avoid Faeroe
 			ship.orderMove("G16");
 			ship.orderMove(board->randSeaWithinOne("H15"));
@@ -454,7 +454,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 
 		// Break out in bad weather or late game
 		else if (visibility > 6
-			|| rollDie(6) < game->getTurn() - 6)
+			|| dieRoll(6) < game->getTurn() - 6)
 		{
 			ship.orderMove(GridCoordinate(position.getRow(), 14));
 		}
@@ -472,24 +472,23 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		// Maybe break south if conditions right
 		if (visibility > 4
 			&& position.getRow() >= 'C'
-			&& rollDie(6) <= 3)
+			&& dieRoll(6) <= 3)
 		{
 			ship.orderMove(board->randSeaWithinOne("F13"));
 		}
 		
 		// Otherwise go for Denmark Strait
 		else {
-			ship.orderMove(rollDie(2) == 1 ? "A10" : "B11");
+			ship.orderMove(dieRoll(2) == 1 ? "A10" : "B11");
 		}
 	}
 	
 	// Move through Denmark Strait
 	else if (region == DENMARK_STRAIT) {
 		ship.orderMove("B7");
-		int colOnRowC = 4 + rollDie(3);
+		int colOnRowC = 5 + rand(3);
 		ship.orderMove(GridCoordinate('C', colOnRowC));
-		ship.orderMove(GridCoordinate(
-			'E', colOnRowC + rollDie(3) - 1));
+		ship.orderMove(GridCoordinate('E', colOnRowC + rand(3)));
 
 		// Aim for Atlantic convoy route nearby
 		ship.orderMove(randAtlanticConvoyTarget());
@@ -499,7 +498,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	// Breakout accomplished, now search for convoys
 	else if (region == EAST_ATLANTIC || region == WEST_ATLANTIC) {
 		auto target = randAnyConvoyTarget(ship);
-		if (getRegion(position) != getRegion(target) && rollDie(6) <= 4) {
+		if (getRegion(position) != getRegion(target) && dieRoll(6) <= 4) {
 			// Transition regions via Q15 increases time near convoy line
 			ship.orderMove(board->randSeaWithinOne("Q15"));
 		}
@@ -530,7 +529,7 @@ GridCoordinate GermanPlayer::randAnyConvoyTarget(Ship& ship) const {
 	if (ship.wasCombated(1)) {
 		pctAtlantic = 50;	
 	}
-	return rollDie(100) <= pctAtlantic ?
+	return dieRoll(100) <= pctAtlantic ?
 		randAtlanticConvoyTarget() : randAfricanConvoyTarget();
 }
 

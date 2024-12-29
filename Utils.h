@@ -16,8 +16,9 @@
 void seedRandom();
 
 // Dice-rolling prototypes.
-int rollDie(int sides);
-int rollDice(int num, int sides);
+int rand(int bound);
+int dieRoll(int sides);
+int diceRoll(int num, int sides);
 
 // Get a Y/N response from stdin.
 bool getUserYes();

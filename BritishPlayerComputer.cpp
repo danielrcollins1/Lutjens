@@ -62,7 +62,7 @@ vector<GridCoordinate> BritishPlayerComputer::getShipPatrolZones()
 	vector<GridCoordinate> list = {"B7", "D12", "E13", "F14", "G15", "H16"};
 	
 	// Suffolk somewhere off Iceland
-	GridCoordinate suffolk('D', 3 + rollDice(2, 3));
+	GridCoordinate suffolk('D', 3 + diceRoll(2, 3));
 	list.push_back(suffolk);
 	return list;
 }
@@ -74,7 +74,7 @@ vector<int> BritishPlayerComputer::planInitialAirPatrols() {
 	const int TOTAL_AIR_PATROLS = 20;
 	vector<int> patrolsPerDay(NUM_DAYS);
 	for (int i = 0; i < TOTAL_AIR_PATROLS; i++) {
-		int day = rollDice(2, 3) - 2;
+		int day = diceRoll(2, 3) - 2;
 		patrolsPerDay[day]++;
 	}
 	return patrolsPerDay;
@@ -102,8 +102,8 @@ vector<GridCoordinate> BritishPlayerComputer::getAirPatrolZones()
 //   Column pick suggested by MicroBismarck LRS resultd
 GridCoordinate BritishPlayerComputer::pickAirPatrolZone() {
 	int col;
-	char row = 'A' + rollDie(6) - 1;
-	switch (rollDie(13)) {
+	char row = 'A' + rand(6);
+	switch (dieRoll(13)) {
 		case 1: col = 18; break;
 		case 2: col = 17; break;
 		case 3: col = 16; break;

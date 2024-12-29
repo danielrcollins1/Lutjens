@@ -244,7 +244,7 @@ void GameDirector::doChancePhase() {
 //   See Basic Player Aid Card: Visibility Track and Change
 void GameDirector::rollVisibility() {
 	assert(isInInterval(1, visibility, VISIBILITY_X));
-	int roll = rollDice(2, 6);
+	int roll = diceRoll(2, 6);
 	
 	// Modify roll for current visibility
 	//   NOTE: Modifier signs flipped by errata in General 16/2

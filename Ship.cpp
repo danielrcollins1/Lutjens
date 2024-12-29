@@ -393,7 +393,7 @@ void Ship::applyTempEvasionLoss(int midshipsLost) {
 // Check for evasion repair following movement (Rule 9.728)
 void Ship::checkEvasionRepair() {
 	if (evasionLostTemp && getSpeed() <= 1) {
-		int repair = rollDie(6) * 2 - 4;
+		int repair = dieRoll(6) * 2 - 4;
 		repair = max(0, repair);
 		repair = min(repair, evasionLostTemp);
 		if (repair) {

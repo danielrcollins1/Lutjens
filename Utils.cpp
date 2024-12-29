@@ -7,16 +7,21 @@ void seedRandom() {
 	srand(time(0));	
 }
 
-// Roll one die.
-int rollDie(int sides) {
-	return rand() % sides + 1;	
+// Randomize a number from 0 to bound
+int rand(int bound) {
+	return rand() % bound;	
 }
 
-// Roll multiple dice and sum.
-int rollDice(int num, int sides) {
+// Roll one die.
+int dieRoll(int sides) {
+	return rand(sides) + 1;	
+}
+
+// Roll several dice and sum.
+int diceRoll(int num, int sides) {
 	int sum = 0;
 	for (int i = 0; i < num; i++) {
-		sum += rollDie(sides);
+		sum += dieRoll(sides);
 	}
 	return sum;
 }
