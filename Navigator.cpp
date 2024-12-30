@@ -37,7 +37,7 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 		// Get all the best-guess zones on edge of search space
 		vector<GridCoordinate> bestGuessEdge;
 		int fScoreBest = openSet.top().first;
-		while (!openSet.empty()
+		while (!openSet.empty() 
 			&& openSet.top().first == fScoreBest) 
 		{
 			bestGuessEdge.push_back(openSet.top().second);
@@ -60,7 +60,6 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 				path.push_back(current);
 				current = cameFrom[current];
 			}
-			path.push_back(start);
 			reverse(path.begin(), path.end());
 			return path;
 		}

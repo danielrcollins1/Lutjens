@@ -108,11 +108,11 @@ class Ship
 		GridCoordinate position;
 		GermanPlayer* player;
 		std::queue<Order> orders;
+		std::queue<GridCoordinate> route;
 		std::vector<LogTurn> log;
 
 		// Functions
 		LogTurn& logNow();
-		GridCoordinate getNextZone() const;
 		int maxSpeed() const;
 		int getFuelExpense(int speed) const;
 		void updateOrders();
@@ -121,6 +121,8 @@ class Ship
 		void applyTempEvasionLoss(int midshipsLoss);
 		void checkFuelDamage(int midshipsLoss);
 		void checkFuelForWeather(int speed);
+		void plotRoute(const GridCoordinate& goal);
+		void clearRoute();
 };
 
 // Stream insertion operator

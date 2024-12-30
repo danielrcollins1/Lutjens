@@ -2,6 +2,7 @@
 #include "Utils.h"
 #include "GameDirector.h"
 #include "GermanPlayer.h"
+#include "Navigator.h"
 #include "CmdArgs.h"
 #include <cassert>
 using namespace std;
@@ -220,8 +221,8 @@ void Ship::doMovement() {
 		onPatrol = false;
 		switch (orders.front().type) {
 			case MOVE: doMoveOrder(); break;
-			case PATROL: onPatrol = true; break;
-			case STOP: break;
+			case PATROL: onPatrol = true; // & fall through
+			case STOP: clearRoute();
 		}
 	}
 	
@@ -238,6 +239,11 @@ void Ship::doMovement() {
 void Ship::doMoveOrder() {
 	assert(orders.front().type == MOVE);
 
+	// Plot new route if needed
+	if (route.empty()) {
+		plotRoute(orders.front().zone);
+	}
+
 	// Select speed to move
 	int speed = maxSpeed();
 	if (getFuel() == 1) {
@@ -246,8 +252,9 @@ void Ship::doMoveOrder() {
 	
 	// Try to perform movement
 	for (int step = 0; step < speed; step++) {
-		auto next = getNextZone();
-		if (next != GridCoordinate::NO_ZONE) {
+		if (!route.empty()) {
+			auto next = route.front();
+			route.pop();
 			position = next;
 			logNow().moves.push_back(position);
 			updateOrders();
@@ -280,34 +287,6 @@ int Ship::maxSpeed() const {
 		cerr << "Error: Ship evasion above game allowances.\n";
 		return 2;		
 	}
-}
-
-// Get one step towards destination
-GridCoordinate Ship::getNextZone() const {
-	if (!orders.empty()
-		&& orders.front().type == MOVE)
-	{		
-		GridCoordinate dest = orders.front().zone;
-		int dist = position.distanceFrom(dest);
-		vector<GridCoordinate> adjacent = position.getAdjacent();
-		vector<GridCoordinate> options;
-		for (auto zone: adjacent) {
-			if (isAccessible(zone) && zone.distanceFrom(dest) < dist) {
-				options.push_back(zone);
-			}
-		}
-
-		// If options list is empty, ship is stuck
-		// Avoid map concavities or get a better pathing algorithm (A*)
-		// (And if so done, fix Irish sea layer data)
-		if (options.empty()) {
-			cerr << "Error: Pathfinding failed, ship is stuck @ " 
-				<< position << "\n";
-			assert(false);
-		}
-		return randomElem(options);
-	}
-	return GridCoordinate::NO_ZONE;
 }
 
 // Are we in port?
@@ -576,4 +555,19 @@ void Ship::checkFuelDamage(int midshipsLoss) {
 			}
 		}
 	}
+}
+
+// Get a route from Navigator
+void Ship::plotRoute(const GridCoordinate& goal) {
+	clearRoute();
+	auto navRoute = Navigator::findSeaRoute(*this, goal);
+	for (auto zone: navRoute) {
+		route.push(zone);	
+	}
+}
+
+// Clear the current route plot
+void Ship::clearRoute() {
+	queue<GridCoordinate> empty;
+	swap(route, empty);
 }
