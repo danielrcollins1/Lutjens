@@ -10,12 +10,16 @@
 #include <ctime>
 #include "SearchBoard.h"
 #include "GridCoordinate.h"
+#include "GermanPlayer.h"
 #include "Ship.h"
 #include "Utils.h"
+#include "Navigator.h"
 using namespace std;
 
 // Test SearchBoard
 void testSearchBoard() {
+	cout << "\nPress [Enter] to view search board.\n";
+	cin.get();
 	SearchBoard::instance()->print();
 	cout << "Done search board test.\n";
 }
@@ -68,6 +72,7 @@ GridCoordinate getOneStep(const GridCoordinate& src,
 	for (auto gc: adjacent) {
 		if (board->isSeaZone(gc) 
 			&& !board->isBritishCoast(gc)
+			&& !board->isBritishPort(gc)
 			&& gc.distanceFrom(dest) < dist)
 		{
 			options.push_back(gc);
@@ -77,10 +82,10 @@ GridCoordinate getOneStep(const GridCoordinate& src,
 }
 
 // Test simple pathfinding
-void testPathFinding(const GridCoordinate& src, 
+void testSimplePath(const GridCoordinate& src, 
 	const GridCoordinate& dest) 
 {
-	cout << "Path from " << src << " to " << dest << ": ";
+	cout << "Simple path from " << src << " to " << dest << ": ";
 	auto loc = src;
 	while (loc != dest) {
 		loc = getOneStep(loc, dest);
@@ -90,31 +95,45 @@ void testPathFinding(const GridCoordinate& src,
 }
 
 // Test pathfinding to randomized destination
-void testPathRandDest(const GridCoordinate& src, 
+void testSimplePathRandDest(const GridCoordinate& src, 
 	const GridCoordinate& destCenter) 
 {
 	auto board = SearchBoard::instance();
 	GridCoordinate dest = board->randSeaWithinOne(destCenter);
-	testPathFinding(src, dest);
+	testSimplePath(src, dest);
 }
 
 // Test ship construction
 void testShipConstruction() {
-	Ship ship("Bismarck", Ship::Type::BB, 29, 10, 13);
+	Ship ship("Bismarck", Ship::Type::BB, 29, 10, 13, nullptr);
 	ship.setPosition("F20");
 	cout << "Ship test: " << ship << endl;
+}
+
+// Test A* pathfinding navigation
+void testNavigatorPath(const GridCoordinate& src, 
+	const GridCoordinate& dest) 
+{
+	cout << "Navigator path from " << src << " to " << dest << ": ";
+	Ship ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, nullptr);
+	ship.setPosition(src);
+	vector<GridCoordinate> path = Navigator::findSeaRoute(ship, dest);
+	printVec(path);
 }
 
 // Main test driver
 int main(int argc, char** argv) {
 	srand(time(0));
-	testSearchBoard();
+
+	// Test basic stuff
 	testObjectSizes();
 	testCoordinateConstructors();
 	testCoordinateDistances();
 	testCoordinateAdjacency("J16");
-	testPathFinding("F20", "B11");
-	testPathRandDest("F20", "B11");
+	testSimplePath("F20", "B11");
+	testSimplePathRandDest("F20", "B11");
 	testShipConstruction();
+	testNavigatorPath("F20", "P23");
+	//testSearchBoard();
 	return 0;
 }

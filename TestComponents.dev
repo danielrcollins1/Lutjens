@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=5
 CompilerSettings=0;0;0;0;0;0;0;1;0;0;1;0;1;0;0;0;0;0;1;0;0;0;0;0;0;0
-UnitCount=26
+UnitCount=28
 
 [VersionInfo]
 Major=1
@@ -302,6 +302,26 @@ BuildCmd=
 
 [Unit26]
 FileName=BritishPlayerHuman.cpp
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit27]
+FileName=Navigator.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit28]
+FileName=Navigator.cpp
 CompileCpp=1
 Folder=
 Compile=1

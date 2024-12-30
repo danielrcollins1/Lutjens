@@ -5,6 +5,9 @@
 // Off-map marker
 const GridCoordinate GridCoordinate::NO_ZONE('~', 0);
 
+// Top-left (hidden) space
+const GridCoordinate GridCoordinate::ORIGIN('A', -2);
+
 // Default constructor
 GridCoordinate::GridCoordinate() {
 	*this = NO_ZONE;
@@ -92,8 +95,19 @@ bool GridCoordinate::operator!=(const GridCoordinate& coord) const {
 	return !(*this == coord);	
 }
 
+// Compare two coordinates for distance from origin
+bool GridCoordinate::operator<(const GridCoordinate& coord) const {
+	return ORIGIN.distanceFrom(*this) < ORIGIN.distanceFrom(coord);
+}
+
 // Stream insertion operator
 std::ostream& operator<<(std::ostream& stream, const GridCoordinate& coord) {
 	stream << coord.toString();
 	return stream;
+}
+
+// Hash function
+std::size_t GridCoordinate::Hash::operator()(const GridCoordinate& coord) const 
+{
+	return std::hash<int>()(coord.row) ^ (std::hash<int>()(coord.col) << 1);
 }

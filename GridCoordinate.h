@@ -27,9 +27,16 @@ class GridCoordinate
 		std::vector<GridCoordinate> getAdjacent() const;
 		bool operator==(const GridCoordinate& coord) const;
 		bool operator!=(const GridCoordinate& coord) const;
+		bool operator<(const GridCoordinate& coord) const;
 		static bool isValid(const char *s);
 		static bool isValid(const std::string s);
 		static const GridCoordinate NO_ZONE;
+		static const GridCoordinate ORIGIN;
+		
+		// Hash structure
+		struct Hash {
+			std::size_t operator()(const GridCoordinate& coord) const;
+		};
 		
 	private:
 		typedef char int8;
