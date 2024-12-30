@@ -381,6 +381,15 @@ int Ship::getSpeed() const {
 void Ship::loseMidships(int loss) {
 	midshipsLost += loss;
 	applyTempEvasionLoss(loss);
+
+	// Apply optional fuel damage (Rule 21.0)
+	if (CmdArgs::instance()->useFuelDamage()) {
+		for (int i = 0; i < loss; i++) {
+			if (dieRoll(6) >= 5) {
+				fuelLost++;	
+			}
+		}
+	}
 }
 		
 // Take damage to our evasion rating (permanently)
