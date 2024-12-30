@@ -22,8 +22,8 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 	const Ship& ship, const GridCoordinate& goal)
 {
 	// Create data structures
-	typedef pair<double, GridCoordinate> zoneRank;
-	priority_queue<zoneRank, vector<zoneRank>, greater<>> openSet;
+	typedef pair<double, GridCoordinate> rankedZone;
+	priority_queue<rankedZone, vector<rankedZone>, greater<>> openSet;
 	unordered_map<GridCoordinate, ZonePathRecord, GridCoordinateHash> 
 		pathRecords;
 
@@ -33,7 +33,7 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 	pathRecords[start] = {true, 0, distance, GridCoordinate::NO_ZONE};
 	openSet.emplace(distance + randDecimal(), start);
 	
-	// While we have an open edge to search space
+	// While we have an open edge to the search space
 	while (!openSet.empty()) {
 
 		// Get the best-guess next step
