@@ -25,13 +25,12 @@ class GridCoordinate
 		std::string toString() const;
  		int distanceFrom(const GridCoordinate& dest) const;
 		std::vector<GridCoordinate> getAdjacent() const;
-		bool operator==(const GridCoordinate& coord) const;
-		bool operator!=(const GridCoordinate& coord) const;
-		bool operator<(const GridCoordinate& coord) const;
+		bool operator==(const GridCoordinate& other) const;
+		bool operator!=(const GridCoordinate& other) const;
+		bool operator<(const GridCoordinate& other) const;
 		static bool isValid(const char *s);
 		static bool isValid(const std::string s);
 		static const GridCoordinate NO_ZONE;
-		static const GridCoordinate ORIGIN;
 		
 		// Hash structure
 		struct Hash {

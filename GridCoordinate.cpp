@@ -5,9 +5,6 @@
 // Off-map marker
 const GridCoordinate GridCoordinate::NO_ZONE('~', 0);
 
-// Top-left (hidden) space
-const GridCoordinate GridCoordinate::ORIGIN('A', -2);
-
 // Default constructor
 GridCoordinate::GridCoordinate() {
 	*this = NO_ZONE;
@@ -86,18 +83,18 @@ std::vector<GridCoordinate> GridCoordinate::getAdjacent() const {
 }
 
 // Compare two coordinates for equality
-bool GridCoordinate::operator==(const GridCoordinate& coord) const {
-	return row == coord.row && col == coord.col;	
+bool GridCoordinate::operator==(const GridCoordinate& other) const {
+	return row == other.row && col == other.col;
 }
 
 // Compare two coordinates for in equality
-bool GridCoordinate::operator!=(const GridCoordinate& coord) const {
-	return !(*this == coord);	
+bool GridCoordinate::operator!=(const GridCoordinate& other) const {
+	return !(*this == other);
 }
 
-// Compare two coordinates for distance from origin
-bool GridCoordinate::operator<(const GridCoordinate& coord) const {
-	return ORIGIN.distanceFrom(*this) < ORIGIN.distanceFrom(coord);
+// Compare two coordinates by lexicographic order
+bool GridCoordinate::operator<(const GridCoordinate& other) const {
+	return row < other.row || (row == other.row && col < other.col);
 }
 
 // Stream insertion operator
