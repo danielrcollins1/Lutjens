@@ -15,12 +15,12 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 {
 	// Create data structures
 	priority_queue<
-		pair<double, GridCoordinate>,
-	    vector<pair<double, GridCoordinate>>,
+		pair<int, GridCoordinate>,
+	    vector<pair<int, GridCoordinate>>,
 	    greater<>> openSet;
 	unordered_map<GridCoordinate, bool, GridCoordinateHash> inOpenSet;
-	unordered_map<GridCoordinate, double, GridCoordinateHash> gScore;
-	unordered_map<GridCoordinate, double, GridCoordinateHash> fScore;
+	unordered_map<GridCoordinate, int, GridCoordinateHash> gScore;
+	unordered_map<GridCoordinate, int, GridCoordinateHash> fScore;
 	unordered_map<GridCoordinate, GridCoordinate, GridCoordinateHash> 
 		cameFrom;
 
@@ -36,12 +36,12 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 
 		// Get all the best-guess zones on edge of search space
 		vector<GridCoordinate> bestGuessEdge;
-		int fScoreBest = openSet.top().first;
+		int fScoreTop = openSet.top().first;
 		while (!openSet.empty() 
-			&& openSet.top().first == fScoreBest) 
+			&& openSet.top().first == fScoreTop)
 		{
 			bestGuessEdge.push_back(openSet.top().second);
-			openSet.pop();			
+			openSet.pop();
 		}
 		
 		// Randomly pick one of those zones, put the rest back
@@ -49,7 +49,7 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 		inOpenSet[current] = false;
 		for (auto zone: bestGuessEdge) {
 			if (zone != current) {
-				openSet.emplace(fScoreBest, zone);
+				openSet.emplace(fScoreTop, zone);
 			}
 		}
 
@@ -72,7 +72,7 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 			}
 
 			// Compute distance from start to this neighbor
-			double tentative_gScore = gScore[current] + 1;
+			int tentative_gScore = gScore[current] + 1;
 
 			// Record if this is the shortest path to neighbor
 			if (gScore.find(neighbor) == gScore.end() 
