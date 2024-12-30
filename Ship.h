@@ -118,6 +118,7 @@ class Ship
 		void doMoveOrder();
 		void pushOrder(Order order);
 		bool isFuelConsumer() const;
+		void adjustFuelForWeather(int speed);
 };
 
 // Stream insertion operator

@@ -2,8 +2,8 @@
 #include "Utils.h"
 #include "GameDirector.h"
 #include "GermanPlayer.h"
+#include "CmdArgs.h"
 #include <cassert>
-#include <algorithm>
 using namespace std;
 
 // Stream insertion operator
@@ -181,12 +181,14 @@ void Ship::doMovement() {
 	
 	// Expend fuel
 	if (isFuelConsumer()) {
-		switch(logNow().moves.size()) {
+		int speed = logNow().moves.size();
+		switch(speed) {
 			case 0: case 1: break; // no expense
 			case 2: fuelLost++; break;
 			default: cerr << "Error: Invalid movement\n";
 				assert(false);		
 		}
+		adjustFuelForWeather(speed);
 	}
 
 	// Repair evasion
@@ -460,7 +462,7 @@ void Ship::updateOrders() {
 	}
 	
 	// Note: Do NOT ask for new orders at this point (if empty)
-	// We need to see state/visibility in next turn for best choice
+	// We want to see state/visibility next turn for best choice
 }
 
 // Do we have any pending orders?
@@ -503,7 +505,45 @@ Ship::OrderType Ship::getFirstOrder() const {
 }
 
 // Do we track fuel expenditures?
-//   See Rules 5.21 and/or 16.2
+//   See Rules 5.21, 16.2, 23.21
 bool Ship::isFuelConsumer() const {
-	return getClassType() == BATTLESHIP;	
+	switch (getClassType()) {
+		case BATTLESHIP: return true;
+		case CRUISER: return 
+			CmdArgs::instance()->useFuelExpenditure();
+		case DESTROYER: return true;
+		default: return false;
+	}
+}
+
+// Expend extra fuel at bad visibility levels
+//   As per optional Rule 16.4 on Fuel Expenditure
+void Ship::adjustFuelForWeather(int speed) {
+	if (CmdArgs::instance()->useFuelExpenditure()) {
+		int visibility = GameDirector::instance()->getVisibility();
+		switch (getClassType()) {
+			case BATTLESHIP:
+				if (visibility >= 8 && speed > 0) {
+					fuelLost++;
+				}
+				break;
+			case CRUISER: 
+				if (visibility >= 7 && speed > 0) {
+					fuelLost++;
+				}
+				break;
+			case DESTROYER:
+				if (visibility >= 5) {
+					switch (speed) {
+						case 1: fuelLost += 1; break;
+						case 2: fuelLost += 3; break;
+						default: break; // nothing						
+					}
+				}
+				break;
+			default: 
+				cerr << "Error: Unhandled ship class type\n";
+				assert(false);
+		}
+	}
 }
