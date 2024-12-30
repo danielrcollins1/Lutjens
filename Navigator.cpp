@@ -9,14 +9,15 @@ using namespace std;
 // Find a sea route via the A* search algorithm
 //   See: https://en.wikipedia.org/wiki/A*_search_algorithm
 //   Initial code from OpenAI chat suggestion.
-//   Our version adds random variation among equal-distance options.
+//   We add a decimal to keys in the priority queue,
+//     so as to randomly shuffle equally-close options.
 std::vector<GridCoordinate> Navigator::findSeaRoute(
 	const Ship& ship, const GridCoordinate& goal)
 {
 	// Create data structures
 	priority_queue<
-		pair<int, GridCoordinate>,
-	    vector<pair<int, GridCoordinate>>,
+		pair<double, GridCoordinate>,
+	    vector<pair<double, GridCoordinate>>,
 	    greater<>> openSet;
 	unordered_map<GridCoordinate, bool, GridCoordinateHash> inOpenSet;
 	unordered_map<GridCoordinate, int, GridCoordinateHash> gScore;
@@ -28,30 +29,16 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 	GridCoordinate start = ship.getPosition();
 	gScore[start] = 0;
 	fScore[start] = start.distanceFrom(goal);
-	openSet.emplace(fScore[start], start);
+	openSet.emplace(fScore[start] + randDecimal(), start);
 	inOpenSet[start] = true;
 
 	// While we have an open edge to search space
 	while (!openSet.empty()) {
 
-		// Get all the best-guess zones on edge of search space
-		vector<GridCoordinate> bestGuessEdge;
-		int fScoreTop = openSet.top().first;
-		while (!openSet.empty() 
-			&& openSet.top().first == fScoreTop)
-		{
-			bestGuessEdge.push_back(openSet.top().second);
-			openSet.pop();
-		}
-		
-		// Randomly pick one of those zones, put the rest back
-		GridCoordinate current = randomElem(bestGuessEdge);
-		inOpenSet[current] = false;
-		for (auto zone: bestGuessEdge) {
-			if (zone != current) {
-				openSet.emplace(fScoreTop, zone);
-			}
-		}
+		// Get the best-guess next step
+		GridCoordinate current = openSet.top().second;
+		openSet.pop();
+		inOpenSet[current] = false;		
 
 		// If we've found our goal, compile route & return
 		if (current == goal) {
@@ -83,7 +70,8 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 				fScore[neighbor] = gScore[neighbor] 
 					+ neighbor.distanceFrom(goal);
 				if (!inOpenSet[neighbor]) {
-					openSet.emplace(fScore[neighbor], neighbor);
+					openSet.emplace(
+						fScore[neighbor] + randDecimal(), neighbor);
 					inOpenSet[neighbor] = true;
 				}
 			}

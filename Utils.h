@@ -16,6 +16,7 @@
 void seedRandom();
 
 // Dice-rolling prototypes.
+double randDecimal();
 int rand(int bound);
 int dieRoll(int sides);
 int diceRoll(int num, int sides);

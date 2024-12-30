@@ -7,6 +7,11 @@ void seedRandom() {
 	srand(time(0));	
 }
 
+// Randomize a number from 0 to 1
+double randDecimal() {
+	return (double) rand() / RAND_MAX;	
+}
+
 // Randomize a number from 0 to bound
 int rand(int bound) {
 	return rand() % bound;	
