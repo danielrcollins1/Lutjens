@@ -133,7 +133,8 @@ int main(int argc, char** argv) {
 	testSimplePath("F20", "B11");
 	testSimplePathRandDest("F20", "B11");
 	testShipConstruction();
+	testNavigatorPath("F20", "B7");
 	testNavigatorPath("F20", "P23");
-	//testSearchBoard();
+	testSearchBoard();
 	return 0;
 }

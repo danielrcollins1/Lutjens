@@ -34,29 +34,24 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 	// While we have an open edge to search space
 	while (!openSet.empty()) {
 
-		// Get current best guess on edge of search space
-		GridCoordinate current = openSet.top().second;
-		openSet.pop();
+		// Get all the best-guess zones on edge of search space
+		vector<GridCoordinate> bestGuessEdge;
+		int fScoreBest = openSet.top().first;
+		while (!openSet.empty()
+			&& openSet.top().first == fScoreBest) 
+		{
+			bestGuessEdge.push_back(openSet.top().second);
+			openSet.pop();			
+		}
+		
+		// Randomly pick one of those zones, put the rest back
+		GridCoordinate current = randomElem(bestGuessEdge);
 		inOpenSet[current] = false;
-
-//		// Get all the best-guess zones on edge of search space
-//		vector<GridCoordinate> bestGuessEdge;
-//		int fScoreBest = openSet.top().first;
-//		while (!openSet.empty()
-//			&& openSet.top().first == fScoreBest) 
-//		{
-//			bestGuessEdge.push_back(openSet.top().second);
-//			openSet.pop();			
-//		}
-//		
-//		// Randomly pick one of those zones, put the rest back
-//		GridCoordinate current = randomElem(bestGuessEdge);
-//		inOpenSet[current] = false;
-//		for (auto zone: bestGuessEdge) {
-//			if (zone != current) {
-//				openSet.emplace(fScoreBest, zone);
-//			}
-//		}
+		for (auto zone: bestGuessEdge) {
+			if (zone != current) {
+				openSet.emplace(fScoreBest, zone);
+			}
+		}
 
 		// If we've found our goal, compile route & return
 		if (current == goal) {
