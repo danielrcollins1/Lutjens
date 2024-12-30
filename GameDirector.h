@@ -30,6 +30,7 @@ class GameDirector
 		int getTurnsElapsed() const;
 		int getVisibility() const;
 		bool isVisibilityX() const;
+		bool isConvoyTurn() const;
 		bool isInDay(const GridCoordinate& zone) const;
 		bool isInNight(const GridCoordinate& zone) const;
 		bool isInFog(const GridCoordinate& zone) const;

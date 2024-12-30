@@ -376,3 +376,9 @@ void GameDirector::resolveCombat(Ship& ship) {
 int GameDirector::getTimesFlagshipDetected() const {
 	return germanPlayer->getTimesFlagshipDetected();	
 }
+
+// Is this a turn in which convoys move?
+//   That is: A "C-turn" on Time Record Track (Rule 5.24, etc.)
+bool GameDirector::isConvoyTurn() const {
+	return !(turn % 2);
+}

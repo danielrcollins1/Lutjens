@@ -35,9 +35,9 @@ class Ship
 		std::string getShortDesc() const;
 		std::string getLongDesc() const;
 		ClassType getClassType() const;
+		int getFuel() const;
 		int getEvasion() const;
 		int getMidships() const;
-		int getFuel() const;
 		int getSpeed() const;
 		int getTimesDetected() const;
 		bool isOnPatrol() const;
@@ -55,8 +55,9 @@ class Ship
 		void setShadowed();
 		void setInCombat();
 		void setLoseMoveTurn();
-		void loseMidships(int loss);
+		void loseFuel(int loss);
 		void loseEvasion(int loss);
+		void loseMidships(int loss);
 		void checkEvasionRepair();
 		void noteDetected();
 		
@@ -110,15 +111,16 @@ class Ship
 		std::vector<LogTurn> log;
 
 		// Functions
+		LogTurn& logNow();
 		GridCoordinate getNextZone() const;
 		int maxSpeed() const;
-		void applyTempEvasionLoss(int midshipsLost);
-		LogTurn& logNow();
+		int getFuelExpense(int speed) const;
 		void updateOrders();
 		void doMoveOrder();
 		void pushOrder(Order order);
-		bool isFuelConsumer() const;
-		void adjustFuelForWeather(int speed);
+		void applyTempEvasionLoss(int midshipsLoss);
+		void checkFuelDamage(int midshipsLoss);
+		void checkFuelForWeather(int speed);
 };
 
 // Stream insertion operator

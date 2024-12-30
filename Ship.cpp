@@ -94,9 +94,9 @@ Ship::ClassType Ship::getClassType() const {
 	}
 }
 
-// Get the current evasion
-int Ship::getEvasion() const {
-	return max(0, evasionMax - evasionLostTemp - evasionLostPerm);
+// Get the current fuel
+int Ship::getFuel() const {
+	return max(0, fuelMax - fuelLost);
 }
 
 // Get the current midships
@@ -104,9 +104,57 @@ int Ship::getMidships() const {
 	return max(0, midshipsMax - midshipsLost);
 }
 
-// Get the current fuel
-int Ship::getFuel() const {
-	return max(0, fuelMax - fuelLost);	
+// Get the current evasion
+int Ship::getEvasion() const {
+	return max(0, evasionMax - evasionLostTemp - evasionLostPerm);
+}
+
+// Take exspense to our fuel
+void Ship::loseFuel(int loss) {
+	fuelLost += loss;	
+}
+
+// Take damage to our evasion rating (permanently)
+void Ship::loseEvasion(int loss) {
+	evasionLostPerm += loss;
+}
+
+// Take damage to our midships
+void Ship::loseMidships(int loss) {
+	midshipsLost += loss;
+	applyTempEvasionLoss(loss);
+	checkFuelDamage(loss);
+}
+		
+// Apply temporary evasion loss from midships hit (Rule 9.72)
+//   For simplicity, we use the Bismarck & Prinz Eugen reductions
+//   for all ships here (presumably only German ships)
+void Ship::applyTempEvasionLoss(int midshipsLoss) {
+	int lossPerMidships = 0;
+	switch (getClassType()) {
+		case BATTLESHIP: lossPerMidships = 1; break;
+		case CRUISER: lossPerMidships = 3; break;
+		default: 
+			cerr << "Error: Unhandled class type "
+				<< " for temporary evasion loss.\n";
+			assert(false);
+	}
+	evasionLostTemp += lossPerMidships * midshipsLoss;
+}
+
+// Check for evasion repair following movement (Rule 9.728)
+void Ship::checkEvasionRepair() {
+	if (evasionLostTemp && getSpeed() <= 1) {
+		int repair = dieRoll(6) * 2 - 4;
+		repair = max(0, repair);
+		repair = min(repair, evasionLostTemp);
+		if (repair) {
+			clog << name << " repairs " 
+				<< repair << " evasion factor(s).\n";
+			evasionLostTemp -= repair;
+			assert(evasionLostTemp >= 0);			
+		}
+	}
 }
 
 // Set starting position
@@ -149,13 +197,11 @@ void Ship::doBreakoutBonusMove() {
 	logNow().moves.push_back(position);
 	updateOrders();
 
-	// Expend fuel
-	if (isFuelConsumer()) {
-		switch (distance) {
-			case 5: fuelLost += 2; break;
-			case 4: fuelLost += 1; break;
-			default: break; // no loss
-		}
+	// Spend fuel
+	switch (distance) {
+		case 5: loseFuel(2); break;
+		case 4: loseFuel(1); break;
+		default: break; // no loss
 	}
 }
 
@@ -179,17 +225,10 @@ void Ship::doMovement() {
 		}
 	}
 	
-	// Expend fuel
-	if (isFuelConsumer()) {
-		int speed = logNow().moves.size();
-		switch(speed) {
-			case 0: case 1: break; // no expense
-			case 2: fuelLost++; break;
-			default: cerr << "Error: Invalid movement\n";
-				assert(false);		
-		}
-		adjustFuelForWeather(speed);
-	}
+	// Spend fuel
+	int speed = logNow().moves.size();
+	loseFuel(getFuelExpense(speed));
+	checkFuelForWeather(speed);
 
 	// Repair evasion
 	checkEvasionRepair();
@@ -212,7 +251,6 @@ void Ship::doMoveOrder() {
 			position = next;
 			logNow().moves.push_back(position);
 			updateOrders();
-			//cout << *this << endl;
 		}
 	}
 }
@@ -224,9 +262,9 @@ int Ship::maxSpeed() const {
 	if (evasion <= 6) {
 		return 0;
 	}
-	else if (evasion <= 15 || getFuel() <= 0) {
-		int turn = GameDirector::instance()->getTurn();
-		return turn % 2 ? 0 : 1; // speed 0.5
+	else if (evasion <= 15 || getFuel() < 1) {
+		bool convoyTurn = GameDirector::instance()->isConvoyTurn();
+		return convoyTurn ? 0 : 1; // speed 0.5
 	}
 	else if (evasion <= 24) {
 		return 1;		
@@ -377,61 +415,6 @@ int Ship::getSpeed() const {
 	return log.back().moves.size();
 }
 
-// Take damage to our midships
-void Ship::loseMidships(int loss) {
-	midshipsLost += loss;
-	applyTempEvasionLoss(loss);
-
-	// Apply optional fuel damage (Rule 21.0)
-	if (CmdArgs::instance()->useFuelDamage()) {
-		for (int i = 0; i < loss; i++) {
-			if (dieRoll(6) >= 5) {
-				fuelLost++;	
-			}
-		}
-	}
-}
-		
-// Take damage to our evasion rating (permanently)
-void Ship::loseEvasion(int loss) {
-	evasionLostPerm += loss;
-}
-
-// Apply temporary evasion loss from midships hit (Rule 9.72)
-//   For simplicity, we use the Bismarck & Prinz Eugen reductions
-//   for all ships here (presumably only German ships)
-void Ship::applyTempEvasionLoss(int midshipsLost) {
-	int lossPerMidships = 0;
-	switch (getClassType()) {
-		case BATTLESHIP:
-			lossPerMidships = 1;   // Rule 9.724
-			break;
-		case CRUISER:
-			lossPerMidships = 3;   // Rule 9.725
-			break;		
-		default:
-			cerr << "Error: Unhandled class type "
-				<< " for temp evasion loss.\n";
-			assert(false);
-	}
-	evasionLostTemp += lossPerMidships * midshipsLost;
-}
-
-// Check for evasion repair following movement (Rule 9.728)
-void Ship::checkEvasionRepair() {
-	if (evasionLostTemp && getSpeed() <= 1) {
-		int repair = dieRoll(6) * 2 - 4;
-		repair = max(0, repair);
-		repair = min(repair, evasionLostTemp);
-		if (repair) {
-			clog << name << " repairs " 
-				<< repair << " evasion factor(s).\n";
-			evasionLostTemp -= repair;
-			assert(evasionLostTemp >= 0);			
-		}
-	}
-}
-
 // Return the log record for the current turn
 Ship::LogTurn& Ship::logNow() {
 	return log.back();	
@@ -513,46 +496,84 @@ Ship::OrderType Ship::getFirstOrder() const {
 		orders.front().type : STOP;
 }
 
-// Do we track fuel expenditures?
-//   See Rules 5.21, 16.2, 23.21
-bool Ship::isFuelConsumer() const {
+// Compute the fuel we expend at a given speed
+//   See Rules 5.2, 16.2, 22.14, 23.21
+//   Does not include optional variation for weather (Rule 16.4),
+//   which refers back here (would be recursive call)
+int Ship::getFuelExpense(int speed) const {
+	assert(speed <= 2);
+	int expense;
+	auto game = GameDirector::instance();
 	switch (getClassType()) {
-		case BATTLESHIP: return true;
-		case CRUISER: return 
-			CmdArgs::instance()->useFuelExpenditure();
-		case DESTROYER: return true;
-		default: return false;
+	
+		case BATTLESHIP: // Rule 5.21
+			expense = (speed < 2) ? 0 : 1;
+
+			// Slow battleship: Rules 5.25 & 5.27
+			if (evasionMax <= 24 && speed == 1
+				&& !game->isConvoyTurn()) 
+			{
+				expense = 1;
+			}
+			break;
+	
+		case CRUISER: // Rule 5.21
+			expense = 0;
+		
+			// Optional fuel expenditure: Rule 16.2
+			if (CmdArgs::instance()->useFuelExpenditure()) {
+				expense = (speed < 2) ? 0 : 1;
+			}
+			break;
+
+		case DESTROYER: // Rule 23.21
+			expense = (speed < 2) ? 1 : 3;
+			break;
+			
+		default: 
+			cerr << "Error: Unhandled ship class\n";
+			assert(false);
+			expense = 0;
 	}
+	return expense;
 }
 
 // Expend extra fuel at bad visibility levels
 //   As per optional Rule 16.4 on Fuel Expenditure
-void Ship::adjustFuelForWeather(int speed) {
+void Ship::checkFuelForWeather(int speed) {
 	if (CmdArgs::instance()->useFuelExpenditure()) {
 		int visibility = GameDirector::instance()->getVisibility();
 		switch (getClassType()) {
 			case BATTLESHIP:
 				if (visibility >= 8 && speed > 0) {
-					fuelLost++;
+					loseFuel(1);
 				}
 				break;
 			case CRUISER: 
 				if (visibility >= 7 && speed > 0) {
-					fuelLost++;
+					loseFuel(1);
 				}
 				break;
 			case DESTROYER:
 				if (visibility >= 5) {
-					switch (speed) {
-						case 1: fuelLost += 1; break;
-						case 2: fuelLost += 3; break;
-						default: break; // nothing						
-					}
+					loseFuel(getFuelExpense(speed));
 				}
 				break;
 			default: 
 				cerr << "Error: Unhandled ship class type\n";
 				assert(false);
+		}
+	}
+}
+
+// Check for fuel lost from combat damage
+//   As per optional Rule 21.0 on Fuel Damage
+void Ship::checkFuelDamage(int midshipsLoss) {
+	if (CmdArgs::instance()->useFuelDamage()) {
+		for (int i = 0; i < midshipsLoss; i++) {
+			if (dieRoll(6) >= 5) {
+				loseFuel(1);
+			}
 		}
 	}
 }
