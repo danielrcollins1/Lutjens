@@ -6,6 +6,13 @@
 #include <algorithm>
 using namespace std;
 
+// Structure to record path-search information
+struct ZonePathRecord {
+	bool inOpenSet;	
+	int gScore, fScore;	
+	GridCoordinate cameFrom;	
+};
+
 // Find a sea route via the A* search algorithm
 //   See: https://en.wikipedia.org/wiki/A*_search_algorithm
 //   Initial code from OpenAI chat suggestion.
@@ -15,37 +22,31 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 	const Ship& ship, const GridCoordinate& goal)
 {
 	// Create data structures
-	priority_queue<
-		pair<double, GridCoordinate>,
-	    vector<pair<double, GridCoordinate>>,
-	    greater<>> openSet;
-	unordered_map<GridCoordinate, bool, GridCoordinateHash> inOpenSet;
-	unordered_map<GridCoordinate, int, GridCoordinateHash> gScore;
-	unordered_map<GridCoordinate, int, GridCoordinateHash> fScore;
-	unordered_map<GridCoordinate, GridCoordinate, GridCoordinateHash> 
-		cameFrom;
+	typedef pair<double, GridCoordinate> zoneRank;
+	priority_queue<zoneRank, vector<zoneRank>, greater<>> openSet;
+	unordered_map<GridCoordinate, ZonePathRecord, GridCoordinateHash> 
+		pathRecords;
 
 	// Initialize with ship start position
 	GridCoordinate start = ship.getPosition();
-	gScore[start] = 0;
-	fScore[start] = start.distanceFrom(goal);
-	openSet.emplace(fScore[start] + randDecimal(), start);
-	inOpenSet[start] = true;
-
+	int distance = start.distanceFrom(goal);
+	pathRecords[start] = {true, 0, distance, GridCoordinate::NO_ZONE};
+	openSet.emplace(distance + randDecimal(), start);
+	
 	// While we have an open edge to search space
 	while (!openSet.empty()) {
 
 		// Get the best-guess next step
 		GridCoordinate current = openSet.top().second;
+		pathRecords[current].inOpenSet = false;
 		openSet.pop();
-		inOpenSet[current] = false;		
 
 		// If we've found our goal, compile route & return
 		if (current == goal) {
 			vector<GridCoordinate> path;
 			while (current != start) {
 				path.push_back(current);
-				current = cameFrom[current];
+				current = pathRecords[current].cameFrom;
 			}
 			reverse(path.begin(), path.end());
 			return path;
@@ -59,20 +60,22 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 			}
 
 			// Compute distance from start to this neighbor
-			int tentative_gScore = gScore[current] + 1;
+			int tentative_gScore = pathRecords[current].gScore + 1;
 
-			// Record if this is the shortest path to neighbor
-			if (gScore.find(neighbor) == gScore.end() 
-				|| tentative_gScore < gScore[neighbor]) 
+			// Record if this is the shortest path found to neighbor
+			if (pathRecords.find(neighbor) == pathRecords.end()
+				|| tentative_gScore < pathRecords[neighbor].gScore) 
 			{
-				cameFrom[neighbor] = current;
-				gScore[neighbor] = tentative_gScore;
-				fScore[neighbor] = gScore[neighbor] 
+				pathRecords[neighbor].cameFrom = current;
+				pathRecords[neighbor].gScore = tentative_gScore;
+				pathRecords[neighbor].fScore = tentative_gScore 
 					+ neighbor.distanceFrom(goal);
-				if (!inOpenSet[neighbor]) {
-					openSet.emplace(
-						fScore[neighbor] + randDecimal(), neighbor);
-					inOpenSet[neighbor] = true;
+
+				// Add new zone to open set
+				if (!pathRecords[neighbor].inOpenSet) {
+					openSet.emplace(pathRecords[neighbor].fScore 
+						+ randDecimal(), neighbor);
+					pathRecords[neighbor].inOpenSet = true;
 				}
 			}
 		}
