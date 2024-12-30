@@ -437,6 +437,13 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		}
 	}
 
+	// If in North Sea, move to Norway coast
+	else if (region == NORTH_SEA) {
+
+		// Safety valve for region we shouldn't ever go
+		ship.orderMove(board->randSeaWithinOne("D17"));
+	}
+
 	// Move away from Norway
 	else if (region == EAST_NORWEGIAN) {
 
@@ -497,8 +504,9 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	// Breakout accomplished, now search for convoys
 	else if (region == EAST_ATLANTIC || region == WEST_ATLANTIC) {
 		auto target = randAnyConvoyTarget(ship);
+
+		// Transition regions via Q15 increases time near convoy line
 		if (getRegion(position) != getRegion(target) && dieRoll(6) <= 4) {
-			// Transition regions via Q15 increases time near convoy line
 			ship.orderMove(board->randSeaWithinOne("Q15"));
 		}
 		ship.orderMove(target);
