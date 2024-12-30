@@ -97,14 +97,15 @@ bool GridCoordinate::operator<(const GridCoordinate& other) const {
 	return row < other.row || (row == other.row && col < other.col);
 }
 
+// Hashing function
+std::size_t GridCoordinateHash::operator()(const GridCoordinate& coord) const 
+{
+	return std::hash<int>()(coord.getRow()) 
+		^ (std::hash<int>()(coord.getCol()) << 1);
+}
+
 // Stream insertion operator
 std::ostream& operator<<(std::ostream& stream, const GridCoordinate& coord) {
 	stream << coord.toString();
 	return stream;
-}
-
-// Hash function
-std::size_t GridCoordinate::Hash::operator()(const GridCoordinate& coord) const 
-{
-	return std::hash<int>()(coord.row) ^ (std::hash<int>()(coord.col) << 1);
 }

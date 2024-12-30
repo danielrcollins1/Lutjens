@@ -32,14 +32,14 @@ class GridCoordinate
 		static bool isValid(const std::string s);
 		static const GridCoordinate NO_ZONE;
 		
-		// Hash structure
-		struct Hash {
-			std::size_t operator()(const GridCoordinate& coord) const;
-		};
-		
 	private:
 		typedef char int8;
 		int8 row, col;
+};
+
+// Hashing structure
+struct GridCoordinateHash {
+	std::size_t operator()(const GridCoordinate& coord) const;
 };
 
 // Stream insertion operator

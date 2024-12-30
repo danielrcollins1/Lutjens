@@ -18,10 +18,10 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 		pair<double, GridCoordinate>,
 	    vector<pair<double, GridCoordinate>>,
 	    greater<>> openSet;
-	unordered_map<GridCoordinate, bool, GridCoordinate::Hash> inOpenSet;
-	unordered_map<GridCoordinate, double, GridCoordinate::Hash> gScore;
-	unordered_map<GridCoordinate, double, GridCoordinate::Hash> fScore;
-	unordered_map<GridCoordinate, GridCoordinate, GridCoordinate::Hash> 
+	unordered_map<GridCoordinate, bool, GridCoordinateHash> inOpenSet;
+	unordered_map<GridCoordinate, double, GridCoordinateHash> gScore;
+	unordered_map<GridCoordinate, double, GridCoordinateHash> fScore;
+	unordered_map<GridCoordinate, GridCoordinate, GridCoordinateHash> 
 		cameFrom;
 
 	// Initialize with ship start position
