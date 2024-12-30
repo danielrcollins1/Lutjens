@@ -492,8 +492,8 @@ GridCoordinate Ship::randAdjacentMove() const {
 
 // Return type of the frontmost order
 Ship::OrderType Ship::getFirstOrder() const {
-	return !orders.empty() ?
-		orders.front().type : STOP;
+	assert(hasOrders());
+	return orders.front().type;
 }
 
 // Compute the fuel we expend at a given speed

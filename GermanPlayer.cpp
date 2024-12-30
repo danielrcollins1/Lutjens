@@ -388,8 +388,7 @@ void GermanPlayer::getOrders(Ship& ship) {
 
 	// Redirect if we saw combat or were found patroling
 	if (ship.wasCombated(1)
-		|| (ship.wasLocated(1)
-			&& ship.getFirstOrder() == Ship::PATROL))
+		|| (ship.wasLocated(1) && ship.isOnPatrol()))
 	{
 		ship.clearOrders();
 		ship.orderMove(ship.randAdjacentMove());
