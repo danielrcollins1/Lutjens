@@ -90,6 +90,6 @@ void runLargeSeries() {
 		<< (float) totalFlagshipDetections / numGames << "\n";
 	cout << "Mean convoys sunk: " 
 		<< (float) totalConvoysSunk / numGames << "\n";
-	cout << "Convoys/detections ratio: "
+	cout << "Convoys/detection ratio: "
 		<< (float) totalConvoysSunk / totalFlagshipDetections << "\n";
 }
