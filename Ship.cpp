@@ -15,13 +15,13 @@ std::ostream& operator<<(std::ostream& stream, const Ship& ship) {
 
 // Ship type abbreviations
 const string Ship::typeAbbr[NUM_TYPES]
-	= {"BB", "BC", "PB", "CA", "CL", "CV", "DD", "SS"};
+	= {"BB", "BC", "PB", "CV", "CA", "CL", "DD", "CT", "SS", "UB"};
 
 // Ship type full names
 const string Ship::typeName[NUM_TYPES]
 	= {"Battleship", "Battlecruiser", "Pocket Battleship", 
-		"Heavy Cruiser", "Light Cruiser", "Aircraft Carrier", 
-		"Destroyer", "Submarine"};
+		"Aircraft Carrier", "Heavy Cruiser", "Light Cruiser",
+		"Destroyer", "Contre-Torpilleur", "Submarine", "U-Boat"};
 
 // Constructor
 Ship::Ship(string name, Type type, 
@@ -87,12 +87,10 @@ string Ship::getLongDesc() const {
 //   E.g., Rules 5.21, 9.72, 9.93, 16.4, 58.5, 67.22
 Ship::ClassType Ship::getClassType() const {
 	switch (type) {
-		case BB: case BC: case PB: case CV: return BATTLESHIP;
+		default: return BATTLESHIP;
 		case CA: case CL: return CRUISER;
-		case DD: return DESTROYER;
-		default: cerr << "Error: Unhandled ship class type\n";
-			assert(false);
-			return OTHER;
+		case DD: case CT: return DESTROYER;
+		case SS: case UB: return SUBMARINE;
 	}
 }
 
@@ -127,23 +125,27 @@ void Ship::loseMidships(int loss) {
 	applyTempEvasionLoss(loss);
 	checkFuelDamage(loss);
 }
-		
+
 // Apply temporary evasion loss from midships hit (Rule 9.72)
 void Ship::applyTempEvasionLoss(int midshipsLoss) {
-	int lossPerMidships = 0;
-	switch (getClassType()) {
-		case BATTLESHIP: 
-			lossPerMidships = robustEvasion ? 1 : 2; break;
-		case CRUISER: 
-			lossPerMidships = robustEvasion ? 3 : 5; break;
-		default: 
-			cerr << "Error: Unhandled class type "
-				<< " for temporary evasion loss.\n";
-			assert(false);
-	}
-	evasionLostTemp += lossPerMidships * midshipsLoss;
+	evasionLostTemp += midshipsLoss * getEvasionLossRate();
 }
 
+// Get how much evasion we lose per midships hit
+//   (Rules 9.724, 9.725, 9.726)
+int Ship::getEvasionLossRate() const {
+	switch (getClassType()) {
+		case BATTLESHIP: return robustEvasion ? 1 : 2;
+		case CRUISER: return robustEvasion ? 3 : 5;
+		default:
+			// Other types don't engage in basic naval combat 
+			// (Destroyer rule 23.32, Submarine rule 22.17)
+			cerr << "Error: Invalid ship type for evasion loss\n";
+			assert(false);
+			return 0;
+	}
+}
+		
 // Check for evasion repair following movement (Rule 9.728)
 void Ship::checkEvasionRepair() {
 	if (evasionLostTemp && getSpeed() <= 1) {
@@ -518,11 +520,11 @@ int Ship::getFuelExpense(int speed) const {
 			// Rule 23.21
 			expense = (speed < 2) ? 1 : 3;
 			break;
-			
-		default: 
-			cerr << "Error: Unhandled ship class\n";
-			assert(false);
+
+		case SUBMARINE:
+			// Rule 22.14
 			expense = 0;
+			break;
 	}
 	return expense;
 }
@@ -552,9 +554,9 @@ void Ship::checkFuelForWeather(int speed) {
 				}
 				break;
 
-			default: 
-				cerr << "Error: Unhandled ship class type\n";
-				assert(false);
+			case SUBMARINE:
+				// Doesn't track fuel (Rule 22.14)
+				break;
 		}
 	}
 }

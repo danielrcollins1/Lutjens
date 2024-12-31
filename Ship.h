@@ -21,8 +21,9 @@ class Ship
 	public:
 		
 		// Enumerations
-		enum Type {BB, BC, PB, CA, CL, CV, DD, SS, NUM_TYPES};
-		enum ClassType {BATTLESHIP, CRUISER, DESTROYER, OTHER};
+		static const int NUM_TYPES = 10;
+		enum Type {BB, BC, PB, CV, CA, CL, DD, CT, SS, UB};
+		enum ClassType {BATTLESHIP, CRUISER, DESTROYER, SUBMARINE};
 		enum OrderType {MOVE, PATROL, STOP};
 
 		// Functions
@@ -117,6 +118,7 @@ class Ship
 		LogTurn& logNow();
 		int maxSpeed() const;
 		int getFuelExpense(int speed) const;
+		int getEvasionLossRate() const;
 		void updateOrders();
 		void doMoveOrder();
 		void pushOrder(Order order);
