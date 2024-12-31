@@ -476,7 +476,6 @@ Ship::OrderType Ship::getFirstOrder() const {
 }
 
 // Compute the fuel we expend at a given speed
-//   See Rules 5.2, 16.2, 22.14, 23.21
 //   Does not include optional variation for weather (Rule 16.4),
 //   which refers back here (would be recursive call)
 int Ship::getFuelExpense(int speed) const {
@@ -485,7 +484,8 @@ int Ship::getFuelExpense(int speed) const {
 	auto game = GameDirector::instance();
 	switch (getClassType()) {
 	
-		case BATTLESHIP: // Rule 5.21
+		case BATTLESHIP:
+			// Rule 5.21
 			expense = (speed < 2) ? 0 : 1;
 
 			// Slow battleship: Rules 5.25 & 5.27
@@ -496,7 +496,8 @@ int Ship::getFuelExpense(int speed) const {
 			}
 			break;
 	
-		case CRUISER: // Rule 5.21
+		case CRUISER:
+			// Rule 5.21
 			expense = 0;
 		
 			// Optional fuel expenditure: Rule 16.2
@@ -505,7 +506,8 @@ int Ship::getFuelExpense(int speed) const {
 			}
 			break;
 
-		case DESTROYER: // Rule 23.21
+		case DESTROYER:
+			// Rule 23.21
 			expense = (speed < 2) ? 1 : 3;
 			break;
 			
@@ -523,21 +525,25 @@ void Ship::checkFuelForWeather(int speed) {
 	if (CmdArgs::instance()->useFuelExpenditure()) {
 		int visibility = GameDirector::instance()->getVisibility();
 		switch (getClassType()) {
+
 			case BATTLESHIP:
 				if (visibility >= 8 && speed > 0) {
 					loseFuel(1);
 				}
 				break;
+
 			case CRUISER: 
 				if (visibility >= 7 && speed > 0) {
 					loseFuel(1);
 				}
 				break;
+
 			case DESTROYER:
 				if (visibility >= 5) {
 					loseFuel(getFuelExpense(speed));
 				}
 				break;
+
 			default: 
 				cerr << "Error: Unhandled ship class type\n";
 				assert(false);
