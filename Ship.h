@@ -55,6 +55,7 @@ class Ship
 		void setShadowed();
 		void setInCombat();
 		void setLoseMoveTurn();
+		void setRobustEvasion();
 		void loseFuel(int loss);
 		void loseEvasion(int loss);
 		void loseMidships(int loss);
@@ -101,6 +102,7 @@ class Ship
 		Type type;
 		bool onPatrol;
 		bool loseMoveTurn;
+		bool robustEvasion;
 		int fuelMax, fuelLost;
 		int midshipsMax, midshipsLost;
 		int evasionMax, evasionLostTemp, evasionLostPerm;

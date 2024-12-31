@@ -37,6 +37,7 @@ Ship::Ship(string name, Type type,
 	position = GridCoordinate::NO_ZONE;
 	onPatrol = false;
 	loseMoveTurn = false;
+	robustEvasion = false;
 	fuelLost = 0;
 	midshipsLost = 0;
 	evasionLostTemp = 0;
@@ -128,13 +129,13 @@ void Ship::loseMidships(int loss) {
 }
 		
 // Apply temporary evasion loss from midships hit (Rule 9.72)
-//   For simplicity, we use the Bismarck & Prinz Eugen reductions
-//   for all ships here (presumably only German ships)
 void Ship::applyTempEvasionLoss(int midshipsLoss) {
 	int lossPerMidships = 0;
 	switch (getClassType()) {
-		case BATTLESHIP: lossPerMidships = 1; break;
-		case CRUISER: lossPerMidships = 3; break;
+		case BATTLESHIP: 
+			lossPerMidships = robustEvasion ? 1 : 2; break;
+		case CRUISER: 
+			lossPerMidships = robustEvasion ? 3 : 5; break;
 		default: 
 			cerr << "Error: Unhandled class type "
 				<< " for temporary evasion loss.\n";
@@ -167,6 +168,13 @@ void Ship::setPosition(const GridCoordinate& zone) {
 // Get current position
 GridCoordinate Ship::getPosition() const {
 	return position;	
+}
+
+// Indicate that we are more robust to evasion damage
+//   Normally just Bismarck & Prinz Eugen
+//   See Rules 9.724-9.726
+void Ship::setRobustEvasion() {
+	robustEvasion = true;	
 }
 
 // Are we on patrol?
