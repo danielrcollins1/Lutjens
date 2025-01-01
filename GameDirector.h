@@ -50,7 +50,7 @@ class GameDirector
 
 	private:
 		// Enumeration
-		enum NightState {NIGHT_SOUTH, NIGHT_ALL, DAY};
+		enum PartOfDay {DAY, NIGHT};
 
 		// Constant
 		static const int VISIBILITY_X = 9;
@@ -72,8 +72,8 @@ class GameDirector
 		void checkNewDay();
 		void rollVisibility();
 		bool isGameOver() const;
-		void reportNightState();
-		NightState getNightState() const;
+		void reportPartOfDay();
+		PartOfDay getPartOfDay(const GridCoordinate& zone) const;
 		
 		// Turn phase handlers (Rule 4.0)
 		void doAvailabilityPhase();

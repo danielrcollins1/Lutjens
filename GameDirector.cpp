@@ -113,41 +113,34 @@ bool GameDirector::isVisibilityX() const {
 	return visibility == VISIBILITY_X;	
 }
 
-// Get the current night state (Rule 11.11)
-GameDirector::NightState GameDirector::getNightState() const {
+// Get part of day for given zone (Rule 11.11)
+GameDirector::PartOfDay GameDirector::getPartOfDay(
+	const GridCoordinate& zone) const 
+{
 	switch (turn % 6) {
-		case 0: return NIGHT_SOUTH;
-		case 1: return NIGHT_ALL;
-		default: return DAY;		
+		case 0: return zone.getRow() > 'L' ? DAY : NIGHT;
+		case 1: return NIGHT;
+		default: return DAY;
 	}
 }
 
-// Report on the night state
-void GameDirector::reportNightState() {
-	switch (getNightState()) {
-		case NIGHT_SOUTH:
-			cgame << "Night in southern latitudes.\n";
-			break;
-		case NIGHT_ALL:
-			cgame << "Night at all latitudes.\n";
-			break;
-		default: // do nothing
-			break;
+// Report on part of day
+void GameDirector::reportPartOfDay() {
+	switch (turn % 6) {
+		case 0: cgame << "Night in southern latitudes.\n"; break;
+		case 1: cgame << "Night at all latitudes.\n"; break;
+		default: break; // Do nothing
 	}
+}
+
+// Is this zone currently in daylight?
+bool GameDirector::isInDay(const GridCoordinate& zone) const {
+	return getPartOfDay(zone) == DAY;
 }
 
 // Is this zone currently in night time?
 bool GameDirector::isInNight(const GridCoordinate& zone) const {
-	switch (getNightState()) {
-		case NIGHT_SOUTH: return zone.getRow() >= 'L';
-		case NIGHT_ALL: return true;
-		default: return false;
-	}
-}
-
-// Is this zone currently in day light?
-bool GameDirector::isInDay(const GridCoordinate& zone) const {
-	return !isInNight(zone);	
+	return getPartOfDay(zone) == NIGHT;
 }
 
 // Is this zone currently in fog?
@@ -184,7 +177,7 @@ void GameDirector::doVisibilityPhase() {
 	cgame << "Visibility: " 
 		<< (visibility == VISIBILITY_X ? "X" : to_string(visibility))
 		<< (foggy ? ", with fog" : "") << endl;
-	reportNightState();
+	reportPartOfDay();
 }
 
 // Do shadow phase
