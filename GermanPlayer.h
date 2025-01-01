@@ -40,13 +40,13 @@ class GermanPlayer
 		// Functions
 		GridCoordinate randAtlanticConvoyTarget() const;
 		GridCoordinate randAfricanConvoyTarget() const;
-		GridCoordinate randMidAtlanticTarget() const;
 		GridCoordinate randAnyConvoyTarget(Ship& ship) const;
 		void checkGeneralSearch(Ship& ship, int roll);
 		void checkConvoyResult(Ship& ship, int roll);
 		void callHuffDuff(Ship& ship);
 		void destroyConvoy(Ship& ship);
 		char getGeneralSearchColumn(const GridCoordinate& zone);
+		int randWeightedConvoyDistance() const;
 
 		// Plotting functions
 		MapRegion getRegion(const GridCoordinate& zone) const;
@@ -54,7 +54,6 @@ class GermanPlayer
 		GridCoordinate findNearestPort(const Ship& ship) const;
 		void orderNewGoal(Ship& ship);
 		void handleFuelEmpty(Ship& ship);
-		
 };
 
 #endif

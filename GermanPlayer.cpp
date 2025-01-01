@@ -533,14 +533,7 @@ GridCoordinate GermanPlayer::randAtlanticConvoyTarget() const {
 	while (!(board->isSeaZone(zone)
 		&& zone.getCol() < board->getPatrolLimitForRow(zone.getRow())))
 	{
-		char row;
-		switch (dieRoll(15)) {
-			case 1: case 2: row = 'F'; break;
-			case 3: case 4: case 5: row = 'G'; break;
-			default: row = 'H'; break;
-			case 11: case 12: case 13: row = 'I'; break;
-			case 14: case 15: row = 'J'; break;
-		}
+		char row = 'H' + randWeightedConvoyDistance();
 		int col = dieRoll(7);
 		zone = GridCoordinate(row, col);		
 	}
@@ -551,24 +544,30 @@ GridCoordinate GermanPlayer::randAtlanticConvoyTarget() const {
 //   Weight distance as chance to find convoy on patrol (2:3:5:3:2)
 //   Row P to Z, directly on convoy route
 GridCoordinate GermanPlayer::randAfricanConvoyTarget() const {
-	int inc = rand(11);
-	char row = 'P' + inc;
-	int col = 15 + (inc + 1) / 2;
-	return GridCoordinate(row, col);
+	auto board = SearchBoard::instance();
+	GridCoordinate zone = GridCoordinate::NO_ZONE;
+	while (!(board->isSeaZone(zone)
+		&& zone.getCol() < board->getPatrolLimitForRow(zone.getRow())))
+	{
+		int inc = rand(11);
+		char row = 'P' + inc;
+		int col = 15 + (inc + 1) / 2 + randWeightedConvoyDistance();
+		zone = GridCoordinate(row, col);		
+	}
+	return zone;
 }
 
-// Randomize a mid-Atlantic breakout target
-//   When breaking out east of Iceland:
-//   Target a zone mid-Atlantic beyond the general patrol line.
-//   (1) Reduces distance beyond general search,
-//   (2) Pulls path away from British coast
-//   (3) Maneuvers near African convoy line
-//   Zones L11 to Q16
-GridCoordinate GermanPlayer::randMidAtlanticTarget() const {
-	int inc = rand(6);
-	int row = 'L' + inc;
-	int col = 11 + inc;
-	return GridCoordinate(row, col);
+// Get a desired distance from a convoy route
+//   Weighted by chance to find convoy on patrol (2:3:5:3:2)
+//   As per Chance Table convoy results (out of 36 options)
+int GermanPlayer::randWeightedConvoyDistance() const {
+	switch (dieRoll(15)) {
+		case 1: case 2: return -2;
+		case 3: case 4: case 5: return -1;
+		default: return 0;
+		case 11: case 12: case 13: return +1;
+		case 14: case 15: return +2;
+	}
 }
 
 // Use optional rule for return-to-base when fuel empty (Rule 16.3)
