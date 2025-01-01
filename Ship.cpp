@@ -1,6 +1,7 @@
 #include "Ship.h"
 #include "Utils.h"
 #include "GameDirector.h"
+#include "SearchBoard.h"
 #include "GermanPlayer.h"
 #include "Navigator.h"
 #include "CmdArgs.h"

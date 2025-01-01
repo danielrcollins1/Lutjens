@@ -8,7 +8,6 @@
 #ifndef SHIP_H
 #define SHIP_H
 #include "GridCoordinate.h"
-#include "SearchBoard.h"
 #include <vector>
 #include <queue>
 

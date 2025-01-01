@@ -1,4 +1,5 @@
 #include "GameDirector.h"
+#include "SearchBoard.h"
 #include "BritishPlayerComputer.h"
 #include "BritishPlayerHuman.h"
 #include "GameStream.h"

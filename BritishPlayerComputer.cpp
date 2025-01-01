@@ -1,5 +1,6 @@
 #include "BritishPlayerComputer.h"
 #include "GameDirector.h"
+#include "SearchBoard.h"
 #include "Utils.h"
 #include <cassert>
 using namespace std;
