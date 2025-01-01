@@ -10,7 +10,6 @@
 #include <ctime>
 #include "SearchBoard.h"
 #include "GridCoordinate.h"
-#include "GermanPlayer.h"
 #include "Ship.h"
 #include "Utils.h"
 #include "Navigator.h"
@@ -55,58 +54,16 @@ void testCoordinateDistances() {
 	cout << "Done coordinate distance tests.\n";
 }
 
-// Test GridCoordinate adjacency list
-void testCoordinateAdjacency(const GridCoordinate& coord) {
-	cout << "Adjacent to " << coord << ": ";
-	printVec(coord.getAdjacent());
-}
-
-// Get one step towards destination
-GridCoordinate getOneStep(const GridCoordinate& src, 
-	const GridCoordinate& dest) 
-{
-	auto board = SearchBoard::instance();
-	int dist = src.distanceFrom(dest);
-	vector<GridCoordinate> adjacent = src.getAdjacent();
-	vector<GridCoordinate> options;
-	for (auto gc: adjacent) {
-		if (board->isSeaZone(gc) 
-			&& !board->isBritishCoast(gc)
-			&& !board->isBritishPort(gc)
-			&& gc.distanceFrom(dest) < dist)
-		{
-			options.push_back(gc);
-		}
-	}
-	return randomElem(options);
-}
-
-// Test simple pathfinding
-void testSimplePath(const GridCoordinate& src, 
-	const GridCoordinate& dest) 
-{
-	cout << "Simple path from " << src << " to " << dest << ": ";
-	auto loc = src;
-	while (loc != dest) {
-		loc = getOneStep(loc, dest);
-		cout << loc.toString() << " ";
-	}
-	cout << endl;
-}
-
-// Test pathfinding to randomized destination
-void testSimplePathRandDest(const GridCoordinate& src, 
-	const GridCoordinate& destCenter) 
-{
-	auto board = SearchBoard::instance();
-	GridCoordinate dest = board->randSeaWithinOne(destCenter);
-	testSimplePath(src, dest);
+// Test GridCoordinate local area list
+void testCoordinateArea(const GridCoordinate& coord) {
+	cout << "Nearby to " << coord << ": ";
+	printVec(coord.getArea(1));
 }
 
 // Test ship construction
 void testShipConstruction() {
-	Ship ship("Bismarck", Ship::Type::BB, 29, 10, 13, nullptr);
-	ship.setPosition("F20");
+	Ship ship("Bismarck", Ship::Type::BB, 29, 10, 13,
+		Ship::DriveDefense::STRONG, "F20");
 	cout << "Ship test: " << ship << endl;
 }
 
@@ -115,8 +72,8 @@ void testNavigatorPath(const GridCoordinate& src,
 	const GridCoordinate& dest) 
 {
 	cout << "Navigator path from " << src << " to " << dest << ": ";
-	Ship ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, nullptr);
-	ship.setPosition(src);
+	Ship ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10,
+		Ship::DriveDefense::STRONG, src);
 	vector<GridCoordinate> path = Navigator::findSeaRoute(ship, dest);
 	printVec(path);
 }
@@ -129,9 +86,7 @@ int main(int argc, char** argv) {
 	testObjectSizes();
 	testCoordinateConstructors();
 	testCoordinateDistances();
-	testCoordinateAdjacency("J16");
-	testSimplePath("F20", "B11");
-	testSimplePathRandDest("F20", "B11");
+	testCoordinateArea("J16");
 	testShipConstruction();
 	testNavigatorPath("F20", "B7");
 	testNavigatorPath("F20", "P23");
