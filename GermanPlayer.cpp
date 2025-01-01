@@ -20,43 +20,6 @@ const Ship& GermanPlayer::getFlagship() const {
 	return *flagship;
 }
 
-// Randomize a convoy target near the Atlantic line
-//   Around row H, on western edge past patrol line
-GridCoordinate GermanPlayer::randAtlanticConvoyTarget() const {
-	int col;
-	char row = 'G' + rand(3);
-	switch (row) {
-		case 'G': col = dieRoll(4); break;
-		case 'H': col = dieRoll(5); break;
-		case 'I': col = dieRoll(5) + 1; break;
-		default: cerr << "Error: Unhandled Atlantic convoy column.\n";
-	}
-	return GridCoordinate(row, col);
-}
-
-// Randomize a convoy target near the African line
-//   Row P to Z, directly on convoy route
-GridCoordinate GermanPlayer::randAfricanConvoyTarget() const {
-	int inc = rand(11);
-	char row = 'P' + inc;
-	int col = 15 + (inc + 1) / 2;
-	return GridCoordinate(row, col);
-}
-
-// Randomize a mid-Atlantic breakout target
-//   When breaking out east of Iceland:
-//   Target a zone mid-Atlantic beyond the general patrol line.
-//   (1) Reduces distance beyond general search,
-//   (2) Pulls path away from British coast
-//   (3) Maneuvers near African convoy line
-//   Zones L11 to Q16
-GridCoordinate GermanPlayer::randMidAtlanticTarget() const {
-	int inc = rand(6);
-	int row = 'L' + inc;
-	int col = 11 + inc;
-	return GridCoordinate(row, col);
-}
-
 // Do unit availability phase
 void GermanPlayer::doAvailabilityPhase() {
 	foundShipZones.clear();
@@ -499,22 +462,24 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	else if (region == DENMARK_STRAIT) {
 		ship.orderMove("B7");
 		int colOnRowC = 5 + rand(3);
+		int colOnRowE = colOnRowC + rand(3);
 		ship.orderMove(GridCoordinate('C', colOnRowC));
-		ship.orderMove(GridCoordinate('E', colOnRowC + rand(3)));
+		ship.orderMove(GridCoordinate('E', colOnRowE));
 
-		// Aim for Atlantic convoy route nearby
-		ship.orderMove(randAtlanticConvoyTarget());
+		// Get past general search asap
+		if (dieRoll(100) <= 50) {
+			ship.orderMove(randAtlanticConvoyTarget());
+		}
+		else {
+			ship.orderMove(board->randSeaZone("K6", 2));
+			ship.orderMove(randAfricanConvoyTarget());
+		}
 		ship.orderAction(Ship::PATROL);
 	}
 	
 	// Breakout accomplished, now search for convoys
 	else if (region == EAST_ATLANTIC || region == WEST_ATLANTIC) {
 		auto target = randAnyConvoyTarget(ship);
-
-		// Transition regions via Q15 increases time near convoy line
-		if (getRegion(position) != getRegion(target) && dieRoll(6) <= 4) {
-			ship.orderMove(board->randSeaZone("Q15", 1));
-		}
 		ship.orderMove(target);
 		ship.orderAction(Ship::PATROL);
 	}
@@ -526,26 +491,6 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	}
 }
 
-// Pick an appropriate convoy target after breakout
-GridCoordinate GermanPlayer::randAnyConvoyTarget(Ship& ship) const {
-	int pctAtlantic;
-
-	// Minimize travel distance
-	switch (getRegion(ship.getPosition())) {
-		case EAST_ATLANTIC: pctAtlantic = 20; break;
-		case WEST_ATLANTIC: pctAtlantic = 80; break;
-		case DENMARK_STRAIT: pctAtlantic = 100;	break;
-		default: pctAtlantic = 50; break;
-	}
-	
-	// If we saw combat, widen variation
-	if (ship.wasCombated(1)) {
-		pctAtlantic = 50;	
-	}
-	return dieRoll(100) <= pctAtlantic ?
-		randAtlanticConvoyTarget() : randAfricanConvoyTarget();
-}
-
 // Get an adjacent zone for a ship loitering in a region
 GridCoordinate GermanPlayer::getLoiterZone(const Ship& ship) const {
 	GridCoordinate move;
@@ -553,4 +498,54 @@ GridCoordinate GermanPlayer::getLoiterZone(const Ship& ship) const {
 		move = ship.randAdjacentMove();
 	} while (getRegion(move) != getRegion(ship.getPosition()));
 	return move;
+}
+
+// Pick an appropriate convoy target after breakout
+GridCoordinate GermanPlayer::randAnyConvoyTarget(Ship& ship) const {
+	
+	// On analysis, we usually want to make this evenly distributed, e.g.:
+	// Initial breakout b/w Iceland and Britain (either route in line)
+	// After being found or in combat (maximize difficulty guessing)
+	// After a convoy sinking (same)
+	// But note it takes 1-2 days to switch routes outside patrol line
+	int pctAtlantic = 50;
+	return dieRoll(100) <= pctAtlantic ?
+		randAtlanticConvoyTarget() : randAfricanConvoyTarget();
+}
+
+// Randomize a convoy target near the Atlantic line
+//   Around row H, on western edge past patrol line
+GridCoordinate GermanPlayer::randAtlanticConvoyTarget() const {
+	int col;
+	char row = 'G' + rand(3);
+	switch (row) {
+		case 'G': col = dieRoll(4); break;
+		case 'H': col = dieRoll(5); break;
+		case 'I': col = dieRoll(5) + 1; break;
+		default: cerr << "Error: Unhandled Atlantic convoy column.\n";
+	}
+	return GridCoordinate(row, col);
+}
+
+// Randomize a convoy target near the African line
+//   Row P to Z, directly on convoy route
+GridCoordinate GermanPlayer::randAfricanConvoyTarget() const {
+	int inc = rand(11);
+	char row = 'P' + inc;
+	int col = 15 + (inc + 1) / 2;
+	return GridCoordinate(row, col);
+}
+
+// Randomize a mid-Atlantic breakout target
+//   When breaking out east of Iceland:
+//   Target a zone mid-Atlantic beyond the general patrol line.
+//   (1) Reduces distance beyond general search,
+//   (2) Pulls path away from British coast
+//   (3) Maneuvers near African convoy line
+//   Zones L11 to Q16
+GridCoordinate GermanPlayer::randMidAtlanticTarget() const {
+	int inc = rand(6);
+	int row = 'L' + inc;
+	int col = 11 + inc;
+	return GridCoordinate(row, col);
 }
