@@ -24,9 +24,11 @@ bool BritishPlayerHuman::trySearch() {
 
 // Ask if we want to try shadowing
 bool BritishPlayerHuman::tryShadow(const Ship& target, 
-	const GridCoordinate& knownPos, bool inSearchPhase)
+	const GridCoordinate& knownPos, GameDirector::Phase phase)
 {
-	if (!inSearchPhase) {
+	assert(phase == GameDirector::Phase::SHADOW 
+		|| phase == GameDirector::Phase::SEARCH);
+	if (phase == GameDirector::Phase::SHADOW) {
 		cout << target.getTypeAndEvasion()
 			<< " was seen in " << knownPos << "\n";
 	}
@@ -35,12 +37,17 @@ bool BritishPlayerHuman::tryShadow(const Ship& target,
 }
 
 // Ask if we want to try attacking
-bool BritishPlayerHuman::tryAttack(const Ship& target, bool inSeaPhase) {
-	cout << (inSeaPhase ? 
+bool BritishPlayerHuman::tryAttack(
+	const Ship& target, GameDirector::Phase phase) 
+{
+	assert(phase == GameDirector::Phase::AIR_ATTACK 
+		|| phase == GameDirector::Phase::NAVAL_COMBAT);
+	cout << (phase == GameDirector::Phase::NAVAL_COMBAT ? 
 		target.getTypeAndEvasion(): target.getTypeName())
 		<< 	" is seen in " << target.getPosition() << "\n";
 	cout << "Do you wish to attack by " 
-		<< (inSeaPhase ? "sea" : "air") << " (y/n)? ";
+		<< (phase == GameDirector::Phase::AIR_ATTACK ? "air" : "sea") 
+		<< " (y/n)? ";
 	return getUserYes();
 }
 

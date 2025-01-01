@@ -1,7 +1,9 @@
 #include "GameDirector.h"
 #include "SearchBoard.h"
+#include "BritishPlayerInterface.h"
 #include "BritishPlayerComputer.h"
 #include "BritishPlayerHuman.h"
+#include "GermanPlayer.h"
 #include "GameStream.h"
 #include "CmdArgs.h"
 #include "Utils.h"
@@ -113,34 +115,27 @@ bool GameDirector::isVisibilityX() const {
 	return visibility == VISIBILITY_X;	
 }
 
-// Get part of day for given zone (Rule 11.11)
-GameDirector::PartOfDay GameDirector::getPartOfDay(
-	const GridCoordinate& zone) const 
-{
-	switch (turn % 6) {
-		case 0: return zone.getRow() > 'L' ? DAY : NIGHT;
-		case 1: return NIGHT;
-		default: return DAY;
-	}
-}
-
-// Report on part of day
-void GameDirector::reportPartOfDay() {
+// Report on night time
+void GameDirector::reportNightTime() {
 	switch (turn % 6) {
 		case 0: cgame << "Night in southern latitudes.\n"; break;
 		case 1: cgame << "Night at all latitudes.\n"; break;
-		default: break; // Do nothing
+		default: break; // Day; print nothing
+	}
+}
+
+// Is this zone currently in night time? (Rule 11.11)
+bool GameDirector::isInNight(const GridCoordinate& zone) const {
+	switch (turn % 6) {
+		case 0: return zone.getRow() >= 'L';
+		case 1: return true;
+		default: return false;
 	}
 }
 
 // Is this zone currently in daylight?
 bool GameDirector::isInDay(const GridCoordinate& zone) const {
-	return getPartOfDay(zone) == DAY;
-}
-
-// Is this zone currently in night time?
-bool GameDirector::isInNight(const GridCoordinate& zone) const {
-	return getPartOfDay(zone) == NIGHT;
+	return !isInNight(zone);
 }
 
 // Is this zone currently in fog?
@@ -177,7 +172,7 @@ void GameDirector::doVisibilityPhase() {
 	cgame << "Visibility: " 
 		<< (visibility == VISIBILITY_X ? "X" : to_string(visibility))
 		<< (foggy ? ", with fog" : "") << endl;
-	reportPartOfDay();
+	reportNightTime();
 }
 
 // Do shadow phase
@@ -287,16 +282,18 @@ void GameDirector::doEndGame() {
 	germanPlayer->printAllShips();
 }
 
-// Check for British shadowing a ship
+// Check for British shadowing a ship (Rule 8.0)
 void GameDirector::checkShadow(Ship& target,
-	const GridCoordinate& knownPos, bool inSearchPhase) 
+	const GridCoordinate& knownPos, Phase phase) 
 {
+	assert(phase == SHADOW || phase == SEARCH);
+	
 	// Ask if trying to shadow
-	if (britishPlayer->tryShadow(target, knownPos, inSearchPhase)) {
+	if (britishPlayer->tryShadow(target, knownPos, phase)) {
+		target.setShadowed();
 
 		// Move target ship in shadow phase
-		target.setShadowed();
-		if (!inSearchPhase) {
+		if (phase == SHADOW) {
 			target.doMovement();
 		}
 
@@ -328,12 +325,13 @@ void GameDirector::doNavalCombatPhase() {
 }
 
 // Check if the British player attacks this ship
-void GameDirector::checkAttackOn(Ship& target, bool inSeaPhase) 
+void GameDirector::checkAttackOn(Ship& target, Phase phase) 
 {
-	if (britishPlayer->tryAttack(target, inSeaPhase)) {
-		cgame << "Attack by " << (inSeaPhase ? "sea" : "air")
+	assert(phase == AIR_ATTACK || phase == NAVAL_COMBAT);
+	if (britishPlayer->tryAttack(target, phase)) {
+		cgame << "Attack by " << (phase == AIR_ATTACK ? "air" : "sea")
 			<< " on " << target.getShortDesc() << "\n";
-		if (inSeaPhase) {
+		if (phase == NAVAL_COMBAT) {
 			target.setInCombat();
 		}
 		resolveCombat(target);

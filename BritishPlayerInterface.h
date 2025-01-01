@@ -7,9 +7,11 @@
 */
 #ifndef BRITISHPLAYERINTERFACE_H
 #define BRITISHPLAYERINTERFACE_H
+#include "GameDirector.h"
 #include "GridCoordinate.h"
 #include "Ship.h"
 
+// Abstract base class for British players
 class BritishPlayerInterface 
 {
 	public:
@@ -22,8 +24,10 @@ class BritishPlayerInterface
 		// Request intentions
 		virtual bool trySearch() = 0;
 		virtual bool tryShadow(const Ship& target, 
-			const GridCoordinate& knownPos, bool inSearchPhase) = 0;
-		virtual bool tryAttack(const Ship& target, bool inSeaPhase) = 0;
+			const GridCoordinate& knownPos, 
+			GameDirector::Phase phase) = 0;
+		virtual bool tryAttack(const Ship& target, 
+			GameDirector::Phase phase) = 0;
 		
 		// Resolve attempts
 		virtual void resolveSearch() = 0;

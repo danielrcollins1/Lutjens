@@ -20,8 +20,10 @@ class BritishPlayerHuman: public BritishPlayerInterface
 		// Request intentions		
 		bool trySearch() override;
 		bool tryShadow(const Ship& target, 
-			const GridCoordinate& knownPos, bool inSearchPhase) override;
-		bool tryAttack(const Ship& target, bool inSeaPhase) override;
+			const GridCoordinate& knownPos, 
+			GameDirector::Phase phase) override;
+		bool tryAttack(const Ship& target, 
+			GameDirector::Phase phase) override;
 		
 		// Resolve attempts
 		void resolveSearch() override;

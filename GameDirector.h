@@ -8,10 +8,15 @@
 */
 #ifndef GAMEDIRECTOR_H
 #define GAMEDIRECTOR_H
-#include "GermanPlayer.h"
-#include "BritishPlayerInterface.h"
+#include "GridCoordinate.h"
+#include "Ship.h"
 #include <vector>
 
+// Forward to player interfaces
+class BritishPlayerInterface;
+class GermanPlayer;
+
+// Class for game control
 class GameDirector
 {
 	public:
@@ -19,6 +24,11 @@ class GameDirector
 		static const int START_TURN = 4;
 		static const int FINISH_TURN = 34;
 
+		// Enumeration
+		enum Phase {AVAILABILITY, VISIBILITY, 
+			SHADOW, AIR_MOVEMENT, SHIP_MOVEMENT, 
+			SEARCH, AIR_ATTACK, NAVAL_COMBAT, CHANCE};
+		
 		// Functions
 		static GameDirector* instance();
 		static void initGame();
@@ -37,10 +47,10 @@ class GameDirector
 		bool isSearchable(const GridCoordinate& zone, int strength) const;
 		bool searchGermanShips(const GridCoordinate& zone);
 		bool searchBritishShips(const GridCoordinate& zone);
-		void checkShadow(Ship& target,
-			const GridCoordinate& knownPos, bool inSearchPhase);
+		void checkShadow(Ship& target, 
+			const GridCoordinate& knownPos, Phase phase);
 		void checkAttackBy(Ship& attacker);
-		void checkAttackOn(Ship& target, bool inAirPhase);
+		void checkAttackOn(Ship& target, Phase phase);
 		void resolveCombat(Ship& ship);
 		void msgSunkConvoy();
 		bool isPassThroughSearchOn() const;
@@ -49,9 +59,6 @@ class GameDirector
 		int getTimesFlagshipDetected() const;
 
 	private:
-		// Enumeration
-		enum PartOfDay {DAY, NIGHT};
-
 		// Constant
 		static const int VISIBILITY_X = 9;
 
@@ -72,8 +79,7 @@ class GameDirector
 		void checkNewDay();
 		void rollVisibility();
 		bool isGameOver() const;
-		void reportPartOfDay();
-		PartOfDay getPartOfDay(const GridCoordinate& zone) const;
+		void reportNightTime();
 		
 		// Turn phase handlers (Rule 4.0)
 		void doAvailabilityPhase();

@@ -71,7 +71,8 @@ void GermanPlayer::doShadowPhase() {
 	for (auto& ship: shipList) {
 		if (ship.wasLocated(1)) {
 			GameDirector::instance()
-				->checkShadow(ship, ship.getPosition(), false);
+				->checkShadow(ship, ship.getPosition(), 
+					GameDirector::Phase::SHADOW);
 		}
 	}
 }
@@ -110,7 +111,8 @@ bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 		{
 			cgame << ship.getTypeAndEvasion()
 				<< " seen moving through " << zone << endl;
-			director->checkShadow(ship, zone, true);
+			director->checkShadow(ship, zone, 
+				GameDirector::Phase::SEARCH);
 			anyFound = true;
 		}
 	}
@@ -119,9 +121,11 @@ bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 
 // Do air attack phase
 void GermanPlayer::doAirAttackPhase() {
+	auto game = GameDirector::instance();
 	for (auto& ship: shipList) {
 		if (ship.wasLocated(0)) {
-			GameDirector::instance()->checkAttackOn(ship, false);
+			game->checkAttackOn(ship, 
+				GameDirector::Phase::AIR_ATTACK);
 		}
 	}
 }
@@ -133,7 +137,8 @@ void GermanPlayer::doNavalCombatPhase() {
 	// Check for attacks by British on our ships
 	for (auto& ship: shipList) {
 		if (ship.wasLocated(0)) {
-			game->checkAttackOn(ship, true);
+			game->checkAttackOn(ship, 
+				GameDirector::Phase::NAVAL_COMBAT);
 		}
 	}
 	

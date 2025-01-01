@@ -333,7 +333,7 @@ bool Ship::isSunk() const {
 
 // Are we in the day?
 bool Ship::isInDay() const {
-	return GameDirector::instance()->isInDay(position);
+	return !isInNight();
 }
 
 // Are we in the night?

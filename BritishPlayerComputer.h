@@ -22,9 +22,11 @@ class BritishPlayerComputer: public BritishPlayerInterface
 		// Request intentions		
 		bool trySearch() override;
 		bool tryShadow(const Ship& target, 
-			const GridCoordinate& knownPos, bool inSearchPhase) override
+			const GridCoordinate& knownPos, 
+			GameDirector::Phase phase) override
 			{ return false; }
-		bool tryAttack(const Ship& target, bool inSeaPhase) override 
+		bool tryAttack(const Ship& target, 
+			GameDirector::Phase phase) override
 			{ return false; }
 		
 		// Resolve attempts
