@@ -525,20 +525,30 @@ GridCoordinate GermanPlayer::randAnyConvoyTarget(Ship& ship) const {
 }
 
 // Randomize a convoy target near the Atlantic line
+//   Weight distance as chance to find convoy on patrol (2:3:5:3:2)
 //   Around row H, on western edge past patrol line
 GridCoordinate GermanPlayer::randAtlanticConvoyTarget() const {
-	int col;
-	char row = 'G' + rand(3);
-	switch (row) {
-		case 'G': col = dieRoll(4); break;
-		case 'H': col = dieRoll(5); break;
-		case 'I': col = dieRoll(5) + 1; break;
-		default: cerr << "Error: Unhandled Atlantic convoy column.\n";
+	auto board = SearchBoard::instance();
+	GridCoordinate zone = GridCoordinate::NO_ZONE;
+	while (!(board->isSeaZone(zone)
+		&& zone.getCol() < board->getPatrolLimitForRow(zone.getRow())))
+	{
+		char row;
+		switch (dieRoll(15)) {
+			case 1: case 2: row = 'F'; break;
+			case 3: case 4: case 5: row = 'G'; break;
+			default: row = 'H'; break;
+			case 11: case 12: case 13: row = 'I'; break;
+			case 14: case 15: row = 'J'; break;
+		}
+		int col = dieRoll(7);
+		zone = GridCoordinate(row, col);		
 	}
-	return GridCoordinate(row, col);
+	return zone;
 }
 
 // Randomize a convoy target near the African line
+//   Weight distance as chance to find convoy on patrol (2:3:5:3:2)
 //   Row P to Z, directly on convoy route
 GridCoordinate GermanPlayer::randAfricanConvoyTarget() const {
 	int inc = rand(11);

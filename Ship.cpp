@@ -466,7 +466,7 @@ void Ship::clearOrders() {
 // Get a string descriptor for an order
 string Ship::Order::toString() const {
 	switch (type) {
-		case MOVE: return "Move-" + zone.toString();
+		case MOVE: return "Move to " + zone.toString();
 		case PATROL: return "Patrol";
 		case STOP: return "Stop";
 		default: return "Unknown";
