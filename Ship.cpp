@@ -25,20 +25,23 @@ const char* Ship::typeName[]
 		"Destroyer", "Contre-Torpilleur", "Submarine", "U-Boat"};
 
 // Constructor
-Ship::Ship(string name, Type type, 
-	int evasion, int midships, int fuel,
-	GermanPlayer* player) 
+//   DriveDefense indicates evasion loss rate (Rule 9.72)
+Ship::Ship(std::string name, Type type, 
+	int evasion, int midships, int fuel, 
+	DriveDefense driveDefense,
+	GridCoordinate position,
+	GermanPlayer* player)
 {
 	this->name = name;
 	this->type = type;
 	this->evasionMax = evasion;
 	this->midshipsMax = midships;
 	this->fuelMax = fuel;
+	this->driveDefense = driveDefense;
 	this->player = player;
-	position = GridCoordinate::NO_ZONE;
+	this->position = position;
 	onPatrol = false;
 	loseMoveTurn = false;
-	robustEvasion = false;
 	fuelLost = 0;
 	midshipsLost = 0;
 	evasionLostTemp = 0;
@@ -136,8 +139,8 @@ void Ship::applyTempEvasionLoss(int midshipsLoss) {
 //   (Rules 9.724, 9.725, 9.726)
 int Ship::getEvasionLossRate() const {
 	switch (getClassType()) {
-		case BATTLESHIP: return robustEvasion ? 1 : 2;
-		case CRUISER: return robustEvasion ? 3 : 5;
+		case BATTLESHIP: return driveDefense == STRONG ? 1 : 2;
+		case CRUISER: return driveDefense == STRONG ? 3 : 5;
 		default:
 			// Other types don't engage in basic naval combat 
 			// (Destroyer rule 23.32, Submarine rule 22.17)
@@ -171,13 +174,6 @@ void Ship::setPosition(const GridCoordinate& zone) {
 // Get current position
 GridCoordinate Ship::getPosition() const {
 	return position;	
-}
-
-// Indicate that we are more robust to evasion damage
-//   Normally just Bismarck & Prinz Eugen
-//   See Rules 9.724-9.726
-void Ship::setRobustEvasion() {
-	robustEvasion = true;	
 }
 
 // Are we on patrol?
