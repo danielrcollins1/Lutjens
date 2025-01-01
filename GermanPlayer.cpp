@@ -395,7 +395,8 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	if (game->getTurnsElapsed() == 0) {
 		char row = dieRoll(100) <= 85 ? 
 			'A' + rand(4): 'E' + rand(2);
-		int col = 15 + rand(4);
+		int col = dieRoll(100) <= 50 ?
+			15 : 16 + rand(3);
 		if (row == 'F' && col == 15) { // Avoid Faeroe
 			ship.orderMove("G16");
 			ship.orderMove(board->randSeaZone("H15", 1));
