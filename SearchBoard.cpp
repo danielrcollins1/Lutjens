@@ -83,9 +83,9 @@ GridCoordinate SearchBoard::randSeaZone(
 // Find the column of the British patrol line
 //   (limit of general search) for a given row
 int SearchBoard::getPatrolLimitForRow(char row) const {
-	assert('E' <= row && row <= 'Z');  // Rule 10.211
-	int col = 1;
-	while (!isBritishPatrol(GridCoordinate(row, col++)));
+	assert(isInInterval('E', row, 'Z')); // Rule 10.211
+	int col = 0;
+	while (!isBritishPatrol(GridCoordinate(row, ++col)));
 	return col;
 }
 
