@@ -14,11 +14,11 @@ std::ostream& operator<<(std::ostream& stream, const Ship& ship) {
 }
 
 // Ship type abbreviations
-const string Ship::typeAbbr[NUM_TYPES]
+const char* Ship::typeAbbr[]
 	= {"BB", "BC", "PB", "CV", "CA", "CL", "DD", "CT", "SS", "UB"};
 
 // Ship type full names
-const string Ship::typeName[NUM_TYPES]
+const char* Ship::typeName[]
 	= {"Battleship", "Battlecruiser", "Pocket Battleship", 
 		"Aircraft Carrier", "Heavy Cruiser", "Light Cruiser",
 		"Destroyer", "Contre-Torpilleur", "Submarine", "U-Boat"};

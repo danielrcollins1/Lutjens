@@ -21,7 +21,6 @@ class Ship
 	public:
 		
 		// Enumerations
-		static const int NUM_TYPES = 10;
 		enum Type {BB, BC, PB, CV, CA, CL, DD, CT, SS, UB};
 		enum ClassType {BATTLESHIP, CRUISER, DESTROYER, SUBMARINE};
 		enum OrderType {MOVE, PATROL, STOP};
@@ -81,6 +80,10 @@ class Ship
 		
 	private:
 
+		// Type labels
+		static const char* typeAbbr[];
+		static const char* typeName[];
+
 		// Orders structure
 		struct Order {
 			OrderType type;
@@ -94,10 +97,6 @@ class Ship
 			bool shadowed = false, located = false, combated = false;
 		};
 
-		// Constants
-		static const std::string typeAbbr[NUM_TYPES];
-		static const std::string typeName[NUM_TYPES];
-		
 		// Data
 		std::string name;
 		Type type;
