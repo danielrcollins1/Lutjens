@@ -475,7 +475,7 @@ GridCoordinate Ship::randAdjacentMove() const {
 	GridCoordinate move;
 	auto board = SearchBoard::instance();
 	do {
-		move = board->randSeaWithinOne(position);
+		move = board->randSeaZone(position, 1);
 	} while (!isAccessible(move)
 		|| board->isGermanPort(move));
 	return move;

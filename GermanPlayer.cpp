@@ -195,7 +195,7 @@ void GermanPlayer::callHuffDuff(Ship& ship) {
 	ship.noteDetected();
 	cgame << "HUFF-DUFF: German ship near "
 		<< SearchBoard::instance()
-			->randSeaWithinOne(ship.getPosition())
+			->randSeaZone(ship.getPosition(), 1)
 		<< endl;
 }
 
@@ -436,7 +436,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		int col = 15 + rand(4);
 		if (row == 'F' && col == 15) { // Avoid Faeroe
 			ship.orderMove("G16");
-			ship.orderMove(board->randSeaWithinOne("H15"));
+			ship.orderMove(board->randSeaZone("H15", 1));
 		} 
 		else {
 			ship.orderMove(GridCoordinate(row, col));
@@ -448,7 +448,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	else if (region == NORTH_SEA) {
 
 		// Safety valve for region we shouldn't ever go
-		ship.orderMove(board->randSeaWithinOne("D17"));
+		ship.orderMove(board->randSeaZone("D17", 1));
 	}
 
 	// Move away from Norway
@@ -462,7 +462,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 
 		// If located, move out ASAP
 		else if (ship.wasLocated(1)) {
-			ship.orderMove(board->randSeaWithinOne("B13"));
+			ship.orderMove(board->randSeaZone("B13", 1));
 		}
 
 		// Break out in bad weather or late game
@@ -487,7 +487,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 			&& position.getRow() >= 'C'
 			&& dieRoll(6) <= 3)
 		{
-			ship.orderMove(board->randSeaWithinOne("F13"));
+			ship.orderMove(board->randSeaZone("F13", 1));
 		}
 		
 		// Otherwise go for Denmark Strait
@@ -514,7 +514,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 
 		// Transition regions via Q15 increases time near convoy line
 		if (getRegion(position) != getRegion(target) && dieRoll(6) <= 4) {
-			ship.orderMove(board->randSeaWithinOne("Q15"));
+			ship.orderMove(board->randSeaZone("Q15", 1));
 		}
 		ship.orderMove(target);
 		ship.orderAction(Ship::PATROL);

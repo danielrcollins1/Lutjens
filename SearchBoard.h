@@ -26,7 +26,8 @@ class SearchBoard
 		bool isNearZoneType(const GridCoordinate& zone, 
 			int distance, bool (SearchBoard::*zoneType)
 				(const GridCoordinate& zone) const) const;
-		GridCoordinate randSeaWithinOne(const GridCoordinate& zone) const;
+		GridCoordinate randSeaZone(const GridCoordinate& center, 
+			int radius) const;
 		int getPatrolLimitCol(char row) const;
 		void print() const;
 

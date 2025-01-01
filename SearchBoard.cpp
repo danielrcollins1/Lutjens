@@ -64,25 +64,19 @@ bool SearchBoard::isConvoyRoute(const GridCoordinate& zone) const {
 	return layers[ConvoyRoutes].isBitOn(zone);
 }
 
-// Get a random sea zone within one of this
-GridCoordinate SearchBoard::randSeaWithinOne
-	(const GridCoordinate& zone) const 
+// Get a random sea zone within a given area
+//   Area is defined by center zone and radius (inclusive)
+GridCoordinate SearchBoard::randSeaZone(
+	const GridCoordinate& center, int radius) const
 {
-	// Get all within one
-	std::vector<GridCoordinate> radius1(7);
-	radius1.push_back(zone);
-	auto adj = zone.getAdjacent();
-	radius1.insert(radius1.end(), adj.begin(), adj.end());
-	
-	// Filter by sea zones
 	std::vector<GridCoordinate> seaZones;
-	for (auto zone: radius1) {
-		if (SearchBoard::isSeaZone(zone)) {
+	auto area = center.getArea(radius);
+	for (auto zone: area) {
+		if (isSeaZone(zone)) {
 			seaZones.push_back(zone);
 		}
 	}
-	
-	// Return a random one
+	assert(!seaZones.empty());
 	return randomElem(seaZones);
 }
 
@@ -100,17 +94,11 @@ int SearchBoard::getPatrolLimitCol(char row) const {
 bool SearchBoard::isNearZoneType(const GridCoordinate& zone, int distance, 
 		bool (SearchBoard::*zoneType)(const GridCoordinate& zone) const) const 
 {
-	// Check rhombus given distance around the zone
 	assert(distance >= 0);
-	int d = distance;
-	for (char row = zone.getRow() - d; row <= zone.getRow() + d; row++) {
-		for (int col = zone.getCol() - d; col <= zone.getCol() + d; col++) {
-			GridCoordinate gc(row, col);
-			if (gc.distanceFrom(zone) <= distance
-				&& (this->*zoneType)(gc))
-			{
-				return true;
-			}
+	auto area = zone.getArea(distance);
+	for (auto zone: area) {
+		if ((this->*zoneType)(zone)) {
+			return true;			
 		}
 	}
 	return false;	

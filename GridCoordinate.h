@@ -12,7 +12,6 @@
 #include <vector>
 #include <iostream>
 
-// GridCoordinate class
 class GridCoordinate
 {
 	public:
@@ -24,7 +23,7 @@ class GridCoordinate
 		int getCol() const { return col; };
 		std::string toString() const;
  		int distanceFrom(const GridCoordinate& dest) const;
-		std::vector<GridCoordinate> getAdjacent() const;
+		std::vector<GridCoordinate> getArea(int radius) const;
 		bool operator==(const GridCoordinate& other) const;
 		bool operator!=(const GridCoordinate& other) const;
 		bool operator<(const GridCoordinate& other) const;

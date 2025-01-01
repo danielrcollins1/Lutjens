@@ -70,16 +70,21 @@ int GridCoordinate::distanceFrom(const GridCoordinate& dest) const {
 		return rowDiff;	
 }
 
-// Get a list of adjacent zones
-std::vector<GridCoordinate> GridCoordinate::getAdjacent() const {
-	std::vector<GridCoordinate> list(6);
-	list[0] = GridCoordinate(row - 1, col);
-	list[1] = GridCoordinate(row + 1, col);
-	list[2] = GridCoordinate(row, col - 1);
-	list[3] = GridCoordinate(row, col + 1);
-	list[4] = GridCoordinate(row - 1, col - 1);
-	list[5] = GridCoordinate(row + 1, col + 1);
-	return list;	
+// Get zones in an area nearby this zone
+//   Area has this zone as center and given radius (inclusive)
+//   Do search within bounding rhombus on map
+std::vector<GridCoordinate> GridCoordinate::getArea(int radius) const {
+	assert(radius >= 0);
+	std::vector<GridCoordinate> area;
+	for (char zRow = row - radius; zRow <= row + radius; zRow++) {
+		for (int zCol = col - radius; zCol <= col + radius; zCol++) {
+			GridCoordinate zone(zRow, zCol);
+			if (distanceFrom(zone) <= radius) {
+				area.push_back(zone);
+			}
+		}
+	}
+	return area;
 }
 
 // Compare two coordinates for equality

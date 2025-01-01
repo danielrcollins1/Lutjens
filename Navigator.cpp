@@ -53,9 +53,11 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 		}
 
 		// Search zones adjacent to current guess
-		auto adjacentList = current.getAdjacent();
-		for (const auto& neighbor: adjacentList) {
-			if (!ship.isAccessible(neighbor)) {
+		auto nearbyList = current.getArea(1);
+		for (const auto& neighbor: nearbyList) {
+			if (neighbor == current 
+				|| !ship.isAccessible(neighbor)) 
+			{
 				continue;
 			}
 
