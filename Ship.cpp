@@ -28,7 +28,6 @@ const char* Ship::typeName[]
 //   DriveDefense indicates evasion loss rate (Rule 9.72)
 Ship::Ship(std::string name, Type type, 
 	int evasion, int midships, int fuel, 
-	DriveDefense driveDefense,
 	GridCoordinate position,
 	GermanPlayer* player)
 {
@@ -37,16 +36,16 @@ Ship::Ship(std::string name, Type type,
 	this->evasionMax = evasion;
 	this->midshipsMax = midships;
 	this->fuelMax = fuel;
-	this->driveDefense = driveDefense;
 	this->player = player;
 	this->position = position;
-	onPatrol = false;
-	loseMoveTurn = false;
+	evasionLossRate = getEvasionLossRate();
 	fuelLost = 0;
 	midshipsLost = 0;
 	evasionLostTemp = 0;
 	evasionLostPerm = 0;
 	timesDetected = 0;
+	onPatrol = false;
+	loseMoveTurn = false;
 }
 
 // Get the name
@@ -132,24 +131,30 @@ void Ship::loseMidships(int loss) {
 
 // Apply temporary evasion loss from midships hit (Rule 9.72)
 void Ship::applyTempEvasionLoss(int midshipsLoss) {
-	evasionLostTemp += midshipsLoss * getEvasionLossRate();
+	evasionLostTemp += midshipsLoss * evasionLossRate;
 }
 
 // Get how much evasion we lose per midships hit
-//   (Rules 9.724, 9.725, 9.726)
+//   This quality is given by ship type & name in the rules
+//   So we should parse the name on ship construction
 int Ship::getEvasionLossRate() const {
 	switch (getClassType()) {
-		case BATTLESHIP: return driveDefense == STRONG ? 1 : 2;
-		case CRUISER: return driveDefense == STRONG ? 3 : 5;
+
+		case BATTLESHIP: 
+			// Rules 9.724, 48.2
+			return (name == "Bismarck" || name == "Tirpitz") ? 1 : 2;
+
+		case CRUISER:
+			// Rules 9.725, 9.726, and class inference
+			return (name == "Prinz Eugen" || name == "Hipper") ? 3 : 5;
+		
 		default:
 			// Other types don't engage in basic naval combat 
 			// (Destroyer rule 23.32, Submarine rule 22.17)
-			cerr << "Error: Invalid ship type for evasion loss\n";
-			assert(false);
 			return 0;
 	}
 }
-		
+
 // Check for evasion repair following movement (Rule 9.728)
 void Ship::checkEvasionRepair() {
 	if (evasionLostTemp && getSpeed() <= 1) {
@@ -165,7 +170,7 @@ void Ship::checkEvasionRepair() {
 	}
 }
 
-// Set starting position
+// Set new position
 void Ship::setPosition(const GridCoordinate& zone) {
 	assert(log.empty());
 	position = zone;

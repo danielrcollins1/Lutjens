@@ -8,8 +8,7 @@ using namespace std;
 
 // Constructor
 GermanPlayer::GermanPlayer() {
-	Ship bb("Bismarck", Ship::Type::BB, 29, 10, 13, 
-		Ship::DriveDefense::STRONG, "F20", this);
+	Ship bb("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this);
 	shipList.push_back(bb);
 	flagship = &shipList[0];
 }

@@ -23,12 +23,10 @@ class Ship
 		enum Type {BB, BC, PB, CV, CA, CL, DD, CT, SS, UB};
 		enum ClassType {BATTLESHIP, CRUISER, DESTROYER, SUBMARINE};
 		enum OrderType {MOVE, PATROL, STOP};
-		enum DriveDefense {NORMAL, STRONG};
 
 		// Functions
 		Ship(std::string name, Type type, 
 			int evasion, int midships, int fuel, 
-			DriveDefense driveDefense = NORMAL,
 			GridCoordinate position = GridCoordinate::NO_ZONE,
 			GermanPlayer* player = nullptr);
 		std::string getName() const;
@@ -101,13 +99,13 @@ class Ship
 		// Data
 		std::string name;
 		Type type;
-		bool onPatrol;
-		bool loseMoveTurn;
 		int fuelMax, fuelLost;
 		int midshipsMax, midshipsLost;
 		int evasionMax, evasionLostTemp, evasionLostPerm;
+		int evasionLossRate;
 		int timesDetected;
-		DriveDefense driveDefense;
+		bool onPatrol;
+		bool loseMoveTurn;
 		GridCoordinate position;
 		GermanPlayer* player;
 		std::queue<Order> orders;
