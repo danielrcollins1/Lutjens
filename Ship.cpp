@@ -231,8 +231,8 @@ void Ship::doMovement() {
 		onPatrol = false;
 		switch (orders.front().type) {
 			case MOVE: doMoveOrder(); break;
-			case PATROL: onPatrol = true; // & fall through
-			case STOP: clearRoute();
+			case PATROL: onPatrol = true; break;
+			case STOP: break;
 		}
 	}
 	
@@ -439,7 +439,8 @@ void Ship::updateOrders() {
 		&& orders.front().type == MOVE
 		&& orders.front().zone == position)
 	{
-		orders.pop();	
+		assert(route.empty());
+		orders.pop();
 	}
 	
 	// Note: Do NOT ask for new orders at this point (if empty)
@@ -455,6 +456,7 @@ bool Ship::hasOrders() const {
 void Ship::clearOrders() {
 	queue<Order> empty;
 	swap(orders, empty);
+	clearRoute();
 }
 
 // Get a string descriptor for an order
@@ -463,8 +465,7 @@ string Ship::Order::toString() const {
 		case MOVE: return "Move-" + zone.toString();
 		case PATROL: return "Patrol";
 		case STOP: return "Stop";
-		default: cerr << "Error: Unknown order type\n";
-			return "Unknown";
+		default: return "Unknown";
 	}
 }
 
