@@ -62,8 +62,7 @@ void testCoordinateArea(const GridCoordinate& coord) {
 
 // Test ship construction
 void testShipConstruction() {
-	Ship ship("Bismarck", Ship::Type::BB, 29, 10, 13,
-		Ship::DriveDefense::STRONG, "F20");
+	Ship ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20");
 	cout << "Ship test: " << ship << endl;
 }
 
@@ -72,8 +71,7 @@ void testNavigatorPath(const GridCoordinate& src,
 	const GridCoordinate& dest) 
 {
 	cout << "Navigator path from " << src << " to " << dest << ": ";
-	Ship ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10,
-		Ship::DriveDefense::STRONG, src);
+	Ship ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, src);
 	vector<GridCoordinate> path = Navigator::findSeaRoute(ship, dest);
 	printVec(path);
 }
