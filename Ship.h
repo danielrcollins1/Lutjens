@@ -57,7 +57,6 @@ class Ship
 		void setShadowed();
 		void setInCombat();
 		void setLoseMoveTurn();
-		void setRobustEvasion();
 		void loseFuel(int loss);
 		void loseEvasion(int loss);
 		void loseMidships(int loss);
