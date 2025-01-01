@@ -68,7 +68,7 @@ class Ship
 		void setPosition(const GridCoordinate& zone);
 		bool isAccessible(const GridCoordinate& zone) const;
 		bool movedThrough(const GridCoordinate& zone) const;
-		GridCoordinate randAdjacentMove() const;
+		GridCoordinate randMoveInArea(int radius) const;
 
 		// Plotting functions
 		void orderAction(OrderType type);

@@ -359,7 +359,7 @@ void GermanPlayer::getOrders(Ship& ship) {
 		|| (ship.wasLocated(1) && ship.isOnPatrol()))
 	{
 		ship.clearOrders();
-		ship.orderMove(ship.randAdjacentMove());
+		ship.orderMove(ship.randMoveInArea(3));
 		needsNewGoal = true;
 	}
 
@@ -495,7 +495,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 GridCoordinate GermanPlayer::getLoiterZone(const Ship& ship) const {
 	GridCoordinate move;
 	do {
-		move = ship.randAdjacentMove();
+		move = ship.randMoveInArea(1);
 	} while (getRegion(move) != getRegion(ship.getPosition()));
 	return move;
 }
