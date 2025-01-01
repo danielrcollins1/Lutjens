@@ -28,7 +28,8 @@ class SearchBoard
 				(const GridCoordinate& zone) const) const;
 		GridCoordinate randSeaZone(const GridCoordinate& center, 
 			int radius) const;
-		int getPatrolLimitCol(char row) const;
+		std::vector<GridCoordinate> getAllGermanPorts() const;
+		int getPatrolLimitForRow(char row) const;
 		void print() const;
 
 	private:

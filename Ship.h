@@ -46,6 +46,7 @@ class Ship
 		bool isInDay() const;
 		bool isInNight() const;
 		bool isInFog() const;
+		bool isReturnToBase() const;
 		bool enteredPort() const;
 		bool wasLocated(unsigned turnsAgo) const;
 		bool wasShadowed(unsigned turnsAgo) const;
@@ -55,6 +56,7 @@ class Ship
 		void setShadowed();
 		void setInCombat();
 		void setLoseMoveTurn();
+		void setReturnToBase();
 		void loseFuel(int loss);
 		void loseEvasion(int loss);
 		void loseMidships(int loss);
@@ -106,6 +108,7 @@ class Ship
 		int timesDetected;
 		bool onPatrol;
 		bool loseMoveTurn;
+		bool returnToBase;
 		GridCoordinate position;
 		GermanPlayer* player;
 		std::queue<Order> orders;

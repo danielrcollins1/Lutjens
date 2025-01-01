@@ -68,3 +68,17 @@ void SearchBoardLayer::print() const {
 	}
 	cout << endl;
 }
+
+// Get a list of all the zones with bits on
+vector<GridCoordinate> SearchBoardLayer::getAllOn() const {
+	vector<GridCoordinate> zoneList;
+	for (char row = MIN_ROW; row <= MAX_ROW; row++) {
+		for (int col = MIN_COL; col <= MAX_COL; col++) {
+			GridCoordinate zone(row, col);
+			if (isBitOn(zone)) {
+				zoneList.push_back(zone);
+			}
+		}
+	}
+	return zoneList;	
+}

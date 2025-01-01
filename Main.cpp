@@ -67,6 +67,7 @@ void runLargeSeries() {
 
 	// Run series
 	for (int i = 0; i < numGames; i++) {
+		//cout << "\n# New Game Starts\n";
 		GameDirector::initGame();
 		auto game = GameDirector::instance();
 		game->doGameLoop();

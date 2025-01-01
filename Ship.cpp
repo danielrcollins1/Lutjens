@@ -46,6 +46,7 @@ Ship::Ship(std::string name, Type type,
 	timesDetected = 0;
 	onPatrol = false;
 	loseMoveTurn = false;
+	returnToBase = false;
 }
 
 // Get the name
@@ -195,7 +196,7 @@ void Ship::doAvailability() {
 //   We use the first waypoint as our location at end of move
 //   Waive most other rules restrictions here
 void Ship::doBreakoutBonusMove() {
-	assert(GameDirector::instance()->getTurnsElapsed() == 0);
+	assert(!GameDirector::instance()->getTurnsElapsed());
 	player->getOrders(*this);
 	assert(hasOrders());
 
@@ -270,6 +271,7 @@ void Ship::doMoveOrder() {
 			position = next;
 			logNow().moves.push_back(position);
 			updateOrders();
+			//cout << *this << endl;
 		}
 	}
 }
@@ -589,4 +591,14 @@ void Ship::plotRoute(const GridCoordinate& goal) {
 void Ship::clearRoute() {
 	queue<GridCoordinate> empty;
 	swap(route, empty);
+}
+
+// Set the return to base (RTB) marker (Rule 16.3)
+void Ship::setReturnToBase() {
+	returnToBase = true;	
+}
+
+// Is the return to base (RTB) marker set?
+bool Ship::isReturnToBase() const {
+	return returnToBase;	
 }

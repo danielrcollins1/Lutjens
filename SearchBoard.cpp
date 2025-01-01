@@ -82,7 +82,7 @@ GridCoordinate SearchBoard::randSeaZone(
 
 // Find the column of the British patrol line
 //   (limit of general search) for a given row
-int SearchBoard::getPatrolLimitCol(char row) const {
+int SearchBoard::getPatrolLimitForRow(char row) const {
 	assert('E' <= row && row <= 'Z');  // Rule 10.211
 	int col = 1;
 	while (!isBritishPatrol(GridCoordinate(row, col++)));
@@ -102,4 +102,9 @@ bool SearchBoard::isNearZoneType(const GridCoordinate& zone, int distance,
 		}
 	}
 	return false;	
+}
+
+// Get a list of all the German ports
+std::vector<GridCoordinate> SearchBoard::getAllGermanPorts() const {
+	return layers[GermanPorts].getAllOn();
 }

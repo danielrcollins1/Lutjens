@@ -11,6 +11,7 @@
 #define SEARCHBOARDLAYER_H
 #include "GridCoordinate.h"
 #include <string>
+#include <vector>
 
 // Search Board Layer class
 class SearchBoardLayer
@@ -18,6 +19,7 @@ class SearchBoardLayer
 	public:
 		SearchBoardLayer(const std::string &filename);
 		bool isBitOn(GridCoordinate coord) const;
+		std::vector<GridCoordinate> getAllOn() const;
 		void print() const;
 
 	private:

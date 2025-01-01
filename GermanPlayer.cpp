@@ -2,6 +2,7 @@
 #include "GameDirector.h"
 #include "SearchBoard.h"
 #include "GameStream.h"
+#include "CmdArgs.h"
 #include "Utils.h"
 #include <cassert>
 using namespace std;
@@ -185,7 +186,7 @@ void GermanPlayer::checkGeneralSearch(Ship& ship, int roll) {
 		&& !ship.isInFog()       // Rule 10.213
 		&& pos.getRow() >= 'E'   // Rule 10.211
 		&& pos.getCol() >= SearchBoard::instance()
-			->getPatrolLimitCol(pos.getRow()))
+			->getPatrolLimitForRow(pos.getRow()))
 	{
 		// Look up search strength
 		char colLetter = getGeneralSearchColumn(pos);
@@ -209,7 +210,7 @@ char GermanPlayer::getGeneralSearchColumn(const GridCoordinate& zone) {
 	auto board = SearchBoard::instance();
 	
 	// Case 'A': western edge, near patrol line limit
-	if (zone.getCol() <= board->getPatrolLimitCol(zone.getRow()) + 2) {
+	if (zone.getCol() <= board->getPatrolLimitForRow(zone.getRow()) + 2) {
 		return 'A';	
 	}
 
@@ -271,7 +272,9 @@ void GermanPlayer::destroyConvoy(Ship& ship) {
 		<< " by " << ship.getName() << endl;
 	GameDirector::instance()->msgSunkConvoy();
 	ship.setLoseMoveTurn();   // Rule 10.25
-	ship.clearOrders();
+	if (!ship.isReturnToBase()) {
+		ship.clearOrders();
+	}
 }
 
 // Print all of our ships (e.g., for end game)
@@ -353,6 +356,14 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(
 // Get orders for a ship before its move
 void GermanPlayer::getOrders(Ship& ship) {
 	bool needsNewGoal = false;
+	
+	// Check rule for return-to-base if out of fuel
+	if (!ship.getFuel()) {
+		handleFuelEmpty(ship);
+		if (ship.isReturnToBase()) {
+			return;	
+		}
+	}
 
 	// Redirect if we saw combat or were found patroling
 	if (ship.wasCombated(1)
@@ -548,4 +559,34 @@ GridCoordinate GermanPlayer::randMidAtlanticTarget() const {
 	int row = 'L' + inc;
 	int col = 11 + inc;
 	return GridCoordinate(row, col);
+}
+
+// Use optional rule for return-to-base when fuel empty (Rule 16.3)
+void GermanPlayer::handleFuelEmpty(Ship& ship) {
+	assert(!ship.getFuel());
+	if (CmdArgs::instance()->useFuelExpenditure()) {
+		if (!ship.isReturnToBase()) {
+			clog << ship.getName() << " out of fuel (set RTB)\n";
+			ship.setReturnToBase();
+			ship.clearOrders();
+			ship.orderMove(findNearestPort(ship));
+			ship.orderAction(Ship::STOP); // Rule 16.6
+		}
+	}
+}
+
+// Find the nearest friendly port for a given ship
+GridCoordinate GermanPlayer::findNearestPort(const Ship& ship) const {
+	int minDistance = INT_MAX;
+	auto nearestPort = GridCoordinate::NO_ZONE;
+	auto portList = SearchBoard::instance()->getAllGermanPorts();
+	for (auto port: portList) {
+		int distance = port.distanceFrom(ship.getPosition());
+		if (distance < minDistance) {
+			nearestPort = port;
+			minDistance = distance;
+		}
+	}
+	assert(nearestPort != GridCoordinate::NO_ZONE);
+	return nearestPort;	
 }

@@ -51,7 +51,10 @@ class GermanPlayer
 		// Plotting functions
 		MapRegion getRegion(const GridCoordinate& zone) const;
 		GridCoordinate getLoiterZone(const Ship& ship) const;
+		GridCoordinate findNearestPort(const Ship& ship) const;
 		void orderNewGoal(Ship& ship);
+		void handleFuelEmpty(Ship& ship);
+		
 };
 
 #endif
