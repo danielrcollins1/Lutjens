@@ -89,10 +89,10 @@ vector<GridCoordinate> BritishPlayerComputer::getAirPatrolZones()
 	if (turnsElapsed < (int) initialAirPatrols.size()) {
 		int numPatrolsToday = initialAirPatrols[turnsElapsed];
 		for (int i = 0; i < numPatrolsToday; i++) {
-			GridCoordinate searchZone;
-			do {
+			GridCoordinate searchZone = pickAirPatrolZone();
+			while (hasElem(list, searchZone)) {
 				searchZone = pickAirPatrolZone();
-			} while (hasElem(list, searchZone));
+			}
 			list.push_back(searchZone);			
 		}
 	}
@@ -100,7 +100,7 @@ vector<GridCoordinate> BritishPlayerComputer::getAirPatrolZones()
 }
 
 // Get a random zone for an air patrol
-//   Column pick suggested by MicroBismarck LRS resultd
+//   Column pick suggested by MicroBismarck LRS results
 GridCoordinate BritishPlayerComputer::pickAirPatrolZone() {
 	int col;
 	char row = 'A' + rand(6);

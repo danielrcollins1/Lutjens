@@ -331,9 +331,12 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(
 	// Get zone components
 	char row = zone.getRow();
 	int col = zone.getCol();
+
+	// Off-map (no-zone coordinate)
+	if (zone == GridCoordinate::NO_ZONE) { return OFF_MAP; }
 	
 	// North Sea (east of Britain; don't expect to go here)
-	if (row >= 'H' && col >= row - 'H' + 18) { return NORTH_SEA; }
+	else if (row >= 'H' && col >= row - 'H' + 18) { return NORTH_SEA; }
 	
 	// East Norwegian sea (area of first-turn breakout bonus)
 	else if (row <= 'G' && col > 15) { return EAST_NORWEGIAN; }
@@ -504,10 +507,10 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 
 // Get an adjacent zone for a ship loitering in a region
 GridCoordinate GermanPlayer::getLoiterZone(const Ship& ship) const {
-	GridCoordinate move;
-	do {
+	GridCoordinate move = GridCoordinate::NO_ZONE;
+	while (getRegion(move) != getRegion(ship.getPosition())) {
 		move = ship.randMoveInArea(1);
-	} while (getRegion(move) != getRegion(ship.getPosition()));
+	};
 	return move;
 }
 

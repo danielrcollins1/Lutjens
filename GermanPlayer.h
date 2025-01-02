@@ -30,7 +30,7 @@ class GermanPlayer
 	private:
 		// Enumeration
 		enum MapRegion {NORTH_SEA, EAST_NORWEGIAN, WEST_NORWEGIAN, 
-			DENMARK_STRAIT, WEST_ATLANTIC, EAST_ATLANTIC};
+			DENMARK_STRAIT, WEST_ATLANTIC, EAST_ATLANTIC, OFF_MAP};
 
 		// Data
 		Ship* flagship;

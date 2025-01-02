@@ -475,12 +475,11 @@ string Ship::Order::toString() const {
 
 // Get a random nearby space to which we can move
 GridCoordinate Ship::randMoveInArea(int radius) const {
-	GridCoordinate move;
 	auto board = SearchBoard::instance();
-	do {
+	GridCoordinate move = GridCoordinate::NO_ZONE;
+	while (!isAccessible(move) || board->isGermanPort(move)) {
 		move = board->randSeaZone(position, radius);
-	} while (!isAccessible(move)
-		|| board->isGermanPort(move));
+	}
 	return move;
 }
 
