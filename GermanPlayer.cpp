@@ -406,16 +406,6 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		visibility += 2; // approximation
 	}
 
-	// Test maximum convoy kills
-	if (game->getTurnsElapsed() == 0) {
-		ship.orderMove("G16");
-	}
-	else {
-		ship.orderMove("J16");
-		ship.orderAction(Ship::PATROL);
-	}
-	return;
-	
 	// On first turn, choose breakout bonus move
 	if (game->getTurnsElapsed() == 0) {
 		char row = dieRoll(100) <= 85 ? 
