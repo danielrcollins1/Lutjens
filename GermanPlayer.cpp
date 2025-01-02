@@ -180,13 +180,12 @@ const int GS_VALUES[GS_ROWS][GS_COLS] = {
 void GermanPlayer::checkGeneralSearch(Ship& ship, int roll) {
 	assert(3 <= roll && roll <= 9);
 	auto pos = ship.getPosition();
+	auto board = SearchBoard::instance();
 	
 	// Check if general search possible
-	if (!ship.isInNight()        // Rule 11.13
-		&& !ship.isInFog()       // Rule 10.213
-		&& pos.getRow() >= 'E'   // Rule 10.211
-		&& pos.getCol() >= SearchBoard::instance()
-			->getPatrolLimitForRow(pos.getRow()))
+	if (board->isInsidePatrolLine(pos)    // Rule 10.211
+		&& !ship.isInFog()                // Rule 10.213
+		&& !ship.isInNight())             // Rule 11.13
 	{
 		// Look up search strength
 		char colLetter = getGeneralSearchColumn(pos);
@@ -210,7 +209,7 @@ char GermanPlayer::getGeneralSearchColumn(const GridCoordinate& zone) {
 	auto board = SearchBoard::instance();
 	
 	// Case 'A': western edge, near patrol line limit
-	if (zone.getCol() <= board->getPatrolLimitForRow(zone.getRow()) + 2) {
+	if (board->isNearZoneType(zone, 2, board->isBritishPatrolLine)) {
 		return 'A';	
 	}
 
@@ -476,21 +475,22 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		int colOnRowE = colOnRowC + rand(3);
 		ship.orderMove(GridCoordinate('C', colOnRowC));
 		ship.orderMove(GridCoordinate('E', colOnRowE));
-
-		// Get past general search asap
-		if (dieRoll(100) <= 50) {
-			ship.orderMove(randAtlanticConvoyTarget());
-		}
-		else {
-			ship.orderMove(board->randSeaZone("K6", 2));
-			ship.orderMove(randAfricanConvoyTarget());
-		}
-		ship.orderAction(Ship::PATROL);
 	}
 	
 	// Breakout accomplished, now search for convoys
 	else if (region == EAST_ATLANTIC || region == WEST_ATLANTIC) {
 		auto target = randAnyConvoyTarget(ship);
+		
+		// Coming out of Denmark Strait to Africa,
+		// transit past general patrol line asap
+		if (position.getCol() < 10
+			&& (position.getRow() < 'E' 
+				|| board->isInsidePatrolLine(position))
+			&& getRegion(target) == EAST_ATLANTIC)
+		{
+			ship.orderMove(getDenmarkStraitToAfricaTransit(ship));
+		}
+		
 		ship.orderMove(target);
 		ship.orderAction(Ship::PATROL);
 	}
@@ -530,8 +530,8 @@ GridCoordinate GermanPlayer::randAnyConvoyTarget(Ship& ship) const {
 GridCoordinate GermanPlayer::randAtlanticConvoyTarget() const {
 	auto board = SearchBoard::instance();
 	GridCoordinate zone = GridCoordinate::NO_ZONE;
-	while (!(board->isSeaZone(zone)
-		&& zone.getCol() < board->getPatrolLimitForRow(zone.getRow())))
+	while (!board->isSeaZone(zone)
+		|| board->isInsidePatrolLine(zone))
 	{
 		char row = 'H' + randWeightedConvoyDistance();
 		int col = dieRoll(7);
@@ -546,8 +546,8 @@ GridCoordinate GermanPlayer::randAtlanticConvoyTarget() const {
 GridCoordinate GermanPlayer::randAfricanConvoyTarget() const {
 	auto board = SearchBoard::instance();
 	GridCoordinate zone = GridCoordinate::NO_ZONE;
-	while (!(board->isSeaZone(zone)
-		&& zone.getCol() < board->getPatrolLimitForRow(zone.getRow())))
+	while (!board->isSeaZone(zone)
+		|| board->isInsidePatrolLine(zone))
 	{
 		int inc = rand(11);
 		char row = 'P' + inc;
@@ -598,4 +598,31 @@ GridCoordinate GermanPlayer::findNearestPort(const Ship& ship) const {
 	}
 	assert(nearestPort != GridCoordinate::NO_ZONE);
 	return nearestPort;	
+}
+
+// Get a transit point when moving from Denmark Strait to Africa Convoy line
+//   Find closest zone past patrol line, then vary a bit
+GridCoordinate GermanPlayer::getDenmarkStraitToAfricaTransit(
+	const Ship& ship) const
+{
+	assert(ship.getPosition().getCol() < 10);
+	int startCol = ship.getPosition().getCol();
+	GridCoordinate bestZone('C' + startCol, startCol);
+	GridCoordinate targetZone = GridCoordinate::NO_ZONE;
+	auto board = SearchBoard::instance();
+	while (!board->isSeaZone(targetZone)) {
+
+		// Vary northwest along patrol up to 3 spaces
+		int inc = rand(4);
+		char row = bestZone.getRow() - inc;
+		int col = bestZone.getCol() - inc;
+
+		// Vary southwest past patrol line up to 4 spaces
+		// (This includes where Bismarck shook Sheffield)
+		row += rand(5);
+		targetZone = GridCoordinate(row, col);
+	}
+	//cout << ship.getPosition() << " " << targetZone << endl;
+	assert(!board->isInsidePatrolLine(targetZone));
+	return targetZone;
 }

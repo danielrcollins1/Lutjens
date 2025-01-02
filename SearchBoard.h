@@ -21,15 +21,15 @@ class SearchBoard
 		bool isGermanPort(const GridCoordinate& zone) const;
 		bool isFogZone(const GridCoordinate& zone) const;
 		bool isIrishSea(const GridCoordinate& zone) const;
-		bool isBritishPatrol(const GridCoordinate& zone) const;
+		bool isBritishPatrolLine(const GridCoordinate& zone) const;
 		bool isConvoyRoute(const GridCoordinate& zone) const;
 		bool isNearZoneType(const GridCoordinate& zone, 
 			int distance, bool (SearchBoard::*zoneType)
 				(const GridCoordinate& zone) const) const;
+		bool isInsidePatrolLine(const GridCoordinate& zone) const;
 		GridCoordinate randSeaZone(const GridCoordinate& center, 
 			int radius) const;
 		std::vector<GridCoordinate> getAllGermanPorts() const;
-		int getPatrolLimitForRow(char row) const;
 		void print() const;
 
 	private:

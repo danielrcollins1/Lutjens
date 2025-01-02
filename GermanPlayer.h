@@ -52,6 +52,8 @@ class GermanPlayer
 		MapRegion getRegion(const GridCoordinate& zone) const;
 		GridCoordinate getLoiterZone(const Ship& ship) const;
 		GridCoordinate findNearestPort(const Ship& ship) const;
+		GridCoordinate getDenmarkStraitToAfricaTransit(
+			const Ship& ship) const;
 		void orderNewGoal(Ship& ship);
 		void handleFuelEmpty(Ship& ship);
 };

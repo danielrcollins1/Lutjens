@@ -40,7 +40,7 @@ bool SearchBoard::isBritishCoast(const GridCoordinate& zone) const {
 }
 
 // Is this zone on the British Patrol line?
-bool SearchBoard::isBritishPatrol(const GridCoordinate& zone) const {
+bool SearchBoard::isBritishPatrolLine(const GridCoordinate& zone) const {
 	return layers[BritishPatrol].isBitOn(zone);
 }
 
@@ -80,15 +80,6 @@ GridCoordinate SearchBoard::randSeaZone(
 	return randomElem(seaZones);
 }
 
-// Find the column of the British patrol line
-//   (limit of general search) for a given row
-int SearchBoard::getPatrolLimitForRow(char row) const {
-	assert(isInInterval('E', row, 'Z')); // Rule 10.211
-	int col = 0;
-	while (!isBritishPatrol(GridCoordinate(row, ++col)));
-	return col;
-}
-
 // Is this zone within the given distance from some type of zone?
 //   Pass one of the isXZone() functions as last argument
 bool SearchBoard::isNearZoneType(const GridCoordinate& zone, int distance, 
@@ -100,6 +91,20 @@ bool SearchBoard::isNearZoneType(const GridCoordinate& zone, int distance,
 		if ((this->*zoneType)(zone)) {
 			return true;			
 		}
+	}
+	return false;	
+}
+
+// Is this zone within the area of the British patrol line?
+//   That is: In or east of white dots on the map (Rule 10.211)
+bool SearchBoard::isInsidePatrolLine(const GridCoordinate& zone) const {
+	char row = zone.getRow();
+	int col = zone.getCol();
+	while (col > 0) {
+		if (isBritishPatrolLine(GridCoordinate(row, col))) {
+			return true;
+		}
+		col--;	
 	}
 	return false;	
 }
