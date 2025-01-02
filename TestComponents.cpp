@@ -76,16 +76,6 @@ void testNavigatorPath(const GridCoordinate& src,
 	printVec(path);
 }
 
-// Test the British patrol line limit finder
-void testPatrolLineLimits() {
-	cout << "British patrol line limits: ";
-	for (char row = 'E'; row <= 'Z'; row++) {
-		int col = SearchBoard::instance()->getPatrolLimitForRow(row);
-		cout << GridCoordinate(row, col) << " ";
-	}
-	cout << endl;	
-}
-
 // Main test driver
 int main(int argc, char** argv) {
 	srand(time(0));
@@ -98,7 +88,6 @@ int main(int argc, char** argv) {
 	testShipConstruction();
 	testNavigatorPath("F20", "B7");
 	testNavigatorPath("F20", "P23");
-	testPatrolLineLimits();
 	testSearchBoard();
 	return 0;
 }
