@@ -9,8 +9,11 @@ using namespace std;
 
 // Constructor
 GermanPlayer::GermanPlayer() {
-	Ship bb("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this);
-	shipList.push_back(bb);
+	vector<Ship> ships = {
+		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this)
+		//, Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this)
+	};
+	shipList = ships;
 	flagship = &shipList[0];
 }
 
