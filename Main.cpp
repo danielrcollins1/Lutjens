@@ -60,10 +60,12 @@ void runLargeSeries() {
 	std::clog.rdbuf(nullstream.rdbuf());
 	
 	// Initialize series
-	int gamesFlagshipDetected = 0;
+	int gamesDetected = 0;
 	int gamesConvoySunk = 0;
-	int totalFlagshipDetections = 0;
+	int totalDetections = 0;
 	int totalConvoysSunk = 0;
+	const int NUM_KILL_BINS = 7;
+	int convoyKillBin[NUM_KILL_BINS] = {0};
 
 	// Run series
 	for (int i = 0; i < numGames; i++) {
@@ -71,26 +73,45 @@ void runLargeSeries() {
 		GameDirector::initGame();
 		auto game = GameDirector::instance();
 		game->doGameLoop();
-		if (game->getTimesFlagshipDetected() > 0) {
-			gamesFlagshipDetected++;			
+
+		// Record times detected
+		int timesDetected = game->getTimesFlagshipDetected();
+		if (timesDetected > 0) {
+			totalDetections += timesDetected;
+			gamesDetected++;
 		}
-		if (game->getConvoysSunk() > 0) {
-			gamesConvoySunk++;	
+
+		// Record convoys sunk
+		int convoysSunk = game->getConvoysSunk();
+		if (convoysSunk > 0) {
+			totalConvoysSunk += convoysSunk;
+			gamesConvoySunk++;
+		}	
+		if (convoysSunk < NUM_KILL_BINS) {
+			convoyKillBin[game->getConvoysSunk()]++;
 		}
-		totalFlagshipDetections += game->getTimesFlagshipDetected();
-		totalConvoysSunk += game->getConvoysSunk();
 	}
 
 	// Report statistics
 	cout << fixed << showpoint << setprecision(2);
 	cout << "Games flagship detected: " 
-		<< (float) gamesFlagshipDetected / numGames << "\n";
+		<< (float) gamesDetected / numGames << "\n";
 	cout << "Games convoy sunk: " 
 		<< (float) gamesConvoySunk / numGames << "\n";
 	cout << "Mean flagship detections: "
-		<< (float) totalFlagshipDetections / numGames << "\n";
+		<< (float) totalDetections / numGames << "\n";
 	cout << "Mean convoys sunk: " 
 		<< (float) totalConvoysSunk / numGames << "\n";
 	cout << "Convoys/detection ratio: "
-		<< (float) totalConvoysSunk / totalFlagshipDetections << "\n";
+		<< (float) totalConvoysSunk / totalDetections << "\n";
+		
+	// Report convoy kill bins
+	cout << "Convoy kill relative frequencies:\n  ";
+	for (int i = 0; i < NUM_KILL_BINS; i++) {
+		int percent = (int)((float) convoyKillBin[i] / numGames * 100);
+		if (percent > 0) {
+			cout << (i ? ", " : "") << i << ":" << percent << "%";
+		}
+	}
+	cout << "\n";
 }
