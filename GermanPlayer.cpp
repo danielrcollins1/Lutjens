@@ -354,6 +354,9 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(
 	
 	// Denmark Strait (foggy area north of Iceland)	
 	else if (row <= 'C') { return DENMARK_STRAIT; }
+
+	// Azores (lower left of map)
+	else if (col <= row - 'L' + 3) { return AZORES; }
 	
 	// West Atlantic (closer to Atlantic Convoy line)
 	else if (col <= 'G' + 16 - row) { return WEST_ATLANTIC; }
@@ -438,7 +441,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 
 		// If on highest-risk zone, breakout ASAP
 		if (position == GridCoordinate("G16")) {
-			ship.orderMove(randAnyConvoyTarget(ship));
+			ship.orderMove(randConvoyTarget(50));
 			ship.orderAction(Ship::PATROL);
 		}
 
@@ -456,7 +459,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 
 		// Loiter near Norway
 		else {
-			ship.orderMove(getLoiterZone(ship));
+			ship.orderMove(randLoiterZone(ship));
 			ship.orderAction(Ship::STOP);
 		}
 	}
@@ -489,20 +492,75 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	
 	// Breakout accomplished, now search for convoys
 	else if (region == EAST_ATLANTIC || region == WEST_ATLANTIC) {
-		auto target = randAnyConvoyTarget(ship);
+		bool isInWest = (region == WEST_ATLANTIC);
 		
 		// Coming out of Denmark Strait to Africa,
-		// transit past general patrol line asap
+		// be sure to transit outside patrol line asap
 		if (position.getCol() < 10
 			&& (position.getRow() < 'E' 
-				|| board->isInsidePatrolLine(position))
-			&& getRegion(target) == EAST_ATLANTIC)
+				|| board->isInsidePatrolLine(position)))
 		{
-			ship.orderMove(getDenmarkStraitToAfricaTransit(ship));
+			auto target = randConvoyTarget(50);
+			if (getRegion(target) == EAST_ATLANTIC) {
+				ship.orderMove(randDenmarkStraitToAfricaTransit(ship));
+			}
+			ship.orderMove(target);
+			ship.orderAction(Ship::PATROL);
+		}
+
+		// If inside patrol line, want to get out/prefer closer line
+		else if (board->isInsidePatrolLine(position)) {
+			ship.orderMove(randConvoyTargetWeightNearby(ship));
+			ship.orderAction(Ship::PATROL);
+		}
+
+		// Expect we just had combat or convoy sunk.
+		// Very small chance we want to stay in area
+		else if (dieRoll(6) <= 1) {
+			ship.orderMove(randConvoyTarget(isInWest ? 100: 0));
+			ship.orderAction(Ship::PATROL);
 		}
 		
-		ship.orderMove(target);
-		ship.orderAction(Ship::PATROL);
+		// Otherwise, 50/50 if we should go to other line or Azores
+		else {
+			if (dieRoll(6) <= 3) {
+				ship.orderMove(randConvoyTarget(isInWest ? 0 : 100));
+				ship.orderAction(Ship::PATROL);
+			}
+			else {
+				ship.orderMove(randAzoresZone());
+				ship.orderAction(Ship::STOP);
+			}
+		}
+	}
+	
+	// Use Azores to hide out, e.g., after convoy sinking
+	// (We rarely get this far, and never time to get out)
+	else if (region == AZORES) {
+
+		// Move somewhere if we're found or combated
+		if (ship.wasLocated(1) || ship.wasCombated(1)) {
+			if (dieRoll(6) <= 2) {
+				ship.orderMove(randAzoresZone());
+				ship.orderAction(Ship::STOP);
+			}
+			else {
+				ship.orderMove(randConvoyTarget(50));
+				ship.orderAction(Ship::PATROL);
+			}
+		}
+
+		// Small chance to return convoy hunting on our own
+		else if (dieRoll(6) <= 1) {
+			ship.orderMove(randConvoyTarget(50));
+			ship.orderAction(Ship::PATROL);
+		}
+		
+		// Otherwise loiter in current region
+		else {
+			ship.orderMove(randLoiterZone(ship));
+			ship.orderAction(Ship::STOP);
+		}
 	}
 	
 	// Error-handler
@@ -513,7 +571,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 }
 
 // Get an adjacent zone for a ship loitering in a region
-GridCoordinate GermanPlayer::getLoiterZone(const Ship& ship) const {
+GridCoordinate GermanPlayer::randLoiterZone(const Ship& ship) const {
 	GridCoordinate move = GridCoordinate::NO_ZONE;
 	while (getRegion(move) != getRegion(ship.getPosition())) {
 		move = ship.randMoveInArea(1);
@@ -521,15 +579,8 @@ GridCoordinate GermanPlayer::getLoiterZone(const Ship& ship) const {
 	return move;
 }
 
-// Pick an appropriate convoy target after breakout
-GridCoordinate GermanPlayer::randAnyConvoyTarget(Ship& ship) const {
-	
-	// On analysis, we usually want to make this evenly distributed, e.g.:
-	// Initial breakout b/w Iceland and Britain (either route in line)
-	// After being found or in combat (maximize difficulty guessing)
-	// After a convoy sinking (same)
-	// But note it takes 1-2 days to switch routes outside patrol line
-	int pctAtlantic = 50;
+// Pick a convoy target from between the two lines
+GridCoordinate GermanPlayer::randConvoyTarget(int pctAtlantic) const {
 	return dieRoll(100) <= pctAtlantic ?
 		randAtlanticConvoyTarget() : randAfricanConvoyTarget();
 }
@@ -612,27 +663,51 @@ GridCoordinate GermanPlayer::findNearestPort(const Ship& ship) const {
 
 // Get a transit point when moving from Denmark Strait to Africa Convoy line
 //   Find closest zone past patrol line, then vary a bit
-GridCoordinate GermanPlayer::getDenmarkStraitToAfricaTransit(
+GridCoordinate GermanPlayer::randDenmarkStraitToAfricaTransit(
 	const Ship& ship) const
 {
 	assert(ship.getPosition().getCol() < 10);
 	int startCol = ship.getPosition().getCol();
 	GridCoordinate bestZone('C' + startCol, startCol);
 	GridCoordinate targetZone = GridCoordinate::NO_ZONE;
-	auto board = SearchBoard::instance();
-	while (!board->isSeaZone(targetZone)) {
+	while (!ship.isAccessible(targetZone)) {
 
 		// Vary northwest along patrol up to 3 spaces
 		int inc = rand(4);
 		char row = bestZone.getRow() - inc;
 		int col = bestZone.getCol() - inc;
 
-		// Vary southwest past patrol line up to 4 spaces
+		// Vary southwest past patrol line up to 5 spaces
 		// (This includes where Bismarck shook Sheffield)
-		row += rand(5);
+		row += rand(6);
 		targetZone = GridCoordinate(row, col);
 	}
-	//cout << ship.getPosition() << " " << targetZone << endl;
-	assert(!board->isInsidePatrolLine(targetZone));
+	assert(!SearchBoard::instance()->isInsidePatrolLine(targetZone));
 	return targetZone;
+}
+
+// Get a random point in the Azores region to hide
+GridCoordinate GermanPlayer::randAzoresZone() const {
+	auto target = GridCoordinate::NO_ZONE;
+	auto board = SearchBoard::instance();
+	while (!board->isSeaZone(target)) {
+		char row = 'L' + rand(14);
+		int col = 3 + row - 'L' - rand(8);
+		target = GridCoordinate(row, col);
+	}
+	assert(getRegion(target) == AZORES);	
+	return target;	
+}
+
+// Get a random conoy target, prefering the closer line
+//   For use getting out of patrol line area asap
+GridCoordinate GermanPlayer::randConvoyTargetWeightNearby(
+	const Ship& ship) const
+{
+	auto position = ship.getPosition();
+	int distAtlantic = position.distanceFrom("H5");
+	int distAfrican = position.distanceFrom("P15");
+	int roll = dieRoll(distAtlantic + distAfrican);
+	return roll <= distAtlantic ? // small chance to avoid closer line
+		randAfricanConvoyTarget() : randAtlanticConvoyTarget();
 }

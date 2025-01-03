@@ -30,7 +30,7 @@ class GermanPlayer
 	private:
 		// Enumeration
 		enum MapRegion {NORTH_SEA, EAST_NORWEGIAN, WEST_NORWEGIAN, 
-			DENMARK_STRAIT, WEST_ATLANTIC, EAST_ATLANTIC, OFF_MAP};
+			DENMARK_STRAIT, WEST_ATLANTIC, EAST_ATLANTIC, AZORES, OFF_MAP};
 
 		// Data
 		Ship* flagship;
@@ -38,24 +38,26 @@ class GermanPlayer
 		std::vector<GridCoordinate> foundShipZones;
 		
 		// Functions
-		GridCoordinate randAtlanticConvoyTarget() const;
-		GridCoordinate randAfricanConvoyTarget() const;
-		GridCoordinate randAnyConvoyTarget(Ship& ship) const;
 		void checkGeneralSearch(Ship& ship, int roll);
 		void checkConvoyResult(Ship& ship, int roll);
 		void callHuffDuff(Ship& ship);
 		void destroyConvoy(Ship& ship);
 		char getGeneralSearchColumn(const GridCoordinate& zone);
-		int randWeightedConvoyDistance() const;
+		void handleFuelEmpty(Ship& ship);
 
 		// Plotting functions
-		MapRegion getRegion(const GridCoordinate& zone) const;
-		GridCoordinate getLoiterZone(const Ship& ship) const;
-		GridCoordinate findNearestPort(const Ship& ship) const;
-		GridCoordinate getDenmarkStraitToAfricaTransit(
-			const Ship& ship) const;
 		void orderNewGoal(Ship& ship);
-		void handleFuelEmpty(Ship& ship);
+		MapRegion getRegion(const GridCoordinate& zone) const;
+		int randWeightedConvoyDistance() const;
+		GridCoordinate randConvoyTarget(int pctAtlantic) const;
+		GridCoordinate randAtlanticConvoyTarget() const;
+		GridCoordinate randAfricanConvoyTarget() const;
+		GridCoordinate randLoiterZone(const Ship& ship) const;
+		GridCoordinate randDenmarkStraitToAfricaTransit(
+			const Ship& ship) const;
+		GridCoordinate randConvoyTargetWeightNearby(const Ship& ship) const;
+		GridCoordinate randAzoresZone() const;
+		GridCoordinate findNearestPort(const Ship& ship) const;
 };
 
 #endif
