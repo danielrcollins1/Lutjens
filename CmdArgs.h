@@ -21,8 +21,8 @@ class CmdArgs
 		bool isAutomatedBritish() const { return automateBritish; }
 		bool isRunLargeSeries() const { return runLargeSeries; }
 		bool isRunPrinzEugen() const { return runPrinzEugen; }
-		bool useFuelExpenditure() const { return optFuelExpenditure; }
-		bool useFuelDamage() const { return optFuelDamage; }
+		bool useOptFuelExpenditure() const { return optFuelExpenditure; }
+		bool useOptFuelDamage() const { return optFuelDamage; }
 		int getLastTurn() const { return lastTurn; }
 		int getNumTrials() const { return numTrials; }
 
@@ -42,7 +42,7 @@ class CmdArgs
 		// Functions
 		CmdArgs();
 		int parseArgAsInt(char *s);
-		void parseOptionalRule(char *s);
+		void parseIntermediateRule(char *s);
 		void setExitAfterArgs();
 };
 

@@ -515,7 +515,7 @@ int Ship::getFuelExpense(int speed) const {
 			expense = 0;
 		
 			// Optional fuel expenditure: Rule 16.2
-			if (CmdArgs::instance()->useFuelExpenditure()) {
+			if (CmdArgs::instance()->useOptFuelExpenditure()) {
 				expense = (speed < 2) ? 0 : 1;
 			}
 			break;
@@ -536,7 +536,7 @@ int Ship::getFuelExpense(int speed) const {
 // Expend extra fuel at bad visibility levels
 //   As per optional Rule 16.4 on Fuel Expenditure
 void Ship::checkFuelForWeather(int speed) {
-	if (CmdArgs::instance()->useFuelExpenditure()) {
+	if (CmdArgs::instance()->useOptFuelExpenditure()) {
 		int visibility = GameDirector::instance()->getVisibility();
 		switch (getClassType()) {
 
@@ -568,7 +568,7 @@ void Ship::checkFuelForWeather(int speed) {
 // Check for fuel lost from combat damage
 //   As per optional Rule 21.0 on Fuel Damage
 void Ship::checkFuelDamage(int midshipsLoss) {
-	if (CmdArgs::instance()->useFuelDamage()) {
+	if (CmdArgs::instance()->useOptFuelDamage()) {
 		for (int i = 0; i < midshipsLoss; i++) {
 			if (dieRoll(6) >= 5) {
 				loseFuel(1);

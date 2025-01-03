@@ -583,7 +583,7 @@ int GermanPlayer::randWeightedConvoyDistance() const {
 // Use optional rule for return-to-base when fuel empty (Rule 16.3)
 void GermanPlayer::handleFuelEmpty(Ship& ship) {
 	assert(!ship.getFuel());
-	if (CmdArgs::instance()->useFuelExpenditure()) {
+	if (CmdArgs::instance()->useOptFuelExpenditure()) {
 		if (!ship.isReturnToBase()) {
 			clog << ship.getName() << " out of fuel (set RTB)\n";
 			ship.setReturnToBase();

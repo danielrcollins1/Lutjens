@@ -25,8 +25,8 @@ void CmdArgs::printOptions() const {
 		<< "\t-f finish on turn number\n"
 		<< "\t-n number of games to run\n"
 		<< "\t-p use Prinz Eugen independently\n"
-		<< "\t-ofe use optional fuel expenditure (rule 16.0)\n"
-		<< "\t-ofd use optional fuel damage (rule 21.0)\n";
+		<< "\t-ife use intermediate fuel expenditure (rule 16.0)\n"
+		<< "\t-ifd use intermediate fuel damage (rule 21.0)\n";
 }
 
 // Parse the command-line arguments
@@ -39,7 +39,7 @@ void CmdArgs::parseArgs(int argc, char** argv) {
 				case 'a': automateBritish = true; break;
 				case 'f': lastTurn = parseArgAsInt(arg); break;
 				case 'n': numTrials = parseArgAsInt(arg); break;
-				case 'o': parseOptionalRule(arg); break;
+				case 'i': parseIntermediateRule(arg); break;
 				case 'p': runPrinzEugen = true; break;
 				default: setExitAfterArgs(); break;
 			}
@@ -67,8 +67,8 @@ int CmdArgs::parseArgAsInt(char *s) {
 	}
 }
 
-// Parse switch for optional (intermediate) rule
-void CmdArgs::parseOptionalRule(char *s) {
+// Parse switch for intermediate (optional) rule
+void CmdArgs::parseIntermediateRule(char *s) {
 	string arg(s);
 	string optCode = arg.substr(2, 2);
 	if (optCode == "fd") {
