@@ -81,7 +81,7 @@ string Ship::getLongDesc() const {
 		+ ", evrtg " + to_string(getEvasion())
 		+ ", mships " + to_string(getMidships())
 		+ ", fuel " + to_string(getFuel())
-		+ ", pos " + position.toString()
+		+ ", zone " + position.toString()
 		+ (onPatrol ? ", patrol" : "")
 		+ ")";
 }

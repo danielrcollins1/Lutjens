@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 			game->okPlayerEnd();
 		}
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 // Number of games in large series
@@ -64,8 +64,8 @@ void runLargeSeries() {
 	int gamesConvoySunk = 0;
 	int totalDetections = 0;
 	int totalConvoysSunk = 0;
-	const int NUM_KILL_BINS = 7;
-	int convoyKillBin[NUM_KILL_BINS] = {0};
+	const int NUM_SUNK_BINS = 7;
+	int convoysSunkBin[NUM_SUNK_BINS] = {0};
 
 	// Run series
 	for (int i = 0; i < numGames; i++) {
@@ -87,8 +87,8 @@ void runLargeSeries() {
 			totalConvoysSunk += convoysSunk;
 			gamesConvoySunk++;
 		}	
-		if (convoysSunk < NUM_KILL_BINS) {
-			convoyKillBin[game->getConvoysSunk()]++;
+		if (convoysSunk < NUM_SUNK_BINS) {
+			convoysSunkBin[game->getConvoysSunk()]++;
 		}
 	}
 
@@ -105,10 +105,10 @@ void runLargeSeries() {
 	cout << "Convoys/detection ratio: "
 		<< (float) totalConvoysSunk / totalDetections << "\n";
 		
-	// Report convoy kill bins
-	cout << "Convoy kill relative frequencies:\n  ";
-	for (int i = 0; i < NUM_KILL_BINS; i++) {
-		int percent = (int)((float) convoyKillBin[i] / numGames * 100);
+	// Report convoys sunk bins
+	cout << "Convoys sunk relative frequencies:\n  ";
+	for (int i = 0; i < NUM_SUNK_BINS; i++) {
+		int percent = (int)((float) convoysSunkBin[i] / numGames * 100);
 		if (percent > 0) {
 			cout << (i ? ", " : "") << i << ":" << percent << "%";
 		}

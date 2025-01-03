@@ -9,11 +9,12 @@ using namespace std;
 
 // Constructor
 GermanPlayer::GermanPlayer() {
-	vector<Ship> ships = {
-		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this)
-		//, Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this)
+	Ship shipRoster[] = {
+		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this),
+		Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this)
 	};
-	shipList = ships;
+	int numToUse = CmdArgs::instance()->isRunPrinzEugen() ? 2 : 1;
+	shipList.insert(shipList.end(), &shipRoster[0], &shipRoster[numToUse]);
 	flagship = &shipList[0];
 }
 
@@ -44,18 +45,21 @@ void GermanPlayer::doShadowPhase() {
 
 // Do sea movement phase
 void GermanPlayer::doSeaMovementPhase() {
+	auto game = GameDirector::instance();
+
+	// Do movement
 	for (auto& ship: shipList) {
 		if (!ship.isSunk()
 			&& !ship.wasShadowed(0))
 		{
-			if (GameDirector::instance()->getTurnsElapsed() == 0) {
-				ship.doBreakoutBonusMove();
-			}
-			else {
-				ship.doMovement();
-			}
-			clog << ship << endl;
+			!game->getTurnsElapsed() ?
+				ship.doBreakoutBonusMove() : ship.doMovement();
 		}
+	}
+	
+	// Log statuses
+	for (auto& ship: shipList) {
+		clog << ship << endl;	
 	}
 }
 
@@ -406,8 +410,8 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		visibility += 2; // approximation
 	}
 
-	// On first turn, choose breakout bonus move
-	if (game->getTurnsElapsed() == 0) {
+	// At game start, choose breakout bonus move
+	if (!game->getTurnsElapsed()) {
 		char row = dieRoll(100) <= 85 ? 
 			'A' + rand(4): 'E' + rand(2);
 		int col = dieRoll(100) <= 50 ?
