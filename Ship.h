@@ -24,33 +24,42 @@ class Ship
 		enum ClassType {BATTLESHIP, CRUISER, DESTROYER, SUBMARINE};
 		enum OrderType {MOVE, PATROL, STOP};
 
-		// Functions
+		// Constructor
 		Ship(std::string name, Type type, 
 			int evasion, int midships, int fuel, 
 			GridCoordinate position = GridCoordinate::NO_ZONE,
 			GermanPlayer* player = nullptr);
+
+		// Descriptors
 		std::string getName() const;
 		std::string getTypeName() const;
 		std::string getTypeAndEvasion() const;
 		std::string getShortDesc() const;
 		std::string getLongDesc() const;
+
+		// Accessors
 		ClassType getClassType() const;
 		int getFuel() const;
 		int getEvasion() const;
 		int getMidships() const;
 		int getSpeed() const;
 		int getTimesDetected() const;
+		GridCoordinate getPosition() const;
+
+		// Status checks		
+		bool isSunk() const;
 		bool isOnPatrol() const;
 		bool isInPort() const;
-		bool isSunk() const;
 		bool isInDay() const;
 		bool isInNight() const;
 		bool isInFog() const;
 		bool isReturnToBase() const;
-		bool enteredPort() const;
+		bool isEnteringPort() const;
 		bool wasLocated(unsigned turnsAgo) const;
 		bool wasShadowed(unsigned turnsAgo) const;
 		bool wasCombated(unsigned turnsAgo) const;
+
+		// Mutator functions
 		void doAvailability();
 		void setLocated();
 		void setShadowed();
@@ -64,7 +73,6 @@ class Ship
 		void noteDetected();
 		
 		// Movement functions
-		GridCoordinate getPosition() const;
 		void doMovement();
 		void doBreakoutBonusMove();
 		void setPosition(const GridCoordinate& zone);

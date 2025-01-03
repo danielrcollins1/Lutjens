@@ -308,11 +308,13 @@ bool Ship::isInPort() const {
 	return SearchBoard::instance()->isGermanPort(position);
 }
 
-// Have we entered a port?
-//   Assumes we moved out of port on first turn
-bool Ship::enteredPort() const {
-	return isInPort()
-		&& GameDirector::instance()->getTurnsElapsed() > 0;
+// Did we enter a friendly port on our most recent move turn?
+//   Needed by e.g., Rules 12.12 and 12.7
+bool Ship::isEnteringPort() const {
+	return !log.empty()
+		&& !log.back().moves.empty()
+		&& SearchBoard::instance()->isGermanPort(
+			log.back().moves.back());
 }
 
 // Is this zone accessible to German ships?

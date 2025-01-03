@@ -105,7 +105,10 @@ void GermanPlayer::doNavalCombatPhase() {
 
 	// Check for attacks by British on our ships
 	for (auto& ship: shipList) {
-		if (ship.wasLocated(0)) {
+		if (ship.wasLocated(0)
+			&& (!ship.isInPort() 
+				|| ship.isEnteringPort())) // Rule 12.7
+		{		
 			game->checkAttackOn(ship, 
 				GameDirector::Phase::NAVAL_COMBAT);
 		}
