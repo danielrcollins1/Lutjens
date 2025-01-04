@@ -38,6 +38,7 @@ class Ship
 		std::string getLongDesc() const;
 
 		// Accessors
+		Type getType() const;
 		ClassType getClassType() const;
 		int getFuel() const;
 		int getEvasion() const;
@@ -79,6 +80,7 @@ class Ship
 		bool isAccessible(const GridCoordinate& zone) const;
 		bool movedThrough(const GridCoordinate& zone) const;
 		GridCoordinate randMoveInArea(int radius) const;
+		int getMaxSpeedClass() const;
 
 		// Plotting functions
 		void orderAction(OrderType type);
@@ -125,12 +127,13 @@ class Ship
 
 		// Functions
 		LogTurn& logNow();
-		int maxSpeed() const;
+		int getMaxSpeedThisTurn() const;
+		int getEmergencySpeedThisTurn() const;
 		int getFuelExpense(int speed) const;
-		int getEvasionLossRate() const;
 		void updateOrders();
 		void doMoveOrder();
 		void pushOrder(Order order);
+		void setEvasionLossRate();
 		void applyTempEvasionLoss(int midshipsLoss);
 		void checkFuelDamage(int midshipsLoss);
 		void checkFuelForWeather(int speed);

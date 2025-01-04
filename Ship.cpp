@@ -38,7 +38,6 @@ Ship::Ship(std::string name, Type type,
 	this->fuelMax = fuel;
 	this->player = player;
 	this->position = position;
-	evasionLossRate = getEvasionLossRate();
 	fuelLost = 0;
 	midshipsLost = 0;
 	evasionLostTemp = 0;
@@ -47,6 +46,7 @@ Ship::Ship(std::string name, Type type,
 	onPatrol = false;
 	loseMoveTurn = false;
 	returnToBase = false;
+	setEvasionLossRate();
 }
 
 // Get the name
@@ -84,6 +84,11 @@ string Ship::getLongDesc() const {
 		+ ", zone " + position.toString()
 		+ (onPatrol ? ", patrol" : "")
 		+ ")";
+}
+
+// Get the type of ship
+Ship::Type Ship::getType() const {
+	return type;	
 }
 
 // Get the category of ship
@@ -135,25 +140,29 @@ void Ship::applyTempEvasionLoss(int midshipsLoss) {
 	evasionLostTemp += midshipsLoss * evasionLossRate;
 }
 
-// Get how much evasion we lose per midships hit
+// Set how much evasion we lose per midships hit
 //   This quality is given by ship type & name in the rules
 //   So we should parse the name on ship construction
-int Ship::getEvasionLossRate() const {
+void Ship::setEvasionLossRate() {
+	int rate = 0;
 	switch (getClassType()) {
 
 		case BATTLESHIP: 
 			// Rules 9.724, 48.2
-			return (name == "Bismarck" || name == "Tirpitz") ? 1 : 2;
+			rate = (name == "Bismarck" || name == "Tirpitz") ? 1 : 2;
+			break;
 
 		case CRUISER:
 			// Rules 9.725, 9.726, and class inference
-			return (name == "Prinz Eugen" || name == "Hipper") ? 3 : 5;
+			rate = (name == "Prinz Eugen" || name == "Hipper") ? 3 : 5;
+			break;
 		
 		default:
 			// Other types don't engage in basic naval combat 
 			// (Destroyer rule 23.32, Submarine rule 22.17)
-			return 0;
+			break;
 	}
+	evasionLossRate = rate;
 }
 
 // Check for evasion repair following movement (Rule 9.728)
@@ -258,7 +267,7 @@ void Ship::doMoveOrder() {
 	}
 
 	// Select speed to move
-	int speed = maxSpeed();
+	int speed = getMaxSpeedThisTurn();
 	if (getFuel() == 1) {
 		speed = min(1, speed);	
 	}
@@ -276,31 +285,46 @@ void Ship::doMoveOrder() {
 	}
 }
 
-// How many board spaces can we move this turn?
+// Get the max speed class on the search board
 //   See Basic Game Tables Card: Movement on Search Board
-int Ship::maxSpeed() const {
+//   Note this is effectively in half-zone units per turn
+int Ship::getMaxSpeedClass() const {
 	int evasion = getEvasion();
-	if (evasion <= 6) {
-		return 0;
-	}
-	else if (evasion <= 15 || getFuel() < 1) {
-		bool convoyTurn = GameDirector::instance()->isConvoyTurn();
-		return convoyTurn ? 0 : 1; // speed 0.5
-	}
-	else if (evasion <= 24) {
-		return 1;		
-	}
-	else if (evasion <= 34) {
-		int lastTurnSpeed = log.rbegin()[1].moves.size();
-		return lastTurnSpeed > 1 ? 1 : 2; // speed 1.5
-	}
+	if (evasion <= 6) return 0;
+	else if (evasion <= 15) return 1;
+	else if (evasion <= 24) return 2;
+	else if (evasion <= 34) return 3;
 	else {
-		// No ship in published game has speed this high.
-		// In this case, search board speed would be full 2/turn.
+		// No ship in the published game has speed this high.
+		// In this case, search board speed would be full 2 zones/turn.
 		// A few destroyers/cruisers in WWII had speeds up to 45 knots.
 		cerr << "Error: Ship evasion above game allowances.\n";
-		return 2;		
+		return 4;
 	}
+}
+
+// How many board spaces can we move this turn?
+//   See Basic Game Tables Card: Movement on Search Board
+int Ship::getMaxSpeedThisTurn() const {
+
+	// Out-of-fuel handler (Rule 5.23)
+	if (!getFuel()) {
+		return getEmergencySpeedThisTurn();	
+	}
+	
+	// Handle cases	
+	switch(getMaxSpeedClass()) {
+		case 0: return 0;
+		case 1: return getEmergencySpeedThisTurn();		
+		case 2: return 1;
+		case 3: return log.rbegin()[1].moves.size() > 1 ? 1 : 2;
+		default: return 2;
+	}
+}
+
+// How far can emergency movement take us this turn? (Rule 5.24)
+int Ship::getEmergencySpeedThisTurn() const {
+	return GameDirector::instance()->isConvoyTurn() ? 1 : 0;
 }
 
 // Are we in a friendly port?
