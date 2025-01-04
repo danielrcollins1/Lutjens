@@ -92,9 +92,8 @@ bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 void GermanPlayer::doAirAttackPhase() {
 	auto game = GameDirector::instance();
 	for (auto& ship: shipList) {
-		if (ship.wasLocated(0)
-			&& (!ship.isInPort()            // Rule 9.13
-				|| ship.isEnteringPort()))  // Rule 12.7
+		if (ship.wasLocated(0)     // Rule 9.11
+			&& !ship.isInPort())   // Rule 9.13
 		{
 			game->checkAttackOn(ship, 
 				GameDirector::Phase::AIR_ATTACK);
@@ -108,9 +107,8 @@ void GermanPlayer::doNavalCombatPhase() {
 
 	// Check for attacks by British on our ships
 	for (auto& ship: shipList) {
-		if (ship.wasLocated(0)
-			&& (!ship.isInPort()
-				|| ship.isEnteringPort()))  // Rule 12.7
+		if (ship.wasLocated(0)     // Rule 9.23
+			&& !ship.isInPort())   // Rule 12.7
 		{		
 			game->checkAttackOn(ship, 
 				GameDirector::Phase::NAVAL_COMBAT);

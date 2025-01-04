@@ -303,13 +303,15 @@ int Ship::maxSpeed() const {
 	}
 }
 
-// Are we in port?
+// Are we in a friendly port?
+//   Note that we're not considered in port until 
+//   the turn after we enter the port zone (Rule 12.7)
 bool Ship::isInPort() const {
-	return SearchBoard::instance()->isGermanPort(position);
+	return SearchBoard::instance()->isGermanPort(position)
+		&& !isEnteringPort();
 }
 
-// Did we enter a friendly port on our most recent move turn?
-//   Needed by e.g., Rules 12.12 and 12.7
+// Did we enter a friendly port zone on our most recent move?
 bool Ship::isEnteringPort() const {
 	return !log.empty()
 		&& !log.back().moves.empty()
