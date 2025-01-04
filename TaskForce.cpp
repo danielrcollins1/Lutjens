@@ -7,6 +7,11 @@ TaskForce::TaskForce (int id) {
 	identifier = id;	
 }
 
+// Get our identifying number
+int TaskForce::getId() const {
+	return identifier;	
+}
+
 // Attach a ship
 void TaskForce::attach(Ship* ship) {
 	assert(!includes(ship));

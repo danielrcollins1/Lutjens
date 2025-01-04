@@ -3,7 +3,7 @@
 	Copyright: 2025
 	Author: Daniel R. Collins
 	Date: 04-01-25 13:24
-	Description: Organize task forces of ships (Rule 5.4)
+	Description: Organize collections of ships (Rule 5.4)
 */
 #ifndef TASKFORCE_H
 #define TASKFORCE_H
@@ -14,6 +14,7 @@ class TaskForce
 {
 	public:
 		TaskForce (int id);
+		int getId() const;
 		void attach(Ship* ship);
 		void detach(Ship* ship);
 		bool includes(Ship* ship) const;
