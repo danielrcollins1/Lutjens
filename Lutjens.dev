@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=4
 CompilerSettings=0;0;0;0;0;0;0;1;0;0;1;0;1;0;0;0;0;0;1;0;0;0;0;0;0;0
-UnitCount=28
+UnitCount=30
 
 [VersionInfo]
 Major=1
@@ -322,6 +322,26 @@ BuildCmd=
 
 [Unit28]
 FileName=Navigator.cpp
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit29]
+FileName=TaskForce.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit30]
+FileName=TaskForce.cpp
 CompileCpp=1
 Folder=
 Compile=1
