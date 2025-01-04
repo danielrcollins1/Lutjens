@@ -6,7 +6,8 @@
 using namespace std;
 
 // Constructor from CSV file data
-//    Expects data file stored as transpose of printed board (flip here)
+//   Expects data file stored as transpose of printed board
+//   Therefore, coordinates match between board & spreadsheet app.
 SearchBoardLayer::SearchBoardLayer(const std::string &filename) {
 	assert(sizeof(rowData[0]) == 4);
 	assert(MAX_COL <= sizeof(rowData[0]) * 8);
@@ -31,8 +32,8 @@ SearchBoardLayer::SearchBoardLayer(const std::string &filename) {
 bool SearchBoardLayer::isBitOn(GridCoordinate coord) const {
 	char row = coord.getRow();
 	int col = coord.getCol();	
-	if (MIN_ROW <= row && row <= MAX_ROW
-		&& MIN_COL <= col && col <= MAX_COL)
+	if (isInInterval(MIN_ROW, row, MAX_ROW)
+		&& isInInterval(MIN_COL, col, MAX_COL))
 	{
 		int rowIdx = row - MIN_ROW;
 		int colIdx = col - MIN_COL;
