@@ -71,12 +71,11 @@ class Ship
 		void loseFuel(int loss);
 		void loseEvasion(int loss);
 		void loseMidships(int loss);
-		void checkEvasionRepair();
+		void tryEvasionRepair();
 		void noteDetected();
 		
 		// Movement functions
 		void doMovement();
-		void doBreakoutBonusMove();
 		void setPosition(const GridCoordinate& zone);
 		bool isAccessible(const GridCoordinate& zone) const;
 		bool movedThrough(const GridCoordinate& zone) const;
@@ -95,6 +94,7 @@ class Ship
 		void leaveTaskForce();
 		bool isInTaskForce() const;
 		TaskForce* getTaskForce() const;
+		void moveWithTaskForce();
 		
 	private:
 
@@ -138,8 +138,10 @@ class Ship
 		int getMaxSpeedThisTurn() const;
 		int getEmergencySpeedThisTurn() const;
 		int getFuelExpense(int speed) const;
+		bool isOnBreakoutBonus() const;
 		void updateOrders();
 		void doMoveOrder();
+		void doPostMoveAccounts();
 		void pushOrder(Order order);
 		void setEvasionLossRate();
 		void applyTempEvasionLoss(int midshipsLoss);

@@ -2,6 +2,7 @@
 #include "GameDirector.h"
 #include "SearchBoard.h"
 #include "GameStream.h"
+#include "TaskForce.h"
 #include "CmdArgs.h"
 #include "Utils.h"
 #include <cassert>
@@ -9,13 +10,21 @@ using namespace std;
 
 // Constructor
 GermanPlayer::GermanPlayer() {
-	Ship shipRoster[] = {
-		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this),
-		Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this)
+
+	// Construct ships
+	std::vector<Ship> shipRoster = {
+		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this)
+		//, Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this)
 	};
-	int numToUse = CmdArgs::instance()->isRunPrinzEugen() ? 2 : 1;
-	shipList.insert(shipList.end(), &shipRoster[0], &shipRoster[numToUse]);
+	shipList = shipRoster;
 	flagship = &shipList[0];
+	
+	// Construct task force
+//	TaskForce taskForce1;
+//	for (auto ship: shipList) {
+//		taskForce1.attach(&ship);
+//	}
+//	taskForceList.push_back(taskForce1);
 }
 
 // Get flagship for read-only
@@ -43,17 +52,26 @@ void GermanPlayer::doShadowPhase() {
 	}
 }
 
-// Do sea movement phase
-void GermanPlayer::doSeaMovementPhase() {
-	auto game = GameDirector::instance();
+// Do ship movement phase
+void GermanPlayer::doShipMovementPhase() {
+	//cout << "Lead ship at " << &shipList[0] << "\n";
 
-	// Do movement
+	// Move task forces
+	for (auto taskForce: taskForceList) {
+		//cout << "Move task force\n";
+		if (!taskForce.isEmpty()) {
+			taskForce.doMovement();
+		}
+	}
+
+	// Move solo ships
 	for (auto& ship: shipList) {
-		if (!ship.isSunk()
-			&& !ship.wasShadowed(0))
+		//cout << "Move solo ship\n";
+		if (!ship.isInTaskForce()
+			&& !ship.wasShadowed(0)
+			&& !ship.isSunk())
 		{
-			!game->getTurnsElapsed() ?
-				ship.doBreakoutBonusMove() : ship.doMovement();
+			ship.doMovement();
 		}
 	}
 	
@@ -66,7 +84,7 @@ void GermanPlayer::doSeaMovementPhase() {
 // Check for search by British player
 bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 	bool anyFound = false;
-	auto director = GameDirector::instance();
+	auto game = GameDirector::instance();
 	for (auto& ship: shipList) {
  		if (ship.getPosition() == zone) 
 		{
@@ -76,11 +94,11 @@ bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 			anyFound = true;
 		}
 		else if (ship.movedThrough(zone)
-			&& director->isPassThroughSearchOn())
+			&& !game->isFirstTurn())
 		{
 			cgame << ship.getTypeAndEvasion()
 				<< " seen moving through " << zone << endl;
-			director->checkShadow(ship, zone, 
+			game->checkShadow(ship, zone, 
 				GameDirector::Phase::SEARCH);
 			anyFound = true;
 		}
@@ -418,7 +436,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	}
 
 	// At game start, choose breakout bonus move
-	if (!game->getTurnsElapsed()) {
+	if (game->isFirstTurn()) {
 		char row = dieRoll(100) <= 85 ? 
 			'A' + rand(4): 'E' + rand(2);
 		int col = dieRoll(100) <= 50 ?
@@ -429,7 +447,6 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		} 
 		else {
 			ship.orderMove(GridCoordinate(row, col));
-			ship.orderAction(Ship::STOP);
 		}
 	}
 

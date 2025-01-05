@@ -20,6 +20,7 @@ void TaskForce::attach(Ship* ship) {
 	assert(!includes(ship));
 	shipList.push_back(ship);
 	ship->joinTaskForce(this);
+	getFlagship();
 }
 
 // Detach a ship
@@ -84,4 +85,24 @@ int TaskForce::getMaxSpeedClass() const {
 		}
 	}
 	return lowest;
+}
+
+// Get the lead ship
+Ship* TaskForce::getFlagship() const {
+	assert(!isEmpty());	
+	auto flagship = shipList[0];
+	std::cout << "TF flagship: " << flagship << " " << *flagship << "\n";
+	return shipList[0];	
+}
+
+// Do movement for one turn
+void TaskForce::doMovement() {
+	assert(!isEmpty());	
+	auto flagship = getFlagship();
+	flagship->doMovement();
+//	for (auto ship: shipList) {
+//		if (ship != flagship) {
+//			ship->moveWithTaskForce();
+//		}
+//	}
 }

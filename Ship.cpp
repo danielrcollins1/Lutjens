@@ -119,7 +119,7 @@ int Ship::getEvasion() const {
 	return max(0, evasionMax - evasionLostTemp - evasionLostPerm);
 }
 
-// Take exspense to our fuel
+// Take expense to our fuel
 void Ship::loseFuel(int loss) {
 	fuelLost += loss;	
 }
@@ -166,8 +166,8 @@ void Ship::setEvasionLossRate() {
 	evasionLossRate = rate;
 }
 
-// Check for evasion repair following movement (Rule 9.728)
-void Ship::checkEvasionRepair() {
+// Try to repair evasion following movement (Rule 9.728)
+void Ship::tryEvasionRepair() {
 	if (evasionLostTemp && getSpeed() <= 1) {
 		int repair = dieRoll(6) * 2 - 4;
 		repair = max(0, repair);
@@ -202,39 +202,12 @@ void Ship::doAvailability() {
 	log.push_back(LogTurn());
 }
 
-// Do German ship first-turn breakout bonus move (Rule 5.28)
-//   We use the first waypoint as our location at end of move
-//   Waive most other rules restrictions here
-void Ship::doBreakoutBonusMove() {
-	assert(!GameDirector::instance()->getTurnsElapsed());
-	player->getOrders(*this);
-	assert(hasOrders());
-
-	// Get ordered position
-	assert(orders.front().type == MOVE);
-	auto goal = orders.front().zone;
-	int distance = position.distanceFrom(goal);
-
-	// Move to that position
-	assert(distance <= 5);
-	position = goal;
-	logNow().moves.push_back(position);
-	updateOrders();
-
-	// Spend fuel
-	switch (distance) {
-		case 5: loseFuel(2); break;
-		case 4: loseFuel(1); break;
-		default: break; // no loss
-	}
-}
-
-// Do normal movement for turn
+// Do ordered movement for turn
 void Ship::doMovement() {
 	player->getOrders(*this);
 	assert(hasOrders());
 
-	// Lose a turn if required
+	// Lose a turn if needed
 	if (loseMoveTurn) {
 		loseMoveTurn = false;
 	}
@@ -249,13 +222,16 @@ void Ship::doMovement() {
 		}
 	}
 	
-	// Spend fuel
+	// Finish the move turn
+	doPostMoveAccounts();	
+}
+
+// Perform post-move accounting (fuel & repairs)
+void Ship::doPostMoveAccounts() {
 	int speed = logNow().moves.size();
 	loseFuel(getFuelExpense(speed));
 	checkFuelForWeather(speed);
-
-	// Repair evasion
-	checkEvasionRepair();
+	tryEvasionRepair();
 }
 
 // Perform orders to move on search board
@@ -269,7 +245,7 @@ void Ship::doMoveOrder() {
 
 	// Select speed to move
 	int speed = getMaxSpeedThisTurn();
-	if (getFuel() == 1) {
+	if (getFuel() == 1) { // avoid emptying
 		speed = min(1, speed);	
 	}
 	
@@ -313,10 +289,15 @@ int Ship::getMaxSpeedThisTurn() const {
 		return getEmergencySpeedThisTurn();	
 	}
 	
-	// Handle cases	
+	// First-turn breakout bonus (Rule 5.28)
+	if (isOnBreakoutBonus()) {
+		return 5;		
+	}
+	
+	// Standard cases	
 	switch(getMaxSpeedClass()) {
 		case 0: return 0;
-		case 1: return getEmergencySpeedThisTurn();		
+		case 1: return getEmergencySpeedThisTurn();
 		case 2: return 1;
 		case 3: return log.rbegin()[1].moves.size() > 1 ? 1 : 2;
 		default: return 2;
@@ -522,9 +503,21 @@ Ship::OrderType Ship::getFirstOrder() const {
 //   Does not include optional variation for weather (Rule 16.4),
 //   which refers back here (would be recursive call)
 int Ship::getFuelExpense(int speed) const {
-	assert(speed <= 2);
 	int expense;
 	auto game = GameDirector::instance();
+
+	// First-turn breakout bonus (Rule 5.28)
+	if (isOnBreakoutBonus()) {
+		assert(speed <= 5);
+		switch (speed) {
+			case 5: return 2;
+			case 4: return 1;
+			default: return 0;
+		}
+	}
+
+	// Handle normal cases
+	assert(speed <= 2);
 	switch (getClassType()) {
 	
 		case BATTLESHIP:
@@ -537,7 +530,7 @@ int Ship::getFuelExpense(int speed) const {
 			{
 				expense = 1;
 			}
-			break;
+			return expense;
 	
 		case CRUISER:
 			// Rule 5.21
@@ -547,19 +540,21 @@ int Ship::getFuelExpense(int speed) const {
 			if (CmdArgs::instance()->useOptFuelExpenditure()) {
 				expense = (speed < 2) ? 0 : 1;
 			}
-			break;
+			return expense;
 
 		case DESTROYER:
 			// Rule 23.21
-			expense = (speed < 2) ? 1 : 3;
-			break;
+			return speed < 2 ? 1 : 3;
 
 		case SUBMARINE:
 			// Rule 22.14
-			expense = 0;
-			break;
+			return 0;
+			
+		default:
+			cerr << "Error: Unhandled ship class type\n";
+			assert(false);
+			return 0;
 	}
-	return expense;
 }
 
 // Expend extra fuel at bad visibility levels
@@ -631,6 +626,11 @@ bool Ship::isReturnToBase() const {
 	return returnToBase;	
 }
 
+// Are we using the breakout bonus first-turn move (Rule 5.28)?
+bool Ship::isOnBreakoutBonus() const {
+	return GameDirector::instance()->isFirstTurn();
+}
+
 // Join a task force
 void Ship::joinTaskForce(TaskForce* taskForce) {
 	this->taskForce = taskForce;
@@ -649,4 +649,12 @@ bool Ship::isInTaskForce() const {
 // Get the task force we're in
 TaskForce* Ship::getTaskForce() const { 
 	return taskForce;
+}
+
+// Move as the task force we're in
+void Ship::moveWithTaskForce() {
+	assert(isInTaskForce());
+	// TODO: Get move log from flagship & follow that
+	// Need fuel & evasion updates; special in first turn
+	// Copy patrol flag if needed
 }

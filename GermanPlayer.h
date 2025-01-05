@@ -8,6 +8,7 @@
 #ifndef GERMANPLAYER_H
 #define GERMANPLAYER_H
 #include "Ship.h"
+#include "TaskForce.h"
 
 class GermanPlayer
 {
@@ -16,7 +17,7 @@ class GermanPlayer
 		const Ship& getFlagship() const;
 		void doAvailabilityPhase();
 		void doShadowPhase();
-		void doSeaMovementPhase();
+		void doShipMovementPhase();
 		void doAirAttackPhase();
 		void doNavalCombatPhase();
 		void doChancePhase();
@@ -35,6 +36,7 @@ class GermanPlayer
 		// Data
 		Ship* flagship;
 		std::vector<Ship> shipList;
+		std::vector<TaskForce> taskForceList;
 		std::vector<GridCoordinate> foundShipZones;
 		
 		// Functions

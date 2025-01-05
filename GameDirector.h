@@ -40,6 +40,7 @@ class GameDirector
 		int getTurnsElapsed() const;
 		int getVisibility() const;
 		bool isVisibilityX() const;
+		bool isFirstTurn() const;
 		bool isConvoyTurn() const;
 		bool isInDay(const GridCoordinate& zone) const;
 		bool isInNight(const GridCoordinate& zone) const;
@@ -53,7 +54,6 @@ class GameDirector
 		void checkAttackOn(Ship& target, Phase phase);
 		void resolveCombat(Ship& ship);
 		void msgSunkConvoy();
-		bool isPassThroughSearchOn() const;
 		bool wasConvoySunk(unsigned daysAgo) const;
 		int getConvoysSunk() const;
 		int getTimesFlagshipDetected() const;
@@ -85,7 +85,7 @@ class GameDirector
 		void doAvailabilityPhase();
 		void doVisibilityPhase();
 		void doShadowPhase();
-		void doSeaMovementPhase();
+		void doShipMovementPhase();
 		void doSearchPhase();
 		void doAirAttackPhase();
 		void doNavalCombatPhase();

@@ -83,7 +83,7 @@ void GameDirector::doGameLoop() {
 		doAvailabilityPhase();
 		doVisibilityPhase();
 		doShadowPhase();
-		doSeaMovementPhase();
+		doShipMovementPhase();
 		doSearchPhase();
 		doAirAttackPhase();
 		doNavalCombatPhase();
@@ -100,6 +100,11 @@ int GameDirector::getTurn() const {
 // Get number of turns completed
 int GameDirector::getTurnsElapsed() const {
 	return turn - START_TURN;	
+}
+
+// Are we in the first turn (or before)?
+bool GameDirector::isFirstTurn() const {
+	return getTurnsElapsed() <= 0;	
 }
 
 // Get current visibility
@@ -182,10 +187,10 @@ void GameDirector::doShadowPhase() {
 	}
 }
 
-// Do sea movement phase
-void GameDirector::doSeaMovementPhase() {
+// Do ship movement phase
+void GameDirector::doShipMovementPhase() {
 	if (turn >= START_TURN) {
-		germanPlayer->doSeaMovementPhase();
+		germanPlayer->doShipMovementPhase();
 	}
 }
 
@@ -203,12 +208,6 @@ void GameDirector::doSearchPhase() {
 			germanPlayer->resolveSearch();		
 		}
 	}
-}
-
-// Is pass-through search permitted?
-//   It's allowed after first turn (Rule 7.23)
-bool GameDirector::isPassThroughSearchOn() const {
-	return turn > START_TURN;
 }
 
 // Search a zone for German ships

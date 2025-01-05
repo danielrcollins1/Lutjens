@@ -13,16 +13,23 @@
 class TaskForce
 {
 	public:
+		// Construction
 		TaskForce ();
-		int getId() const;
 		void attach(Ship* ship);
 		void detach(Ship* ship);
 		void dissolve();
-		bool includes(Ship* ship) const;
+
+		// Accessors
 		bool isEmpty() const;
+		bool includes(Ship* ship) const;
+		Ship* getFlagship() const;
+		int getId() const;
 		int getEvasion() const;
 		int getAttackEvasion() const;
 		int getMaxSpeedClass() const;
+
+		// Mutators
+		void doMovement(); 
 		
 	private:
 		static int numMade;
