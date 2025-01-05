@@ -103,20 +103,10 @@ void GermanPlayer::doShadowPhase() {
 // Do ship movement phase
 void GermanPlayer::doShipMovementPhase() {
 
-	// Move task forces
-	for (auto& taskForce: taskForceList) {
-		if (!taskForce.isEmpty()) {
-			taskForce.doMovementTurn();
-		}
-	}
-
-	// Move solo ships
-	for (auto& ship: shipList) {
-		if (!ship.isInTaskForce()
-			&& !ship.wasShadowed(0)
-			&& !ship.isSunk())
-		{
-			ship.doMovementTurn();
+	// Move ordered naval units
+	for (auto& unit: navalUnitList) {
+		if (!unit->wasShadowed(0)) {
+			unit->doMovementTurn();	
 		}
 	}
 	
