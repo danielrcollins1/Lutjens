@@ -654,7 +654,10 @@ TaskForce* Ship::getTaskForce() const {
 // Move as the task force we're in
 void Ship::moveWithTaskForce() {
 	assert(isInTaskForce());
-	// TODO: Get move log from flagship & follow that
-	// Need fuel & evasion updates; special in first turn
-	// Copy patrol flag if needed
+	auto flagship = taskForce->getFlagship();
+	position = flagship->position;
+	onPatrol = flagship->onPatrol;
+	logNow().moves = flagship->logNow().moves;
+	assert((int) logNow().moves.size() <= getMaxSpeedThisTurn());
+	doPostMoveAccounts();
 }

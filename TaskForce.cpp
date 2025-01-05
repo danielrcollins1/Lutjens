@@ -20,7 +20,6 @@ void TaskForce::attach(Ship* ship) {
 	assert(!includes(ship));
 	shipList.push_back(ship);
 	ship->joinTaskForce(this);
-	getFlagship();
 }
 
 // Detach a ship
@@ -33,7 +32,7 @@ void TaskForce::detach(Ship* ship) {
 
 // Detach all ships
 void TaskForce::dissolve() {
-	for (auto ship: shipList) {
+	for (auto& ship: shipList) {
 		ship->leaveTaskForce();	
 	}
 	shipList.clear();
@@ -53,7 +52,7 @@ bool TaskForce::isEmpty() const {
 //   That is: Evasion of the slowest ship
 int TaskForce::getEvasion() const {
 	int lowest = INT_MAX;
-	for (auto ship: shipList) {
+	for (auto& ship: shipList) {
 		if (ship->getEvasion() < lowest) {
 			lowest = ship->getEvasion();	
 		}
@@ -66,7 +65,7 @@ int TaskForce::getEvasion() const {
 //   See Rule 9.222 (CVs barred by errata)
 int TaskForce::getAttackEvasion() const {
 	int highest = 0;
-	for (auto ship: shipList) {
+	for (auto& ship: shipList) {
 		if (ship->getEvasion() > highest
 			&& ship->getType() != Ship::CV)
 		{		
@@ -79,7 +78,7 @@ int TaskForce::getAttackEvasion() const {
 // Get the max speed class on the search board
 int TaskForce::getMaxSpeedClass() const {
 	int lowest = INT_MAX;
-	for (auto ship: shipList) {
+	for (auto& ship: shipList) {
 		if (ship->getMaxSpeedClass() < lowest) {
 			lowest = ship->getMaxSpeedClass();	
 		}
@@ -98,7 +97,7 @@ void TaskForce::doMovement() {
 	assert(!isEmpty());	
 	auto flagship = getFlagship();
 	flagship->doMovement();
-	for (auto ship: shipList) {
+	for (auto& ship: shipList) {
 		if (ship != flagship) {
 			ship->moveWithTaskForce();
 		}

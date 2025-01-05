@@ -20,11 +20,11 @@ GermanPlayer::GermanPlayer() {
 	flagship = &shipList[0];
 	
 	// Construct task force
-	TaskForce taskForce1;
+	taskForceList.reserve(8);
+	taskForceList.push_back(TaskForce());
 	for (auto& ship: shipList) {
-		taskForce1.attach(&ship);
+		taskForceList[0].attach(&ship);
 	}
-	taskForceList.push_back(taskForce1);
 }
 
 // Get flagship for read-only
@@ -56,7 +56,7 @@ void GermanPlayer::doShadowPhase() {
 void GermanPlayer::doShipMovementPhase() {
 
 	// Move task forces
-	for (auto taskForce: taskForceList) {
+	for (auto& taskForce: taskForceList) {
 		if (!taskForce.isEmpty()) {
 			taskForce.doMovement();
 		}
@@ -131,7 +131,7 @@ void GermanPlayer::doNavalCombatPhase() {
 	}
 	
 	// Check for attacks we can make on British ships
-	for (auto zone: foundShipZones) {
+	for (auto& zone: foundShipZones) {
 		for (auto& ship: shipList) {
 			if (ship.getPosition() == zone
 				&& !ship.wasCombated(0)
@@ -668,7 +668,7 @@ GridCoordinate GermanPlayer::findNearestPort(const Ship& ship) const {
 	int minDistance = INT_MAX;
 	auto nearestPort = GridCoordinate::NO_ZONE;
 	auto portList = SearchBoard::instance()->getAllGermanPorts();
-	for (auto port: portList) {
+	for (auto& port: portList) {
 		int distance = port.distanceFrom(ship.getPosition());
 		if (distance < minDistance) {
 			nearestPort = port;
