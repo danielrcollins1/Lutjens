@@ -35,10 +35,6 @@ class Ship: public NavalUnit
 		// Descriptors
 		std::string getName() const;
 		std::string getGeneralTypeName() const;
-		std::string getTypeAndEvasion() const;
-		std::string getShortDesc() const;
-		std::string getLongDesc() const;
-		std::string getSearchDesc() const;
 
 		// Accessors
 		Type getType() const;

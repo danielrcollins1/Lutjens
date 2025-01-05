@@ -29,8 +29,8 @@ bool BritishPlayerHuman::tryShadow(const Ship& target,
 	assert(phase == GameDirector::Phase::SHADOW 
 		|| phase == GameDirector::Phase::SEARCH);
 	if (phase == GameDirector::Phase::SHADOW) {
-		cout << target.getTypeAndEvasion()
-			<< " was seen in " << knownPos << "\n";
+		cout << target.getTypeDesc() << " was seen in " << knownPos << "\n";
+		cout << "Evasion level is " << target.getEvasion() << "\n";
 	}
 	cout << "Do you wish to shadow (y/n)? ";
 	return getUserYes();

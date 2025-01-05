@@ -10,7 +10,7 @@ using namespace std;
 
 // Stream insertion operator
 std::ostream& operator<<(std::ostream& stream, const Ship& ship) {
-	stream << ship.getLongDesc();
+	stream << ship.getFullDesc();
 	return stream;
 }
 
@@ -52,33 +52,6 @@ Ship::Ship(std::string name, Type type,
 // Get the name
 string Ship::getName() const {
 	return name;	
-}
-
-// Get a descriptor of type & evasion (e.g., shadow prompt)
-string Ship::getTypeAndEvasion() const {
-	return getTypeDesc() 
-		+ " (evrtg " + to_string(getEvasion()) + ")";
-}
-
-// Get a short descriptor (e.g., naval combat prompt)
-string Ship::getShortDesc() const {
-	return name
-		+ " (" + typeAbbr[type]
-		+ ", evrtg " + to_string(getEvasion())
-		+ ", mships " + to_string(getMidships())
-		+ ")";
-}
-
-// Get a long descriptor (e.g., logging purposes)
-string Ship::getLongDesc() const {
-	return name
-		+ " (" + typeAbbr[type]
-		+ ", evrtg " + to_string(getEvasion())
-		+ ", mships " + to_string(getMidships())
-		+ ", fuel " + to_string(getFuel())
-		+ ", zone " + position.toString()
-		+ (onPatrol ? ", patrol" : "")
-		+ ")";
 }
 
 // Get a description with only ship types

@@ -329,7 +329,7 @@ void GameDirector::checkAttackOn(Ship& target, Phase phase)
 	assert(phase == AIR_ATTACK || phase == NAVAL_COMBAT);
 	if (britishPlayer->tryAttack(target, phase)) {
 		cgame << "Attack by " << (phase == AIR_ATTACK ? "air" : "sea")
-			<< " on " << target.getShortDesc() << "\n";
+			<< " on " << target.getFullDesc() << "\n";
 		if (phase == NAVAL_COMBAT) {
 			target.setCombated();
 		}
@@ -339,7 +339,7 @@ void GameDirector::checkAttackOn(Ship& target, Phase phase)
 
 // Check if this ship attacks a British ship
 void GameDirector::checkAttackBy(Ship& attacker) {
-	cgame << attacker.getShortDesc() 
+	cgame << attacker.getFullDesc() 
 		<< " attacks solo cruiser in " << attacker.getPosition() << "\n";
 	attacker.setCombated();
 	resolveCombat(attacker);

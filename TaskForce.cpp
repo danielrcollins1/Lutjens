@@ -75,7 +75,7 @@ string TaskForce::getFullDesc() const {
 	assert(!isEmpty());	
 	string desc = "Task Force " + to_string(identifier) + ": ";
 	for (auto& ship: shipList) {
-		desc += "  " + ship->getLongDesc() + "\n";		
+		desc += "  " + ship->getFullDesc() + "\n";		
 	}
 	return desc;
 }
