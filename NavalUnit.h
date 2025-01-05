@@ -18,7 +18,7 @@ class NavalUnit
 		virtual std::string getFullDesc() const = 0;
 		
 		// Accessors
-		virtual GridCoordinate getPosition() = 0;
+		virtual GridCoordinate getPosition() const = 0;
 		virtual int getMaxSpeedClass() const = 0;
 		virtual int getEvasion() const = 0;
 		virtual int getAttackEvasion() const = 0;

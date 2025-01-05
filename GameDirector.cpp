@@ -303,7 +303,7 @@ void GameDirector::checkShadow(Ship& target,
 		// Player holds contact
 		if (holdContact) {
 			target.setLocated();
-			cgame << target.getGeneralTypeName() << " shadowed to zone " 
+			cgame << target.getTypeDesc() << " shadowed to zone " 
 				<< target.getPosition() << endl;
 		}
 	}

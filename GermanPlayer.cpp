@@ -86,7 +86,7 @@ bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 		if (!ship.isTaskForceEscort()) {
 	 		if (ship.getPosition() == zone) 
 			{
-				cgame << ship.getSearchDesc() 
+				cgame << ship.getTypeDesc() 
 					<< " found in " << zone << endl;
 				ship.setLocated();
 				anyFound = true;
@@ -94,7 +94,7 @@ bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 			else if (ship.movedThrough(zone)
 				&& !game->isFirstTurn())
 			{
-				cgame << ship.getSearchDesc()
+				cgame << ship.getTypeDesc()
 					<< " seen moving through " << zone << endl;
 				game->checkShadow(ship, zone, 
 					GameDirector::Phase::SEARCH);

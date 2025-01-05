@@ -8,6 +8,7 @@
 #ifndef SHIP_H
 #define SHIP_H
 #include "GridCoordinate.h"
+#include "NavalUnit.h"
 #include <vector>
 #include <queue>
 
@@ -16,7 +17,7 @@ class GermanPlayer;
 class TaskForce;
 
 // Ship class
-class Ship
+class Ship: public NavalUnit
 {
 	public:
 		
@@ -43,31 +44,16 @@ class Ship
 		Type getType() const;
 		GeneralType getGeneralType() const;
 		int getFuel() const;
-		int getEvasion() const;
 		int getMidships() const;
 		int getSpeed() const;
 		int getTimesDetected() const;
-		GridCoordinate getPosition() const;
 
 		// Status checks		
 		bool isSunk() const;
-		bool isOnPatrol() const;
-		bool isInPort() const;
-		bool isInDay() const;
-		bool isInNight() const;
-		bool isInFog() const;
 		bool isReturnToBase() const;
-		bool isEnteringPort() const;
-		bool wasLocated(unsigned turnsAgo) const;
-		bool wasShadowed(unsigned turnsAgo) const;
-		bool wasCombated(unsigned turnsAgo) const;
 
 		// Mutator functions
 		void doAvailability();
-		void setLocated();
-		void setShadowed();
-		void setCombated();
-		void setLoseMoveTurn();
 		void setReturnToBase();
 		void loseFuel(int loss);
 		void loseEvasion(int loss);
@@ -76,12 +62,9 @@ class Ship
 		void noteDetected();
 		
 		// Movement functions
-		void doMovementTurn();
 		void setPosition(const GridCoordinate& zone);
 		bool isAccessible(const GridCoordinate& zone) const;
-		bool movedThrough(const GridCoordinate& zone) const;
 		GridCoordinate randMoveInArea(int radius) const;
-		int getMaxSpeedClass() const;
 
 		// Plotting functions
 		void orderAction(OrderType type);
@@ -98,6 +81,39 @@ class Ship
 		bool isTaskForceEscort() const;
 		TaskForce* getTaskForce() const;
 		void moveWithShip(Ship& ship);
+
+		//
+		// NavalUnit overrides
+		//
+		
+		// Descriptors
+		std::string getTypeDesc() const override;
+		std::string getFullDesc() const override;
+		
+		// Accessors
+		GridCoordinate getPosition() const override;
+		int getMaxSpeedClass() const override;
+		int getEvasion() const override;
+		int getAttackEvasion() const override;
+
+		// Status checks
+		bool isInDay() const override;
+		bool isInNight() const override;
+		bool isInFog() const override;
+		bool isInPort() const override;
+		bool isEnteringPort() const override;
+		bool isOnPatrol() const override;
+		bool wasLocated(unsigned turnsAgo) const override;
+		bool wasShadowed(unsigned turnsAgo) const override;
+		bool wasCombated(unsigned turnsAgo) const override;
+		bool movedThrough(const GridCoordinate& zone) const override;
+
+		// Mutators		
+		void doMovementTurn() override;
+		void setLocated() override;
+		void setShadowed() override;
+		void setCombated() override;
+		void setLoseMoveTurn() override;
 		
 	private:
 

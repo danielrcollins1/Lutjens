@@ -64,7 +64,7 @@ string TaskForce::getTypeDesc() const {
 	assert(!isEmpty());	
 	string desc = "Task Force (";
 	for (unsigned i = 0; i < shipList.size(); i++) {
-		desc += (i ? ", " : "") + shipList[i]->getGeneralTypeName();
+		desc += (i ? ", " : "") + shipList[i]->getTypeDesc();
 	}
 	desc += ")";
 	return desc;
@@ -81,7 +81,7 @@ string TaskForce::getFullDesc() const {
 }
 
 // Accessors
-GridCoordinate TaskForce::getPosition() {
+GridCoordinate TaskForce::getPosition() const {
 	return getFlagship()->getPosition();
 }
 

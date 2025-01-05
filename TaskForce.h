@@ -35,7 +35,7 @@ class TaskForce: public NavalUnit
 		std::string getFullDesc() const override;
 		
 		// Accessors
-		GridCoordinate getPosition() override;
+		GridCoordinate getPosition() const override;
 		int getMaxSpeedClass() const override;
 		int getEvasion() const override;
 		int getAttackEvasion() const override;

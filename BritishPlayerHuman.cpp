@@ -42,9 +42,11 @@ bool BritishPlayerHuman::tryAttack(
 {
 	assert(phase == GameDirector::Phase::AIR_ATTACK 
 		|| phase == GameDirector::Phase::NAVAL_COMBAT);
-	cout << (phase == GameDirector::Phase::NAVAL_COMBAT ? 
-		target.getTypeAndEvasion(): target.getGeneralTypeName())
-		<< 	" is seen in " << target.getPosition() << "\n";
+	cout << target.getTypeDesc() << " is seen in " 
+		<< target.getPosition() << "\n";
+	if (phase == GameDirector::Phase::NAVAL_COMBAT) {
+		cout << "Evasion rating is " << target.getEvasion() << "\n";		
+	}
 	cout << "Do you wish to attack by " 
 		<< (phase == GameDirector::Phase::AIR_ATTACK ? "air" : "sea") 
 		<< " (y/n)? ";
@@ -80,7 +82,7 @@ void BritishPlayerHuman::resolveSearch() {
 // Resolve attempt to shadow
 void BritishPlayerHuman::resolveShadow(const Ship& target, bool& heldContact) 
 {
-	string targetID = target.getGeneralTypeName();	
+	string targetID = target.getTypeDesc();	
 	if (target.getSpeed() > 1) {
 		cout << targetID << " moves at high speed (apply +1).\n";
 	}

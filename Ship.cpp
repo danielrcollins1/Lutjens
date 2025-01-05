@@ -54,14 +54,9 @@ string Ship::getName() const {
 	return name;	
 }
 
-// Get the full name of this class type
-string Ship::getGeneralTypeName() const {
-	return generalTypeName[getGeneralType()];
-}
-
 // Get a descriptor of type & evasion (e.g., shadow prompt)
 string Ship::getTypeAndEvasion() const {
-	return getGeneralTypeName() 
+	return getTypeDesc() 
 		+ " (evrtg " + to_string(getEvasion()) + ")";
 }
 
@@ -86,10 +81,21 @@ string Ship::getLongDesc() const {
 		+ ")";
 }
 
-// Get a descriptor for opponent search results
-std::string Ship::getSearchDesc() const {
-	return isTaskForceFlagship() ?
-		taskForce->getTypeDesc() : getLongDesc();
+// Get a description with only ship types
+string Ship::getTypeDesc() const {
+	return generalTypeName[getGeneralType()];
+}
+
+// Get a description with full information
+string Ship::getFullDesc() const {
+	return name
+		+ " (" + typeAbbr[type]
+		+ ", evrtg " + to_string(getEvasion())
+		+ ", mships " + to_string(getMidships())
+		+ ", fuel " + to_string(getFuel())
+		+ ", zone " + position.toString()
+		+ (onPatrol ? ", patrol" : "")
+		+ ")";
 }
 
 // Get the type of ship
@@ -122,6 +128,11 @@ int Ship::getMidships() const {
 // Get the current evasion
 int Ship::getEvasion() const {
 	return max(0, evasionMax - evasionLostTemp - evasionLostPerm);
+}
+
+// Get evasion for launching an attack
+int Ship::getAttackEvasion() const {
+	return getEvasion();	
 }
 
 // Take expense to our fuel
