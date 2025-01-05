@@ -66,7 +66,7 @@ class Ship
 		void doAvailability();
 		void setLocated();
 		void setShadowed();
-		void setInCombat();
+		void setCombated();
 		void setLoseMoveTurn();
 		void setReturnToBase();
 		void loseFuel(int loss);
@@ -76,7 +76,7 @@ class Ship
 		void noteDetected();
 		
 		// Movement functions
-		void doMovement();
+		void doMovementTurn();
 		void setPosition(const GridCoordinate& zone);
 		bool isAccessible(const GridCoordinate& zone) const;
 		bool movedThrough(const GridCoordinate& zone) const;
@@ -97,7 +97,7 @@ class Ship
 		bool isTaskForceFlagship() const;
 		bool isTaskForceEscort() const;
 		TaskForce* getTaskForce() const;
-		void moveWithTaskForce();
+		void moveWithShip(Ship& ship);
 		
 	private:
 

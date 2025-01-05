@@ -58,7 +58,7 @@ void GermanPlayer::doShipMovementPhase() {
 	// Move task forces
 	for (auto& taskForce: taskForceList) {
 		if (!taskForce.isEmpty()) {
-			taskForce.doMovement();
+			taskForce.doMovementTurn();
 		}
 	}
 
@@ -68,7 +68,7 @@ void GermanPlayer::doShipMovementPhase() {
 			&& !ship.wasShadowed(0)
 			&& !ship.isSunk())
 		{
-			ship.doMovement();
+			ship.doMovementTurn();
 		}
 	}
 	

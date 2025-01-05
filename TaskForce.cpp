@@ -49,6 +49,53 @@ bool TaskForce::isEmpty() const {
 	return shipList.empty();
 }
 
+// Get the lead ship
+Ship* TaskForce::getFlagship() const {
+	assert(!isEmpty());	
+	return shipList[0];	
+}
+
+//
+// NavalUnit overrides
+//
+
+// Get a description with only ship types
+string TaskForce::getTypeDesc() const {
+	assert(!isEmpty());	
+	string desc = "Task Force (";
+	for (unsigned i = 0; i < shipList.size(); i++) {
+		desc += (i ? ", " : "") + shipList[i]->getGeneralTypeName();
+	}
+	desc += ")";
+	return desc;
+}
+
+// Get a description with full information
+string TaskForce::getFullDesc() const {
+	assert(!isEmpty());	
+	string desc = "Task Force " + to_string(identifier) + ": ";
+	for (auto& ship: shipList) {
+		desc += "  " + ship->getLongDesc() + "\n";		
+	}
+	return desc;
+}
+
+// Accessors
+GridCoordinate TaskForce::getPosition() {
+	return getFlagship()->getPosition();
+}
+
+// Get the max speed class on the search board
+int TaskForce::getMaxSpeedClass() const {
+	int lowest = INT_MAX;
+	for (auto& ship: shipList) {
+		if (ship->getMaxSpeedClass() < lowest) {
+			lowest = ship->getMaxSpeedClass();	
+		}
+	}
+	return lowest;
+}
+
 // Get the standard evasion level
 //   That is: Evasion of the slowest ship
 int TaskForce::getEvasion() const {
@@ -76,52 +123,92 @@ int TaskForce::getAttackEvasion() const {
 	return highest;
 }
 
-// Get the max speed class on the search board
-int TaskForce::getMaxSpeedClass() const {
-	int lowest = INT_MAX;
-	for (auto& ship: shipList) {
-		if (ship->getMaxSpeedClass() < lowest) {
-			lowest = ship->getMaxSpeedClass();	
-		}
-	}
-	return lowest;
+// Are we in day?
+bool TaskForce::isInDay() const {
+	return getFlagship()->isInDay();	
+}
+	
+// Are we in night?
+bool TaskForce::isInNight() const {
+	return getFlagship()->isInNight();
 }
 
-// Get the lead ship
-Ship* TaskForce::getFlagship() const {
-	assert(!isEmpty());	
-	return shipList[0];	
+// Are we in fog?
+bool TaskForce::isInFog() const {
+	return getFlagship()->isInFog();
 }
 
-// Get a description with only ship types
-string TaskForce::getTypeDesc() const {
-	assert(!isEmpty());	
-	string desc = "Task Force (";
-	for (unsigned i = 0; i < shipList.size(); i++) {
-		desc += (i ? ", " : "") + shipList[i]->getGeneralTypeName();
-	}
-	desc += ")";
-	return desc;
+// Are we in port?
+bool TaskForce::isInPort() const {
+	return getFlagship()->isInPort();
 }
 
-// Get a description with full information
-string TaskForce::getFullDesc() const {
-	assert(!isEmpty());	
-	string desc = "Task Force " + to_string(identifier) + ": ";
-	for (auto& ship: shipList) {
-		desc += "  " + ship->getLongDesc() + "\n";		
-	}
-	return desc;
+// Are we entering the port this turn?
+bool TaskForce::isEnteringPort() const {
+	return getFlagship()->isEnteringPort();
+}
+
+// Are we on patrol?
+bool TaskForce::isOnPatrol() const {
+	return getFlagship()->isOnPatrol();
+}
+
+// Were we located on a given turn?
+bool TaskForce::wasLocated(unsigned turnsAgo) const {
+	return getFlagship()->wasLocated(turnsAgo);
+}
+
+// Were we shadowed on a given turn?
+bool TaskForce::wasShadowed(unsigned turnsAgo) const {
+	return getFlagship()->wasShadowed(turnsAgo);
+}
+
+// Were we combated on a given turn?
+bool TaskForce::wasCombated(unsigned turnsAgo) const {
+	return getFlagship()->wasCombated(turnsAgo);
+}
+
+// Did we move through a space on our last move?
+bool TaskForce::movedThrough(const GridCoordinate& zone) const {
+	return getFlagship()->movedThrough(zone);
 }
 
 // Do movement for one turn
-void TaskForce::doMovement() {
-	assert(!isEmpty());	
+void TaskForce::doMovementTurn() {
+	assert(!isEmpty());
 	auto flagship = getFlagship();
-	flagship->doMovement();
+	flagship->doMovementTurn();
 	for (auto& ship: shipList) {
 		if (ship != flagship) {
-			ship->moveWithTaskForce();
+			ship->moveWithShip(*flagship);
 		}
+	}
+}
+
+// Note that we were located
+void TaskForce::setLocated() {
+	for (auto& ship: shipList) {
+		ship->setLocated();		
+	}
+}
+
+// Note that we were shadowed
+void TaskForce::setShadowed() {
+	for (auto& ship: shipList) {
+		ship->setShadowed();
+	}
+}
+
+// Note that we were combated
+void TaskForce::setCombated() {
+	for (auto& ship: shipList) {
+		ship->setCombated();
+	}
+}
+
+// Note that we must lose a turn
+void TaskForce::setLoseMoveTurn() {
+	for (auto& ship: shipList) {
+		ship->setLoseMoveTurn();		
 	}
 }

@@ -293,7 +293,7 @@ void GameDirector::checkShadow(Ship& target,
 
 		// Move target ship in shadow phase
 		if (phase == SHADOW) {
-			target.doMovement();
+			target.doMovementTurn();
 		}
 
 		// Ask for resolution
@@ -331,7 +331,7 @@ void GameDirector::checkAttackOn(Ship& target, Phase phase)
 		cgame << "Attack by " << (phase == AIR_ATTACK ? "air" : "sea")
 			<< " on " << target.getShortDesc() << "\n";
 		if (phase == NAVAL_COMBAT) {
-			target.setInCombat();
+			target.setCombated();
 		}
 		resolveCombat(target);
 	}
@@ -341,7 +341,7 @@ void GameDirector::checkAttackOn(Ship& target, Phase phase)
 void GameDirector::checkAttackBy(Ship& attacker) {
 	cgame << attacker.getShortDesc() 
 		<< " attacks solo cruiser in " << attacker.getPosition() << "\n";
-	attacker.setInCombat();
+	attacker.setCombated();
 	resolveCombat(attacker);
 }
 

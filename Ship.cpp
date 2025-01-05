@@ -208,7 +208,7 @@ void Ship::doAvailability() {
 }
 
 // Do ordered movement for turn
-void Ship::doMovement() {
+void Ship::doMovementTurn() {
 	player->getOrders(*this);
 	assert(hasOrders());
 
@@ -396,7 +396,7 @@ void Ship::setShadowed() {
 }
 
 // Note that we have entered naval combat
-void Ship::setInCombat() {
+void Ship::setCombated() {
 	logNow().combated = true;
 }
 
@@ -669,13 +669,12 @@ TaskForce* Ship::getTaskForce() const {
 	return taskForce;
 }
 
-// Move as the task force we're in
-void Ship::moveWithTaskForce() {
+// Move with a ship leading us
+void Ship::moveWithShip(Ship& flagship) {
 	assert(isInTaskForce());
-	auto flagship = taskForce->getFlagship();
-	position = flagship->position;
-	onPatrol = flagship->onPatrol;
-	logNow().moves = flagship->logNow().moves;
+	position = flagship.position;
+	onPatrol = flagship.onPatrol;
+	logNow().moves = flagship.logNow().moves;
 	assert((int) logNow().moves.size() <= getMaxSpeedThisTurn());
 	doPostMoveAccounts();
 }
