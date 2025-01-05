@@ -22,7 +22,7 @@ class Ship
 		
 		// Enumerations
 		enum Type {BB, BC, PB, CV, CA, CL, DD, CT, SS, UB};
-		enum ClassType {BATTLESHIP, CARRIER, CRUISER, DESTROYER, SUBMARINE};
+		enum GeneralType {BATTLESHIP, CARRIER, CRUISER, DESTROYER, SUBMARINE};
 		enum OrderType {MOVE, PATROL, STOP};
 
 		// Constructor
@@ -33,8 +33,7 @@ class Ship
 
 		// Descriptors
 		std::string getName() const;
-		std::string getTypeName() const;
-		std::string getClassTypeName() const;
+		std::string getGeneralTypeName() const;
 		std::string getTypeAndEvasion() const;
 		std::string getShortDesc() const;
 		std::string getLongDesc() const;
@@ -42,7 +41,7 @@ class Ship
 
 		// Accessors
 		Type getType() const;
-		ClassType getClassType() const;
+		GeneralType getGeneralType() const;
 		int getFuel() const;
 		int getEvasion() const;
 		int getMidships() const;
@@ -104,8 +103,7 @@ class Ship
 
 		// Type labels
 		static const char* typeAbbr[];
-		static const char* typeName[];
-		static const char* classTypeName[];
+		static const char* generalTypeName[];
 
 		// Orders structure
 		struct Order {

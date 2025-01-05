@@ -18,14 +18,8 @@ std::ostream& operator<<(std::ostream& stream, const Ship& ship) {
 const char* Ship::typeAbbr[]
 	= {"BB", "BC", "PB", "CV", "CA", "CL", "DD", "CT", "SS", "UB"};
 
-// Ship type full names
-const char* Ship::typeName[]
-	= {"Battleship", "Battlecruiser", "Pocket Battleship", 
-		"Aircraft Carrier", "Heavy Cruiser", "Light Cruiser",
-		"Destroyer", "Contre-Torpilleur", "Submarine", "U-Boat"};
-
 // Ship class type names
-const char* Ship::classTypeName[]
+const char* Ship::generalTypeName[]
 	= {"Battleship", "Aircraft Carrier", "Cruiser", 
 		"Destroyers", "Submarines"};
 
@@ -60,19 +54,14 @@ string Ship::getName() const {
 	return name;	
 }
 
-// Get the full name of this type
-string Ship::getTypeName() const {
-	return typeName[type];	
-}
-
 // Get the full name of this class type
-string Ship::getClassTypeName() const {
-	return classTypeName[getClassType()];
+string Ship::getGeneralTypeName() const {
+	return generalTypeName[getGeneralType()];
 }
 
 // Get a descriptor of type & evasion (e.g., shadow prompt)
 string Ship::getTypeAndEvasion() const {
-	return getTypeName() 
+	return getGeneralTypeName() 
 		+ " (evrtg " + to_string(getEvasion()) + ")";
 }
 
@@ -108,10 +97,9 @@ Ship::Type Ship::getType() const {
 	return type;	
 }
 
-// Get the category of ship
-//   For purposes of movement, fueling, withdrawal, etc.
-//   E.g., Rules 5.21, 9.72, 9.93, 16.4, 58.5, 67.22
-Ship::ClassType Ship::getClassType() const {
+// Get the general type of ship
+//   For purposes of movement, fueling, search, withdrawal, etc.
+Ship::GeneralType Ship::getGeneralType() const {
 	switch (type) {
 		default: return BATTLESHIP;
 		case CV: return CARRIER;
@@ -163,7 +151,7 @@ void Ship::applyTempEvasionLoss(int midshipsLoss) {
 //   So we should parse the name on ship construction
 void Ship::setEvasionLossRate() {
 	int rate = 0;
-	switch (getClassType()) {
+	switch (getGeneralType()) {
 
 		case BATTLESHIP: case CARRIER:
 			// Rules 9.724, 48.2
@@ -535,7 +523,7 @@ int Ship::getFuelExpense(int speed) const {
 
 	// Handle normal cases
 	assert(speed <= 2);
-	switch (getClassType()) {
+	switch (getGeneralType()) {
 	
 		case BATTLESHIP: case CARRIER:
 			// Rule 5.21
@@ -579,7 +567,7 @@ int Ship::getFuelExpense(int speed) const {
 void Ship::checkFuelForWeather(int speed) {
 	if (CmdArgs::instance()->useOptFuelExpenditure()) {
 		int visibility = GameDirector::instance()->getVisibility();
-		switch (getClassType()) {
+		switch (getGeneralType()) {
 
 			case BATTLESHIP: 
 			case CARRIER:

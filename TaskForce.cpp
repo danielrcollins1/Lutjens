@@ -98,7 +98,7 @@ string TaskForce::getTypeDesc() const {
 	assert(!isEmpty());	
 	string desc = "Task Force (";
 	for (unsigned i = 0; i < shipList.size(); i++) {
-		desc += (i ? ", " : "") + shipList[i]->getClassTypeName();
+		desc += (i ? ", " : "") + shipList[i]->getGeneralTypeName();
 	}
 	desc += ")";
 	return desc;
