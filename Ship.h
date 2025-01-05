@@ -11,8 +11,9 @@
 #include <vector>
 #include <queue>
 
-// Forward for player
+// Forwards
 class GermanPlayer;
+class TaskForce;
 
 // Ship class
 class Ship
@@ -89,6 +90,12 @@ class Ship
 		OrderType getFirstOrder() const;
 		void clearOrders();
 		
+		// Task force membership
+		void joinTaskForce(TaskForce* taskForce);
+		void leaveTaskForce();
+		bool isInTaskForce() const;
+		TaskForce* getTaskForce() const;
+		
 	private:
 
 		// Type labels
@@ -121,6 +128,7 @@ class Ship
 		bool returnToBase;
 		GridCoordinate position;
 		GermanPlayer* player;
+		TaskForce* taskForce;
 		std::queue<Order> orders;
 		std::queue<GridCoordinate> route;
 		std::vector<LogTurn> log;

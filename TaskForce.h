@@ -13,10 +13,11 @@
 class TaskForce
 {
 	public:
-		TaskForce (int id);
+		TaskForce ();
 		int getId() const;
 		void attach(Ship* ship);
 		void detach(Ship* ship);
+		void dissolve();
 		bool includes(Ship* ship) const;
 		bool isEmpty() const;
 		int getEvasion() const;
@@ -24,8 +25,9 @@ class TaskForce
 		int getMaxSpeedClass() const;
 		
 	private:
+		static int numMade;
 		int identifier;
-		std::vector<Ship*> ships;
+		std::vector<Ship*> shipList;
 };
 
 #endif

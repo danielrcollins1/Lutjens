@@ -2,9 +2,12 @@
 #include "Utils.h"
 #include <cassert>
 
-// Constructor a new task force
-TaskForce::TaskForce (int id) {
-	identifier = id;	
+// Initialize static counter
+int TaskForce::numMade = 0;
+
+// Construct a new task force
+TaskForce::TaskForce () {
+	identifier = ++numMade;
 }
 
 // Get our identifying number
@@ -15,30 +18,41 @@ int TaskForce::getId() const {
 // Attach a ship
 void TaskForce::attach(Ship* ship) {
 	assert(!includes(ship));
-	ships.push_back(ship);
+	shipList.push_back(ship);
+	ship->joinTaskForce(this);
 }
 
 // Detach a ship
 void TaskForce::detach(Ship* ship) {
 	assert(includes(ship));
-	ships.erase(find(ships.begin(), ships.end(), ship));
+	auto it = find(shipList.begin(), shipList.end(), ship);
+	shipList.erase(it);
+	(*it)->leaveTaskForce();
+}
+
+// Detach all ships
+void TaskForce::dissolve() {
+	for (auto ship: shipList) {
+		ship->leaveTaskForce();	
+	}
+	shipList.clear();
 }
 
 // Do we control a given ship?
 bool TaskForce::includes(Ship* ship) const {
-	return hasElem(ships, ship);
+	return hasElem(shipList, ship);
 }
 
 // Is this group empty?
 bool TaskForce::isEmpty() const {
-	return ships.empty();	
+	return shipList.empty();
 }
 
 // Get the standard evasion level
 //   That is: Evasion of the slowest ship
 int TaskForce::getEvasion() const {
 	int lowest = INT_MAX;
-	for (auto ship: ships) {
+	for (auto ship: shipList) {
 		if (ship->getEvasion() < lowest) {
 			lowest = ship->getEvasion();	
 		}
@@ -51,7 +65,7 @@ int TaskForce::getEvasion() const {
 //   See Rule 9.222 (CVs barred by errata)
 int TaskForce::getAttackEvasion() const {
 	int highest = 0;
-	for (auto ship: ships) {
+	for (auto ship: shipList) {
 		if (ship->getEvasion() > highest
 			&& ship->getType() != Ship::CV)
 		{		
@@ -64,7 +78,7 @@ int TaskForce::getAttackEvasion() const {
 // Get the max speed class on the search board
 int TaskForce::getMaxSpeedClass() const {
 	int lowest = INT_MAX;
-	for (auto ship: ships) {
+	for (auto ship: shipList) {
 		if (ship->getMaxSpeedClass() < lowest) {
 			lowest = ship->getMaxSpeedClass();	
 		}

@@ -46,6 +46,7 @@ Ship::Ship(std::string name, Type type,
 	onPatrol = false;
 	loseMoveTurn = false;
 	returnToBase = false;
+	taskForce = nullptr;
 	setEvasionLossRate();
 }
 
@@ -628,4 +629,24 @@ void Ship::setReturnToBase() {
 // Is the return to base (RTB) marker set?
 bool Ship::isReturnToBase() const {
 	return returnToBase;	
+}
+
+// Join a task force
+void Ship::joinTaskForce(TaskForce* taskForce) {
+	this->taskForce = taskForce;
+}
+
+// Leave a task force
+void Ship::leaveTaskForce() {
+	taskForce = nullptr;
+}
+
+// Is this in a task force?
+bool Ship::isInTaskForce() const { 
+	return taskForce != nullptr;
+}
+
+// Get the task force we're in
+TaskForce* Ship::getTaskForce() const { 
+	return taskForce;
 }
