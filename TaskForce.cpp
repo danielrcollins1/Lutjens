@@ -90,8 +90,6 @@ int TaskForce::getMaxSpeedClass() const {
 // Get the lead ship
 Ship* TaskForce::getFlagship() const {
 	assert(!isEmpty());	
-	auto flagship = shipList[0];
-	std::cout << "TF flagship: " << flagship << " " << *flagship << "\n";
 	return shipList[0];	
 }
 
@@ -100,9 +98,9 @@ void TaskForce::doMovement() {
 	assert(!isEmpty());	
 	auto flagship = getFlagship();
 	flagship->doMovement();
-//	for (auto ship: shipList) {
-//		if (ship != flagship) {
-//			ship->moveWithTaskForce();
-//		}
-//	}
+	for (auto ship: shipList) {
+		if (ship != flagship) {
+			ship->moveWithTaskForce();
+		}
+	}
 }

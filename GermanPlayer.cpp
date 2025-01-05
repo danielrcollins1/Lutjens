@@ -13,18 +13,18 @@ GermanPlayer::GermanPlayer() {
 
 	// Construct ships
 	std::vector<Ship> shipRoster = {
-		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this)
-		//, Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this)
+		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this),
+		Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this)
 	};
 	shipList = shipRoster;
 	flagship = &shipList[0];
 	
 	// Construct task force
-//	TaskForce taskForce1;
-//	for (auto ship: shipList) {
-//		taskForce1.attach(&ship);
-//	}
-//	taskForceList.push_back(taskForce1);
+	TaskForce taskForce1;
+	for (auto& ship: shipList) {
+		taskForce1.attach(&ship);
+	}
+	taskForceList.push_back(taskForce1);
 }
 
 // Get flagship for read-only
@@ -54,11 +54,9 @@ void GermanPlayer::doShadowPhase() {
 
 // Do ship movement phase
 void GermanPlayer::doShipMovementPhase() {
-	//cout << "Lead ship at " << &shipList[0] << "\n";
 
 	// Move task forces
 	for (auto taskForce: taskForceList) {
-		//cout << "Move task force\n";
 		if (!taskForce.isEmpty()) {
 			taskForce.doMovement();
 		}
@@ -66,7 +64,6 @@ void GermanPlayer::doShipMovementPhase() {
 
 	// Move solo ships
 	for (auto& ship: shipList) {
-		//cout << "Move solo ship\n";
 		if (!ship.isInTaskForce()
 			&& !ship.wasShadowed(0)
 			&& !ship.isSunk())
