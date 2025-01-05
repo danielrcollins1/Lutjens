@@ -24,6 +24,11 @@ const char* Ship::typeName[]
 		"Aircraft Carrier", "Heavy Cruiser", "Light Cruiser",
 		"Destroyer", "Contre-Torpilleur", "Submarine", "U-Boat"};
 
+// Ship class type names
+const char* Ship::classTypeName[]
+	= {"Battleship", "Aircraft Carrier", "Cruiser", 
+		"Destroyers", "Submarines"};
+
 // Constructor
 //   DriveDefense indicates evasion loss rate (Rule 9.72)
 Ship::Ship(std::string name, Type type, 
@@ -60,6 +65,11 @@ string Ship::getTypeName() const {
 	return typeName[type];	
 }
 
+// Get the full name of this class type
+string Ship::getClassTypeName() const {
+	return classTypeName[getClassType()];
+}
+
 // Get a descriptor of type & evasion (e.g., shadow prompt)
 string Ship::getTypeAndEvasion() const {
 	return getTypeName() 
@@ -87,6 +97,12 @@ string Ship::getLongDesc() const {
 		+ ")";
 }
 
+// Get a descriptor for opponent search results
+std::string Ship::getSearchDesc() const {
+	return isTaskForceFlagship() ?
+		taskForce->getTypeDesc() : getLongDesc();
+}
+
 // Get the type of ship
 Ship::Type Ship::getType() const {
 	return type;	
@@ -98,6 +114,7 @@ Ship::Type Ship::getType() const {
 Ship::ClassType Ship::getClassType() const {
 	switch (type) {
 		default: return BATTLESHIP;
+		case CV: return CARRIER;
 		case CA: case CL: return CRUISER;
 		case DD: case CT: return DESTROYER;
 		case SS: case UB: return SUBMARINE;
@@ -148,7 +165,7 @@ void Ship::setEvasionLossRate() {
 	int rate = 0;
 	switch (getClassType()) {
 
-		case BATTLESHIP: 
+		case BATTLESHIP: case CARRIER:
 			// Rules 9.724, 48.2
 			rate = (name == "Bismarck" || name == "Tirpitz") ? 1 : 2;
 			break;
@@ -520,7 +537,7 @@ int Ship::getFuelExpense(int speed) const {
 	assert(speed <= 2);
 	switch (getClassType()) {
 	
-		case BATTLESHIP:
+		case BATTLESHIP: case CARRIER:
 			// Rule 5.21
 			expense = (speed < 2) ? 0 : 1;
 
@@ -564,7 +581,8 @@ void Ship::checkFuelForWeather(int speed) {
 		int visibility = GameDirector::instance()->getVisibility();
 		switch (getClassType()) {
 
-			case BATTLESHIP:
+			case BATTLESHIP: 
+			case CARRIER:
 				if (visibility >= 8 && speed > 0) {
 					loseFuel(1);
 				}

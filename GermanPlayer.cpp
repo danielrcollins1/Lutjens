@@ -83,21 +83,23 @@ bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 	bool anyFound = false;
 	auto game = GameDirector::instance();
 	for (auto& ship: shipList) {
- 		if (ship.getPosition() == zone) 
-		{
-			cgame << ship.getTypeName() 
-				<< " found in " << zone << endl;
-			ship.setLocated();
-			anyFound = true;
-		}
-		else if (ship.movedThrough(zone)
-			&& !game->isFirstTurn())
-		{
-			cgame << ship.getTypeAndEvasion()
-				<< " seen moving through " << zone << endl;
-			game->checkShadow(ship, zone, 
-				GameDirector::Phase::SEARCH);
-			anyFound = true;
+		if (!ship.isTaskForceEscort()) {
+	 		if (ship.getPosition() == zone) 
+			{
+				cgame << ship.getSearchDesc() 
+					<< " found in " << zone << endl;
+				ship.setLocated();
+				anyFound = true;
+			}
+			else if (ship.movedThrough(zone)
+				&& !game->isFirstTurn())
+			{
+				cgame << ship.getSearchDesc()
+					<< " seen moving through " << zone << endl;
+				game->checkShadow(ship, zone, 
+					GameDirector::Phase::SEARCH);
+				anyFound = true;
+			}
 		}
 	}
 	return anyFound;

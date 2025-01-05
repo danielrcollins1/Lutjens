@@ -27,6 +27,10 @@ class TaskForce
 		int getEvasion() const;
 		int getAttackEvasion() const;
 		int getMaxSpeedClass() const;
+		
+		// Descriptors
+		std::string getTypeDesc() const;
+		std::string getFullDesc() const;
 
 		// Mutators
 		void doMovement(); 

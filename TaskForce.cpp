@@ -1,6 +1,7 @@
 #include "TaskForce.h"
 #include "Utils.h"
 #include <cassert>
+using namespace std;
 
 // Initialize static counter
 int TaskForce::numMade = 0;
@@ -90,6 +91,27 @@ int TaskForce::getMaxSpeedClass() const {
 Ship* TaskForce::getFlagship() const {
 	assert(!isEmpty());	
 	return shipList[0];	
+}
+
+// Get a description with only ship types
+string TaskForce::getTypeDesc() const {
+	assert(!isEmpty());	
+	string desc = "Task Force (";
+	for (unsigned i = 0; i < shipList.size(); i++) {
+		desc += (i ? ", " : "") + shipList[i]->getClassTypeName();
+	}
+	desc += ")";
+	return desc;
+}
+
+// Get a description with full information
+string TaskForce::getFullDesc() const {
+	assert(!isEmpty());	
+	string desc = "Task Force " + to_string(identifier) + ": ";
+	for (auto& ship: shipList) {
+		desc += "  " + ship->getLongDesc() + "\n";		
+	}
+	return desc;
 }
 
 // Do movement for one turn
