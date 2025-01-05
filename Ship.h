@@ -93,6 +93,8 @@ class Ship
 		void joinTaskForce(TaskForce* taskForce);
 		void leaveTaskForce();
 		bool isInTaskForce() const;
+		bool isTaskForceFlagship() const;
+		bool isTaskForceEscort() const;
 		TaskForce* getTaskForce() const;
 		void moveWithTaskForce();
 		

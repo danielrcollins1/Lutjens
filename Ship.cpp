@@ -641,9 +641,21 @@ void Ship::leaveTaskForce() {
 	taskForce = nullptr;
 }
 
-// Is this in a task force?
+// Are we in a task force?
 bool Ship::isInTaskForce() const { 
 	return taskForce != nullptr;
+}
+
+// Are we the flagship of a task force?
+bool Ship::isTaskForceFlagship() const {
+	return isInTaskForce()
+		&& taskForce->getFlagship() == this;
+}
+
+// Are we a task force escort (non-flagship)?
+bool Ship::isTaskForceEscort() const {
+	return isInTaskForce()
+		&& taskForce->getFlagship() != this;
 }
 
 // Get the task force we're in
