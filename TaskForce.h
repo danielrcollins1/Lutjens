@@ -24,13 +24,16 @@ class TaskForce: public NavalUnit
 		bool isEmpty() const;
 		bool includes(Ship* ship) const;
 		Ship* getFlagship() const;
+		Ship* getShip(int idx);
 		int getId() const;
+		int size() const;
 
 		//
 		// NavalUnit overrides
 		//
 		
 		// Descriptors
+		std::string getName() const override;
 		std::string getTypeDesc() const override;
 		std::string getFullDesc() const override;
 		

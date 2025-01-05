@@ -21,6 +21,7 @@ void TaskForce::attach(Ship* ship) {
 	assert(!includes(ship));
 	shipList.push_back(ship);
 	ship->joinTaskForce(this);
+	clog << getName() << " attached " << ship->getName() << "\n";
 }
 
 // Detach a ship
@@ -29,14 +30,15 @@ void TaskForce::detach(Ship* ship) {
 	auto it = find(shipList.begin(), shipList.end(), ship);
 	shipList.erase(it);
 	(*it)->leaveTaskForce();
+	clog << getName() << " detached " << ship->getName() << "\n";
 }
 
 // Detach all ships
 void TaskForce::dissolve() {
+	clog << getName() << " dissolving\n";
 	for (auto& ship: shipList) {
-		ship->leaveTaskForce();	
+		detach(ship);
 	}
-	shipList.clear();
 }
 
 // Do we control a given ship?
@@ -49,15 +51,34 @@ bool TaskForce::isEmpty() const {
 	return shipList.empty();
 }
 
+// How many ships do we have?
+int TaskForce::size() const {
+	return shipList.size();	
+}
+
 // Get the lead ship
 Ship* TaskForce::getFlagship() const {
+	if (isEmpty()) {
+		assert(false);	
+	}
 	assert(!isEmpty());	
 	return shipList[0];	
+}
+
+// Get a ship by index
+Ship* TaskForce::getShip(int idx) {
+	assert(isInInterval(0, idx, shipList.size() - 1));
+	return shipList[idx];
 }
 
 //
 // NavalUnit overrides
 //
+
+// Get our name
+string TaskForce::getName() const {
+	return "Task Force " + to_string(identifier);
+}
 
 // Get a description with only ship types
 string TaskForce::getTypeDesc() const {
@@ -73,7 +94,7 @@ string TaskForce::getTypeDesc() const {
 // Get a description with full information
 string TaskForce::getFullDesc() const {
 	assert(!isEmpty());	
-	string desc = "Task Force " + to_string(identifier) + ": ";
+	string desc = getName() + ": ";
 	for (auto& ship: shipList) {
 		desc += "  " + ship->getFullDesc() + "\n";		
 	}

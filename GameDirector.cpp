@@ -178,6 +178,7 @@ void GameDirector::doVisibilityPhase() {
 		<< (visibility == VISIBILITY_X ? "X" : to_string(visibility))
 		<< (foggy ? ", with fog" : "") << endl;
 	reportNightTime();
+	germanPlayer->doVisibilityPhase();
 }
 
 // Do shadow phase

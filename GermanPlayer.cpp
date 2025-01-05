@@ -41,6 +41,54 @@ void GermanPlayer::doAvailabilityPhase() {
 	}
 }
 
+// Do visibility phase
+void GermanPlayer::doVisibilityPhase() {
+	orderUnitsForTurn();	
+}
+
+// Organize task forces & list ordered units for turn
+void GermanPlayer::orderUnitsForTurn() {
+	navalUnitList.clear();
+
+	// Clean task forces
+	for (auto& taffy: taskForceList) {
+		cleanTaskForce(taffy);
+		if (taffy.size() == 1) {
+			taffy.dissolve();	
+		}
+	}
+
+	// Add active task forces
+	for (auto& taffy: taskForceList) {
+		if (!taffy.isEmpty()) {
+			navalUnitList.push_back(&taffy);
+		}
+	}
+
+	// Add solo ships
+	for (auto& ship: shipList) {
+		if (!ship.isInTaskForce()
+			&& !ship.isSunk())
+		{
+			navalUnitList.push_back(&ship);
+		}
+	}
+}
+
+// Clean task force as needed
+//   Sweep out sunk, slow, low-fuel ships
+void GermanPlayer::cleanTaskForce(TaskForce& taffy) {
+	for (int i = 0; i < taffy.size(); i++) {
+		Ship* ship = taffy.getShip(i);
+		if (ship->isSunk()
+			|| ship->getFuel() < 2
+			|| ship->getMaxSpeedClass() < 3)
+		{
+			taffy.detach(ship);
+		}
+	}
+}
+
 // Do shadow phase
 void GermanPlayer::doShadowPhase() {
 	for (auto& ship: shipList) {
@@ -82,24 +130,22 @@ void GermanPlayer::doShipMovementPhase() {
 bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 	bool anyFound = false;
 	auto game = GameDirector::instance();
-	for (auto& ship: shipList) {
-		if (!ship.isTaskForceEscort()) {
-	 		if (ship.getPosition() == zone) 
-			{
-				cgame << ship.getTypeDesc() 
-					<< " found in " << zone << endl;
-				ship.setLocated();
-				anyFound = true;
-			}
-			else if (ship.movedThrough(zone)
-				&& !game->isFirstTurn())
-			{
-				cgame << ship.getTypeDesc()
-					<< " seen moving through " << zone << endl;
-				game->checkShadow(ship, zone, 
-					GameDirector::Phase::SEARCH);
-				anyFound = true;
-			}
+	for (auto& unit: navalUnitList) {
+ 		if (unit->getPosition() == zone) 
+		{
+			cgame << unit->getTypeDesc() 
+				<< " found in " << zone << endl;
+			unit->setLocated();
+			anyFound = true;
+		}
+		else if (unit->movedThrough(zone)
+			&& !game->isFirstTurn())
+		{
+			cgame << unit->getTypeDesc()
+				<< " seen moving through " << zone << endl;
+//			game->checkShadow(ship, zone, 
+//				GameDirector::Phase::SEARCH);
+			anyFound = true;
 		}
 	}
 	return anyFound;

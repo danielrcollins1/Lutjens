@@ -32,13 +32,10 @@ class Ship: public NavalUnit
 			GridCoordinate position = GridCoordinate::NO_ZONE,
 			GermanPlayer* player = nullptr);
 
-		// Descriptors
-		std::string getName() const;
-		std::string getGeneralTypeName() const;
-
 		// Accessors
 		Type getType() const;
 		GeneralType getGeneralType() const;
+		std::string getGeneralTypeName() const;
 		int getFuel() const;
 		int getMidships() const;
 		int getSpeed() const;
@@ -73,8 +70,6 @@ class Ship: public NavalUnit
 		void joinTaskForce(TaskForce* taskForce);
 		void leaveTaskForce();
 		bool isInTaskForce() const;
-		bool isTaskForceFlagship() const;
-		bool isTaskForceEscort() const;
 		TaskForce* getTaskForce() const;
 		void moveWithShip(Ship& ship);
 
@@ -83,6 +78,7 @@ class Ship: public NavalUnit
 		//
 		
 		// Descriptors
+		std::string getName() const override;
 		std::string getTypeDesc() const override;
 		std::string getFullDesc() const override;
 		

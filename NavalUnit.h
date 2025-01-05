@@ -14,6 +14,7 @@ class NavalUnit
 {
 	public:
 		// Descriptors
+		virtual std::string getName() const = 0;
 		virtual std::string getTypeDesc() const = 0;
 		virtual std::string getFullDesc() const = 0;
 		

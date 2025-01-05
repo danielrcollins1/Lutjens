@@ -16,6 +16,7 @@ class GermanPlayer
 		GermanPlayer();
 		const Ship& getFlagship() const;
 		void doAvailabilityPhase();
+		void doVisibilityPhase();
 		void doShadowPhase();
 		void doShipMovementPhase();
 		void doAirAttackPhase();
@@ -37,6 +38,7 @@ class GermanPlayer
 		Ship* flagship;
 		std::vector<Ship> shipList;
 		std::vector<TaskForce> taskForceList;
+		std::vector<NavalUnit*> navalUnitList;
 		std::vector<GridCoordinate> foundShipZones;
 		
 		// Functions
@@ -48,6 +50,8 @@ class GermanPlayer
 		void handleFuelEmpty(Ship& ship);
 
 		// Plotting functions
+		void orderUnitsForTurn();
+		void cleanTaskForce(TaskForce& taffy);
 		void orderNewGoal(Ship& ship);
 		MapRegion getRegion(const GridCoordinate& zone) const;
 		int randWeightedConvoyDistance() const;
