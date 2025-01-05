@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=4
 CompilerSettings=0;0;0;0;0;0;0;1;0;0;1;0;1;0;0;0;0;0;1;0;0;0;0;0;0;0
-UnitCount=30
+UnitCount=31
 
 [VersionInfo]
 Major=1
@@ -342,6 +342,16 @@ BuildCmd=
 
 [Unit30]
 FileName=TaskForce.cpp
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit31]
+FileName=NavalUnit.h
 CompileCpp=1
 Folder=
 Compile=1
