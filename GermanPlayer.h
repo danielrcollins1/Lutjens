@@ -42,17 +42,17 @@ class GermanPlayer
 		std::vector<GridCoordinate> foundShipZones;
 		
 		// Functions
-		void checkGeneralSearch(Ship& ship, int roll);
-		void checkConvoyResult(Ship& ship, int roll);
-		void callHuffDuff(Ship& ship);
-		void destroyConvoy(Ship& ship);
+		void checkGeneralSearch(NavalUnit* unit, int roll);
+		void checkConvoyResult(NavalUnit* unit, int roll);
+		void callHuffDuff(NavalUnit* unit);
+		void destroyConvoy(NavalUnit* unit);
 		char getGeneralSearchColumn(const GridCoordinate& zone);
-		void handleFuelEmpty(Ship& ship);
 
 		// Plotting functions
 		void orderUnitsForTurn();
 		void cleanTaskForce(TaskForce& taffy);
 		void orderNewGoal(Ship& ship);
+		void handleFuelEmpty(Ship& ship);
 		MapRegion getRegion(const GridCoordinate& zone) const;
 		int randWeightedConvoyDistance() const;
 		GridCoordinate randConvoyTarget(int pctAtlantic) const;

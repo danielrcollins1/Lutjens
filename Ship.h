@@ -40,10 +40,7 @@ class Ship: public NavalUnit
 		int getMidships() const;
 		int getSpeed() const;
 		int getTimesDetected() const;
-
-		// Status checks		
 		bool isSunk() const;
-		bool isReturnToBase() const;
 
 		// Mutator functions
 		void doAvailability();
@@ -52,7 +49,6 @@ class Ship: public NavalUnit
 		void loseEvasion(int loss);
 		void loseMidships(int loss);
 		void tryEvasionRepair();
-		void noteDetected();
 		
 		// Movement functions
 		void setPosition(const GridCoordinate& zone);
@@ -64,7 +60,6 @@ class Ship: public NavalUnit
 		void orderMove(const GridCoordinate& dest);
 		bool hasOrders() const;
 		OrderType getFirstOrder() const;
-		void clearOrders();
 		
 		// Task force membership
 		void joinTaskForce(TaskForce* taskForce);
@@ -94,6 +89,7 @@ class Ship: public NavalUnit
 		bool isInFog() const override;
 		bool isInPort() const override;
 		bool isEnteringPort() const override;
+		bool isReturnToBase() const override;
 		bool isOnPatrol() const override;
 		bool wasLocated(unsigned turnsAgo) const override;
 		bool wasShadowed(unsigned turnsAgo) const override;
@@ -106,6 +102,8 @@ class Ship: public NavalUnit
 		void setShadowed() override;
 		void setCombated() override;
 		void setLoseMoveTurn() override;
+		void noteDetected() override;
+		void clearOrders() override;
 		
 	private:
 

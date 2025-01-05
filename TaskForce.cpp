@@ -94,9 +94,9 @@ string TaskForce::getTypeDesc() const {
 // Get a description with full information
 string TaskForce::getFullDesc() const {
 	assert(!isEmpty());	
-	string desc = getName() + ": ";
+	string desc = getName();
 	for (auto& ship: shipList) {
-		desc += "  " + ship->getFullDesc() + "\n";		
+		desc += "\n  " + ship->getFullDesc();
 	}
 	return desc;
 }
@@ -169,6 +169,11 @@ bool TaskForce::isEnteringPort() const {
 	return getFlagship()->isEnteringPort();
 }
 
+// Are we required to return to base?
+bool TaskForce::isReturnToBase() const {
+	return getFlagship()->isReturnToBase();
+}
+
 // Are we on patrol?
 bool TaskForce::isOnPatrol() const {
 	return getFlagship()->isOnPatrol();
@@ -206,7 +211,7 @@ void TaskForce::doMovementTurn() {
 	}
 }
 
-// Note that we were located
+// Note that we were located by search/shadow
 void TaskForce::setLocated() {
 	for (auto& ship: shipList) {
 		ship->setLocated();		
@@ -231,5 +236,19 @@ void TaskForce::setCombated() {
 void TaskForce::setLoseMoveTurn() {
 	for (auto& ship: shipList) {
 		ship->setLoseMoveTurn();		
+	}
+}
+
+// Note that we were detected in any way
+void TaskForce::noteDetected() {
+	for (auto& ship: shipList) {
+		ship->noteDetected();
+	}
+}
+
+// Clear all orders
+void TaskForce::clearOrders() {
+	for (auto& ship: shipList) {
+		ship->clearOrders();
 	}
 }

@@ -49,6 +49,7 @@ class TaskForce: public NavalUnit
 		bool isInFog() const override;
 		bool isInPort() const override;
 		bool isEnteringPort() const override;
+		bool isReturnToBase() const override;
 		bool isOnPatrol() const override;
 		bool wasLocated(unsigned turnsAgo) const override;
 		bool wasShadowed(unsigned turnsAgo) const override;
@@ -61,6 +62,8 @@ class TaskForce: public NavalUnit
 		void setShadowed() override;
 		void setCombated() override;
 		void setLoseMoveTurn() override;
+		void noteDetected() override;
+		void clearOrders() override;
 		
 	private:
 		static int numMade;

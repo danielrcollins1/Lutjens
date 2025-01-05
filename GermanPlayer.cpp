@@ -103,14 +103,14 @@ void GermanPlayer::doShadowPhase() {
 // Do ship movement phase
 void GermanPlayer::doShipMovementPhase() {
 
-	// Move ordered naval units
+	// Move task forces & solo ships
 	for (auto& unit: navalUnitList) {
 		if (!unit->wasShadowed(0)) {
 			unit->doMovementTurn();	
 		}
 	}
 	
-	// Log statuses
+	// Log all ship statuses
 	for (auto& ship: shipList) {
 		clog << ship << endl;	
 	}
@@ -186,17 +186,17 @@ void GermanPlayer::doNavalCombatPhase() {
 //   While RAW says British player makes this roll (Rule 10.1),
 //   it makes more sense for us with knowledge of ships on board.
 void GermanPlayer::doChancePhase() {
-	for (auto& ship: shipList) {
+	for (auto& unit: navalUnitList) {
 		int roll = diceRoll(2, 6);
 		
 		// Huff-duff result
 		if (roll == 2) {
-			callHuffDuff(ship);
+			callHuffDuff(unit);
 		}
 	
 		// General Search results
 		else if (roll <= 9) {
-			checkGeneralSearch(ship, roll);
+			checkGeneralSearch(unit, roll);
 		}
 		
 		// Convoy results
@@ -205,7 +205,7 @@ void GermanPlayer::doChancePhase() {
 			if (!game->wasConvoySunk(0)      // Rule 10.26
 				&& !game->isVisibilityX())   // Errata in General 16/2
 			{			
-				checkConvoyResult(ship, roll);
+				checkConvoyResult(unit, roll);
 			}
 		}
 		
@@ -217,11 +217,11 @@ void GermanPlayer::doChancePhase() {
 }
 
 // Call result of British HUFF-DUFF detection
-void GermanPlayer::callHuffDuff(Ship& ship) {
-	ship.noteDetected();
+void GermanPlayer::callHuffDuff(NavalUnit* unit) {
+	unit->noteDetected();
 	cgame << "HUFF-DUFF: German ship near "
 		<< SearchBoard::instance()
-			->randSeaZone(ship.getPosition(), 1)
+			->randSeaZone(unit->getPosition(), 1)
 		<< endl;
 }
 
@@ -241,15 +241,15 @@ const int GS_VALUES[GS_ROWS][GS_COLS] = {
 
 // Check a general search result
 //   See Basic Game Tables Card: Chance Table
-void GermanPlayer::checkGeneralSearch(Ship& ship, int roll) {
+void GermanPlayer::checkGeneralSearch(NavalUnit* unit, int roll) {
 	assert(3 <= roll && roll <= 9);
-	auto pos = ship.getPosition();
+	auto pos = unit->getPosition();
 	auto board = SearchBoard::instance();
 	
 	// Check if general search possible
 	if (board->isInsidePatrolLine(pos)    // Rule 10.211
-		&& !ship.isInFog()                // Rule 10.213
-		&& !ship.isInNight())             // Rule 11.13
+		&& !unit->isInFog()                // Rule 10.213
+		&& !unit->isInNight())             // Rule 11.13
 	{
 		// Look up search strength
 		char colLetter = getGeneralSearchColumn(pos);
@@ -260,9 +260,9 @@ void GermanPlayer::checkGeneralSearch(Ship& ship, int roll) {
 		// Announce result
 		int visibility = GameDirector::instance()->getVisibility();
 		if (visibility <= searchStrength) {
-			ship.noteDetected();
-			cgame << "General Search: " << ship.getName() 
-				<< " found in " << pos << endl;
+			unit->noteDetected();
+			cgame << "General Search found in " << pos << ": "
+				<< unit->getFullDesc() << endl;
 		}
 	}
 }
@@ -289,29 +289,29 @@ char GermanPlayer::getGeneralSearchColumn(const GridCoordinate& zone) {
 }
 
 // Resolve a convoy result from the Chance Table
-void GermanPlayer::checkConvoyResult(Ship& ship, int roll) {
+void GermanPlayer::checkConvoyResult(NavalUnit* unit, int roll) {
 	assert(10 <= roll && roll <= 12);
 	auto board = SearchBoard::instance();
-	auto pos = ship.getPosition();
-	if (!ship.wasLocated(0)     // Rule 10.231
-		&& !ship.isInNight())   // Rule 11.13
+	auto pos = unit->getPosition();
+	if (!unit->wasLocated(0)     // Rule 10.231
+		&& !unit->isInNight())   // Rule 11.13
 	{
 		switch (roll) {
 	
 			// On convoy route
 			case 10:
 				if (board->isConvoyRoute(pos)) {
-					destroyConvoy(ship);				
+					destroyConvoy(unit);				
 				}
 				break;
 	
 			// On patrol and within two
 			case 11:
-				if (ship.isOnPatrol()
+				if (unit->isOnPatrol()
 					&& board->isNearZoneType(pos, 2, 
 						&SearchBoard::isConvoyRoute))
 				{
-					destroyConvoy(ship);				
+					destroyConvoy(unit);				
 				}
 				break;
 				
@@ -320,7 +320,7 @@ void GermanPlayer::checkConvoyResult(Ship& ship, int roll) {
 				if (board->isNearZoneType(pos, 1, 
 					&SearchBoard::isConvoyRoute))
 				{
-					destroyConvoy(ship);
+					destroyConvoy(unit);
 				}
 				break;
 		}
@@ -329,14 +329,14 @@ void GermanPlayer::checkConvoyResult(Ship& ship, int roll) {
 
 // Score destruction of a convoy
 //   And re-route to new destination
-void GermanPlayer::destroyConvoy(Ship& ship) {
+void GermanPlayer::destroyConvoy(NavalUnit* unit) {
 	cgame << "CONVOY SUNK:"
-		<< " In zone " << ship.getPosition()
-		<< " by " << ship.getName() << endl;
+		<< " In zone " << unit->getPosition()
+		<< " by " << unit->getFullDesc() << endl;
 	GameDirector::instance()->msgSunkConvoy();
-	ship.setLoseMoveTurn();   // Rule 10.25
-	if (!ship.isReturnToBase()) {
-		ship.clearOrders();
+	unit->setLoseMoveTurn();   // Rule 10.25
+	if (!unit->isReturnToBase()) {
+		unit->clearOrders();
 	}
 }
 
