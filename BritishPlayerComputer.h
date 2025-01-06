@@ -16,8 +16,12 @@ class BritishPlayerComputer: public BritishPlayerInterface
 		BritishPlayerComputer();
 
 		// Start and end game confirmation
-		virtual bool okStartGame() override { return true; }
-		virtual void okEndGame() override {}
+		bool okStartGame() override { return true; }
+		void okEndGame() override {}
+		
+		// Present prompts		
+		void promptMovement() override {}
+		void promptAttack() override {}
 		
 		// Request intentions		
 		bool trySearch() override;
@@ -30,8 +34,6 @@ class BritishPlayerComputer: public BritishPlayerInterface
 			{ return false; }
 		bool tryDefend(const NavalUnit& target) override
 			{ return false; }
-		void promptAttack() override {}
-			
 		
 		// Resolve attempts
 		void resolveSearch() override;

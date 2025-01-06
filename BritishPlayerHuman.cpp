@@ -16,6 +16,16 @@ void BritishPlayerHuman::okEndGame() {
 	cin.get();	
 }
 
+// Prompt for movement turn
+void BritishPlayerHuman::promptMovement() {
+	cout << "Perform all air and ship movement.\n";
+}
+
+// Prompt for an attack resolution
+void BritishPlayerHuman::promptAttack() {
+	cout << "Resolve attack on the Battle Board.\n";
+}
+
 // Ask if we want to try searching
 bool BritishPlayerHuman::trySearch() {
 	cout << "Do you wish to search (y/n)? ";
@@ -62,16 +72,12 @@ bool BritishPlayerHuman::tryDefend(const NavalUnit& target) {
 	return getUserYes();
 }
 
-// Prompt for an attak resolution
-void BritishPlayerHuman::promptAttack() {
-	cout << "Resolve attack on the Battle Board.\n";
-}
-
 // Resolve attempt to search
 void BritishPlayerHuman::resolveSearch() {
 	const char END_SEARCH = '@';
 	cout << "Enter zones to search "
 		<< "(" <<  END_SEARCH << " to end):\n";
+	auto game = GameDirector::instance();
 	while (true) {
 		cout << "==> ";
 		string input;
@@ -83,13 +89,16 @@ void BritishPlayerHuman::resolveSearch() {
 			cout << "> Invalid grid coordinate.\n";
 			continue;
 		}
-		auto director = GameDirector::instance();
 		GridCoordinate zone(input);
-		if (director->isInFog(zone)) {
+		if (game->isVisibilityX()) {
+			cout << "> Cannot search at visibility X.\n";
+			break;
+		}
+		if (game->isInFog(zone)) {
 			cout << "> Cannot search in fog.\n";
 			continue;
 		}
-		director->searchGermanShips(zone);
+		game->searchGermanShips(zone);
 	}
 }
 

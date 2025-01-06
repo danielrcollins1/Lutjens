@@ -191,6 +191,7 @@ void GameDirector::doShadowPhase() {
 // Do ship movement phase
 void GameDirector::doShipMovementPhase() {
 	if (turn >= START_TURN) {
+		britishPlayer->promptMovement();
 		germanPlayer->doShipMovementPhase();
 	}
 }
@@ -199,14 +200,12 @@ void GameDirector::doShipMovementPhase() {
 void GameDirector::doSearchPhase() {
 
 	// Ask players for search attempts
-	if (turn >= START_TURN
-		&& visibility < VISIBILITY_X)
-	{
+	if (turn >= START_TURN) {
 		if (britishPlayer->trySearch()) {
 			britishPlayer->resolveSearch();		
 		}
 		if (germanPlayer->trySearch()) {
-			germanPlayer->resolveSearch();		
+			germanPlayer->resolveSearch();
 		}
 	}
 }

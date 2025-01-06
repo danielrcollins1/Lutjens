@@ -21,6 +21,10 @@ class BritishPlayerInterface
 		virtual bool okStartGame() = 0;
 		virtual void okEndGame() = 0;
 		
+		// Present prompts		
+		virtual void promptMovement() = 0;
+		virtual void promptAttack() = 0;
+		
 		// Request intentions
 		virtual bool trySearch() = 0;
 		virtual bool tryShadow(const NavalUnit& target, 
@@ -29,7 +33,6 @@ class BritishPlayerInterface
 		virtual bool tryAttack(const NavalUnit& target, 
 			GameDirector::Phase phase) = 0;
 		virtual bool tryDefend(const NavalUnit& target) = 0;
-		virtual void promptAttack() = 0;
 		
 		// Resolve attempts
 		virtual void resolveSearch() = 0;

@@ -17,6 +17,10 @@ class BritishPlayerHuman: public BritishPlayerInterface
 		bool okStartGame() override;
 		void okEndGame() override;
 
+		// Present prompts		
+		void promptMovement() override;
+		void promptAttack() override;
+
 		// Request intentions		
 		bool trySearch() override;
 		bool tryShadow(const NavalUnit& target, 
@@ -25,7 +29,6 @@ class BritishPlayerHuman: public BritishPlayerInterface
 		bool tryAttack(const NavalUnit& target, 
 			GameDirector::Phase phase) override;
 		bool tryDefend(const NavalUnit& target) override;
-		void promptAttack() override;
 		
 		// Resolve attempts
 		void resolveSearch() override;
