@@ -75,7 +75,7 @@ void runLargeSeries() {
 		game->doGameLoop();
 
 		// Record times detected
-		int timesDetected = game->getTimesFlagshipDetected();
+		int timesDetected = game->getTimesApexShipDetected();
 		if (timesDetected > 0) {
 			totalDetections += timesDetected;
 			gamesDetected++;
@@ -94,11 +94,11 @@ void runLargeSeries() {
 
 	// Report statistics
 	cout << fixed << showpoint << setprecision(2);
-	cout << "Games flagship detected: " 
+	cout << "Games Bismarck detected: " 
 		<< (float) gamesDetected / numGames << "\n";
 	cout << "Games convoy sunk: " 
 		<< (float) gamesConvoySunk / numGames << "\n";
-	cout << "Mean flagship detections: "
+	cout << "Mean Bismarck detections: "
 		<< (float) totalDetections / numGames << "\n";
 	cout << "Mean convoys sunk: " 
 		<< (float) totalConvoysSunk / numGames << "\n";

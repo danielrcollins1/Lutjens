@@ -41,6 +41,7 @@ class NavalUnit
 		virtual bool wasLocated(unsigned turnsAgo) const = 0;
 		virtual bool wasShadowed(unsigned turnsAgo) const = 0;
 		virtual bool wasCombated(unsigned turnsAgo) const = 0;
+		virtual bool wasConvoySunk(unsigned turnsAgo) const = 0;
 		virtual bool movedThrough(const GridCoordinate& zone) const = 0;
 
 		// Mutators
@@ -49,9 +50,9 @@ class NavalUnit
 		virtual void setLocated() = 0;
 		virtual void setShadowed() = 0;
 		virtual void setCombated() = 0;
+		virtual void setConvoySunk() = 0;
 		virtual void setLoseMoveTurn() = 0;
-		virtual void noteDetected() = 0;
-		virtual void clearOrders() = 0;
+		virtual void setDetected() = 0;
 };
 
 #endif

@@ -364,9 +364,9 @@ void GameDirector::resolveCombat(Ship& ship) {
 	}
 }
 
-// Get the number of times the German flagship was detected
-int GameDirector::getTimesFlagshipDetected() const {
-	return germanPlayer->getTimesFlagshipDetected();	
+// Get the number of times the German apex ship was detected
+int GameDirector::getTimesApexShipDetected() const {
+	return germanPlayer->getTimesApexShipDetected();	
 }
 
 // Is this a turn in which convoys move?

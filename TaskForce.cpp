@@ -203,6 +203,11 @@ bool TaskForce::wasCombated(unsigned turnsAgo) const {
 	return getFlagship()->wasCombated(turnsAgo);
 }
 
+// Did we sink a convoy on a given turn?
+bool TaskForce::wasConvoySunk(unsigned turnsAgo) const {
+	return getFlagship()->wasConvoySunk(turnsAgo);
+}
+
 // Did we move through a space on our last move?
 bool TaskForce::movedThrough(const GridCoordinate& zone) const {
 	return getFlagship()->movedThrough(zone);
@@ -241,6 +246,13 @@ void TaskForce::setCombated() {
 	}
 }
 
+// Note that we sank a convoy
+void TaskForce::setConvoySunk() {
+	for (auto& ship: shipList) {
+		ship->setConvoySunk();
+	}
+}
+
 // Note that we must lose a turn
 void TaskForce::setLoseMoveTurn() {
 	for (auto& ship: shipList) {
@@ -249,15 +261,8 @@ void TaskForce::setLoseMoveTurn() {
 }
 
 // Note that we were detected in any way
-void TaskForce::noteDetected() {
+void TaskForce::setDetected() {
 	for (auto& ship: shipList) {
-		ship->noteDetected();
-	}
-}
-
-// Clear all orders
-void TaskForce::clearOrders() {
-	for (auto& ship: shipList) {
-		ship->clearOrders();
+		ship->setDetected();
 	}
 }

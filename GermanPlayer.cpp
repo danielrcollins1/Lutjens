@@ -230,7 +230,7 @@ void GermanPlayer::doChancePhase() {
 
 // Call result of British HUFF-DUFF detection
 void GermanPlayer::callHuffDuff(NavalUnit* unit) {
-	unit->noteDetected();
+	unit->setDetected();
 	cgame << "HUFF-DUFF: German ship near "
 		<< SearchBoard::instance()
 			->randSeaZone(unit->getPosition(), 1)
@@ -259,7 +259,7 @@ void GermanPlayer::checkGeneralSearch(NavalUnit* unit, int roll) {
 	auto board = SearchBoard::instance();
 	
 	// Check if general search possible
-	if (board->isInsidePatrolLine(pos)    // Rule 10.211
+	if (board->isInsidePatrolLine(pos)     // Rule 10.211
 		&& !unit->isInFog()                // Rule 10.213
 		&& !unit->isInNight())             // Rule 11.13
 	{
@@ -272,9 +272,9 @@ void GermanPlayer::checkGeneralSearch(NavalUnit* unit, int roll) {
 		// Announce result
 		int visibility = GameDirector::instance()->getVisibility();
 		if (visibility <= searchStrength) {
-			unit->noteDetected();
-			cgame << "General Search found in " << pos << ": "
-				<< unit->getFullDesc() << endl;
+			unit->setDetected();
+			cgame << "General Search found " 
+				 << unit->getNameDesc() << " in " << pos << "\n";
 		}
 	}
 }
@@ -346,10 +346,8 @@ void GermanPlayer::destroyConvoy(NavalUnit* unit) {
 		<< " In zone " << unit->getPosition()
 		<< " by " << unit->getNameDesc() << endl;
 	GameDirector::instance()->msgSunkConvoy();
+	unit->setConvoySunk();
 	unit->setLoseMoveTurn();   // Rule 10.25
-	if (!unit->isReturnToBase()) {
-		unit->clearOrders();
-	}
 }
 
 // Print all of our ships (e.g., for end game)
@@ -360,7 +358,7 @@ void GermanPlayer::printAllShips() const {
 }
 
 // How many times was our flagship detected?
-int GermanPlayer::getTimesFlagshipDetected() const {
+int GermanPlayer::getTimesApexShipDetected() const {
 	return apexShip->getTimesDetected();
 }
 
@@ -457,7 +455,8 @@ void GermanPlayer::getOrders(Ship& ship) {
 
 	// Check other reasons for new goal
 	if (!ship.hasOrders() 
-		|| ship.getFirstOrder() == Ship::STOP)
+		|| ship.getFirstOrder() == Ship::STOP
+		|| ship.wasConvoySunk(1))
 	{
 		ship.clearOrders();
 		needsNewGoal = true;

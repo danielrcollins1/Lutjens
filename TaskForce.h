@@ -54,6 +54,7 @@ class TaskForce: public NavalUnit
 		bool wasLocated(unsigned turnsAgo) const override;
 		bool wasShadowed(unsigned turnsAgo) const override;
 		bool wasCombated(unsigned turnsAgo) const override;
+		bool wasConvoySunk(unsigned turnsAgo) const override;
 		bool movedThrough(const GridCoordinate& zone) const override;
 
 		// Mutators		
@@ -62,9 +63,9 @@ class TaskForce: public NavalUnit
 		void setLocated() override;
 		void setShadowed() override;
 		void setCombated() override;
+		void setConvoySunk() override;
 		void setLoseMoveTurn() override;
-		void noteDetected() override;
-		void clearOrders() override;
+		void setDetected() override;
 		
 	private:
 		static int numMade;

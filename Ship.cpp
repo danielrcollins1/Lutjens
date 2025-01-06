@@ -372,7 +372,7 @@ void Ship::setLoseMoveTurn() {
 //   Search, shadow, general search, or HUFF-DUFF,
 //   but not reveal for convoy attack.
 //   Used for statistical models (not part of game).
-void Ship::noteDetected() {
+void Ship::setDetected() {
 	timesDetected++;
 }
 
@@ -384,7 +384,7 @@ int Ship::getTimesDetected() const {
 // Note that we have been located by search/shadow
 void Ship::setLocated() {
 	logNow().located = true;
-	noteDetected();
+	setDetected();
 }
 
 // Note that the enemy tried to shadow us
@@ -397,6 +397,11 @@ void Ship::setShadowed() {
 // Note that we have entered naval combat
 void Ship::setCombated() {
 	logNow().combated = true;
+}
+
+// Note that we (helped) sank a convoy
+void Ship::setConvoySunk() {
+	logNow().convoySunk = true;	
 }
 
 // Check if we were located by search/shadow on a given turn
@@ -415,6 +420,12 @@ bool Ship::wasShadowed(unsigned turnsAgo) const {
 bool Ship::wasCombated(unsigned turnsAgo) const {
 	return turnsAgo < log.size() ?
 		log.rbegin()[turnsAgo].combated : false;
+}
+
+// Check if we (helped) sank a convoy on a given turn
+bool Ship::wasConvoySunk(unsigned turnsAgo) const {
+	return turnsAgo < log.size() ?
+		log.rbegin()[turnsAgo].convoySunk : false;
 }
 
 // How far did we move on the search board this turn?

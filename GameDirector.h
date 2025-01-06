@@ -56,7 +56,7 @@ class GameDirector
 		void msgSunkConvoy();
 		bool wasConvoySunk(unsigned daysAgo) const;
 		int getConvoysSunk() const;
-		int getTimesFlagshipDetected() const;
+		int getTimesApexShipDetected() const;
 
 	private:
 		// Constant

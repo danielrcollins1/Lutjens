@@ -26,7 +26,7 @@ class GermanPlayer
 		void resolveSearch();
 		void printAllShips() const;
 		void getOrders(Ship& ship);
-		int getTimesFlagshipDetected() const;
+		int getTimesApexShipDetected() const;
 		const Ship& getApexShip() const;
 
 	private:
