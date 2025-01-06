@@ -51,7 +51,7 @@ bool TaskForce::isEmpty() const {
 }
 
 // How many ships do we have?
-int TaskForce::size() const {
+int TaskForce::getSize() const {
 	return shipList.size();	
 }
 

@@ -21,12 +21,10 @@ class TaskForce: public NavalUnit
 		void dissolve();
 
 		// Accessors
+		int getId() const;
 		bool isEmpty() const;
 		bool includes(Ship* ship) const;
 		Ship* getFlagship() const;
-		Ship* getShip(int idx);
-		int getId() const;
-		int size() const;
 
 		//
 		// NavalUnit overrides
@@ -40,6 +38,7 @@ class TaskForce: public NavalUnit
 		
 		// Accessors
 		GridCoordinate getPosition() const override;
+		int getSize() const override;
 		int getMaxSpeedClass() const override;
 		int getEvasion() const override;
 		int getAttackEvasion() const override;
@@ -58,6 +57,7 @@ class TaskForce: public NavalUnit
 		bool movedThrough(const GridCoordinate& zone) const override;
 
 		// Mutators		
+		Ship* getShip(int idx) override;
 		void doMovementTurn() override;
 		void setLocated() override;
 		void setShadowed() override;

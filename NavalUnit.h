@@ -10,6 +10,10 @@
 #define NAVALUNIT_H
 #include "GridCoordinate.h"
 
+// Forwards
+class Ship;
+
+// Class for naval units
 class NavalUnit
 {
 	public:
@@ -21,6 +25,7 @@ class NavalUnit
 		
 		// Accessors
 		virtual GridCoordinate getPosition() const = 0;
+		virtual int getSize() const = 0;
 		virtual int getMaxSpeedClass() const = 0;
 		virtual int getEvasion() const = 0;
 		virtual int getAttackEvasion() const = 0;
@@ -39,6 +44,7 @@ class NavalUnit
 		virtual bool movedThrough(const GridCoordinate& zone) const = 0;
 
 		// Mutators
+		virtual Ship* getShip(int idx) = 0;
 		virtual void doMovementTurn() = 0;
 		virtual void setLocated() = 0;
 		virtual void setShadowed() = 0;

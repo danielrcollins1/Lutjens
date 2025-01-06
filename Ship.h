@@ -80,6 +80,7 @@ class Ship: public NavalUnit
 		
 		// Accessors
 		GridCoordinate getPosition() const override;
+		int getSize() const override;
 		int getMaxSpeedClass() const override;
 		int getEvasion() const override;
 		int getAttackEvasion() const override;
@@ -97,7 +98,8 @@ class Ship: public NavalUnit
 		bool wasCombated(unsigned turnsAgo) const override;
 		bool movedThrough(const GridCoordinate& zone) const override;
 
-		// Mutators		
+		// Mutators
+		Ship* getShip(int idx) override;
 		void doMovementTurn() override;
 		void setLocated() override;
 		void setShadowed() override;

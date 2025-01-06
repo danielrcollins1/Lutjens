@@ -56,13 +56,13 @@ void GermanPlayer::orderUnitsForTurn() {
 		if (!taffy.isEmpty()) {
 
 			// End solo task force
-			if (taffy.size() == 1) {
+			if (taffy.getSize() == 1) {
 				taffy.dissolve();	
 			}
 
 			// Breakup after breakout
 			else if (taffy.isOnPatrol()) {
-				for (int i = 1; i < taffy.size(); i++) {
+				for (int i = 1; i < taffy.getSize(); i++) {
 					taffy.getShip(i)->orderAction(Ship::PATROL);	
 				}
 				taffy.dissolve();
@@ -90,7 +90,7 @@ void GermanPlayer::orderUnitsForTurn() {
 // Clean task force as needed
 //   Sweep out sunk, slow, low-fuel ships
 void GermanPlayer::cleanTaskForce(TaskForce& taffy) {
-	for (int i = 0; i < taffy.size(); i++) {
+	for (int i = taffy.getSize() - 1; i >= 0; i--) {
 		Ship* ship = taffy.getShip(i);
 		if (ship->isSunk()
 			|| ship->getFuel() < 2

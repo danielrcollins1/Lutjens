@@ -49,6 +49,16 @@ Ship::Ship(std::string name, Type type,
 	setEvasionLossRate();
 }
 
+// Get our size
+int Ship::getSize() const {
+	return 1;	
+}
+
+// Get our pointer
+Ship* Ship::getShip(int idx) {
+	return this;	
+}
+
 // Get the name
 string Ship::getName() const {
 	return name;	
