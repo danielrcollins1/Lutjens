@@ -16,6 +16,7 @@ class NavalUnit
 		// Descriptors
 		virtual std::string getName() const = 0;
 		virtual std::string getTypeDesc() const = 0;
+		virtual std::string getNameDesc() const = 0;
 		virtual std::string getFullDesc() const = 0;
 		
 		// Accessors

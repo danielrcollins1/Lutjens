@@ -59,6 +59,11 @@ string Ship::getTypeDesc() const {
 	return generalTypeName[getGeneralType()];
 }
 
+// Get a description with any ship names
+string Ship::getNameDesc() const {
+	return getName();	
+}
+
 // Get a description with full information
 string Ship::getFullDesc() const {
 	return name

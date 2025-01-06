@@ -75,6 +75,7 @@ class Ship: public NavalUnit
 		// Descriptors
 		std::string getName() const override;
 		std::string getTypeDesc() const override;
+		std::string getNameDesc() const override;
 		std::string getFullDesc() const override;
 		
 		// Accessors

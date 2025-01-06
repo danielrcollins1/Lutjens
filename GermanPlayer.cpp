@@ -50,11 +50,23 @@ void GermanPlayer::doVisibilityPhase() {
 void GermanPlayer::orderUnitsForTurn() {
 	navalUnitList.clear();
 
-	// Clean task forces
+	// Clean up task forces
 	for (auto& taffy: taskForceList) {
 		cleanTaskForce(taffy);
-		if (taffy.size() == 1) {
-			taffy.dissolve();	
+		if (!taffy.isEmpty()) {
+
+			// End solo task force
+			if (taffy.size() == 1) {
+				taffy.dissolve();	
+			}
+
+			// Breakup after breakout
+			else if (taffy.isOnPatrol()) {
+				for (int i = 1; i < taffy.size(); i++) {
+					taffy.getShip(i)->orderAction(Ship::PATROL);	
+				}
+				taffy.dissolve();
+			}
 		}
 	}
 
@@ -332,7 +344,7 @@ void GermanPlayer::checkConvoyResult(NavalUnit* unit, int roll) {
 void GermanPlayer::destroyConvoy(NavalUnit* unit) {
 	cgame << "CONVOY SUNK:"
 		<< " In zone " << unit->getPosition()
-		<< " by " << unit->getFullDesc() << endl;
+		<< " by " << unit->getNameDesc() << endl;
 	GameDirector::instance()->msgSunkConvoy();
 	unit->setLoseMoveTurn();   // Rule 10.25
 	if (!unit->isReturnToBase()) {

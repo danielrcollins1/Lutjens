@@ -27,9 +27,8 @@ void TaskForce::attach(Ship* ship) {
 // Detach a ship
 void TaskForce::detach(Ship* ship) {
 	assert(includes(ship));
-	auto it = find(shipList.begin(), shipList.end(), ship);
-	shipList.erase(it);
-	(*it)->leaveTaskForce();
+	shipList.erase(find(shipList.begin(), shipList.end(), ship));
+	ship->leaveTaskForce();
 	clog << getName() << " detached " << ship->getName() << "\n";
 }
 
@@ -61,7 +60,6 @@ Ship* TaskForce::getFlagship() const {
 	if (isEmpty()) {
 		assert(false);	
 	}
-	assert(!isEmpty());	
 	return shipList[0];	
 }
 
@@ -86,6 +84,17 @@ string TaskForce::getTypeDesc() const {
 	string desc = "Task Force (";
 	for (unsigned i = 0; i < shipList.size(); i++) {
 		desc += (i ? ", " : "") + shipList[i]->getTypeDesc();
+	}
+	desc += ")";
+	return desc;
+}
+
+// Get a description with ship names
+string TaskForce::getNameDesc() const {
+	assert(!isEmpty());	
+	string desc = getName() + " (";
+	for (unsigned i = 0; i < shipList.size(); i++) {
+		desc += (i ? ", " : "") + shipList[i]->getName();
 	}
 	desc += ")";
 	return desc;
