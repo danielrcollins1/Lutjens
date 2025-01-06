@@ -50,9 +50,9 @@ class GameDirector
 		bool searchBritishShips(const GridCoordinate& zone);
 		void checkShadow(NavalUnit& target, 
 			const GridCoordinate& knownPos, Phase phase);
-		void checkAttackBy(Ship& attacker);
-		void checkAttackOn(Ship& target, Phase phase);
-		void resolveCombat(Ship& ship);
+		void checkAttackBy(NavalUnit& attacker);
+		void checkAttackOn(NavalUnit& target, Phase phase);
+		void resolveCombat(NavalUnit& unit);
 		void msgSunkConvoy();
 		bool wasConvoySunk(unsigned daysAgo) const;
 		int getConvoysSunk() const;

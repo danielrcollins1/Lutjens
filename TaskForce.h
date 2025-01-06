@@ -48,6 +48,7 @@ class TaskForce: public NavalUnit
 		int getAttackEvasion() const override;
 
 		// Status checks
+		bool isAfloat() const override;
 		bool isInDay() const override;
 		bool isInNight() const override;
 		bool isInFog() const override;

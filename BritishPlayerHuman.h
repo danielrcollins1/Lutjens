@@ -22,13 +22,17 @@ class BritishPlayerHuman: public BritishPlayerInterface
 		bool tryShadow(const NavalUnit& target, 
 			const GridCoordinate& knownPos, 
 			GameDirector::Phase phase) override;
-		bool tryAttack(const Ship& target, 
+		bool tryAttack(const NavalUnit& target, 
 			GameDirector::Phase phase) override;
+		bool tryDefend(const NavalUnit& target) override;
+		void promptAttack() override;
 		
 		// Resolve attempts
 		void resolveSearch() override;
-		void resolveShadow(const NavalUnit& target, bool& heldContact) override;
-		void resolveAttack(int& midshipsLost, int& evasionLost) override;
+		void resolveShadow(const NavalUnit& target, 
+			bool& heldContact) override;
+		void resolveAttack(Ship& ship, 
+			int& midshipsLost, int& evasionLost) override;
 		
 		// Response to enemy request
 		bool checkSearch(const GridCoordinate& zone);

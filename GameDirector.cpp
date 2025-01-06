@@ -70,7 +70,7 @@ void GameDirector::logStartTime() {
 // Is the game over? (Rule 12.1)
 bool GameDirector::isGameOver() const {
 	auto apexShip = germanPlayer->getApexShip();
-	return apexShip.isSunk()           // Rule 12.11
+	return !apexShip.isAfloat()        // Rule 12.11
 		|| apexShip.isEnteringPort()   // Rule 12.12
 		|| turn > finishTurn;          // Rule 12.14
 }
@@ -324,8 +324,8 @@ void GameDirector::doNavalCombatPhase() {
 	}
 }
 
-// Check if the British player attacks this ship
-void GameDirector::checkAttackOn(Ship& target, Phase phase) 
+// Check if the British player attacks this German unit
+void GameDirector::checkAttackOn(NavalUnit& target, Phase phase) 
 {
 	assert(phase == AIR_ATTACK || phase == NAVAL_COMBAT);
 	if (britishPlayer->tryAttack(target, phase)) {
@@ -338,28 +338,34 @@ void GameDirector::checkAttackOn(Ship& target, Phase phase)
 	}
 }
 
-// Check if this ship attacks a British ship
-void GameDirector::checkAttackBy(Ship& attacker) {
-	cgame << attacker.getFullDesc() 
-		<< " attacks solo cruiser in " << attacker.getPosition() << "\n";
-	attacker.setCombated();
-	resolveCombat(attacker);
+// Check if this German unit attacks a British ship
+void GameDirector::checkAttackBy(NavalUnit& attacker) {
+	if (britishPlayer->tryDefend(attacker)) {
+		cgame << "Ship in " << attacker.getPosition() 
+			<< " attacked by " << attacker.getFullDesc() << "\n";
+		attacker.setCombated();
+		resolveCombat(attacker);
+	}
 }
 
-// Get combat resolution with this German shop
+// Get combat resolution with this German unit
 //   Note evasion loss only happens in conjunction
 //   with midships loss, per Battle Board tables
-void GameDirector::resolveCombat(Ship& ship) {
-	int midshipsLost, evasionLost;
-	britishPlayer->resolveAttack(midshipsLost, evasionLost);
-	if (midshipsLost > 0) {
-		cgame << ship.getName() << " takes "
-			<< midshipsLost << " midships and " 
-			<< evasionLost << " evasion damage.\n";
-		ship.loseMidships(midshipsLost);
-		ship.loseEvasion(evasionLost);
-		if (ship.isSunk()) {
-			cgame << ship.getName() << " is sunk!\n";	
+void GameDirector::resolveCombat(NavalUnit& unit) {
+	britishPlayer->promptAttack();
+	for (int i = 0; i < unit.getSize(); i++) {
+		auto ship = unit.getShip(i);
+		int midshipsLost, evasionLost;
+		britishPlayer->resolveAttack(*ship, midshipsLost, evasionLost);
+		ship->loseMidships(midshipsLost);
+		ship->loseEvasion(evasionLost);
+		if (midshipsLost > 0) {
+			cgame << ship->getName() << " takes "
+				<< midshipsLost << " midships and " 
+				<< evasionLost << " evasion damage.\n";
+		}
+		if (!ship->isAfloat()) {
+			cgame << ship->getName() << " is sunk!\n";	
 		}
 	}
 }

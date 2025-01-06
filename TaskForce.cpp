@@ -160,6 +160,16 @@ int TaskForce::getAttackEvasion() const {
 	return highest;
 }
 
+// Are any ships afloat?
+bool TaskForce::isAfloat() const {
+	for (auto& ship: shipList) {
+		if (ship->isAfloat()) {
+			return true;
+		}
+	}
+	return false;
+}
+
 // Are we in day?
 bool TaskForce::isInDay() const {
 	return getFlagship()->isInDay();	

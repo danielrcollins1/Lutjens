@@ -26,14 +26,18 @@ class BritishPlayerInterface
 		virtual bool tryShadow(const NavalUnit& target, 
 			const GridCoordinate& knownPos, 
 			GameDirector::Phase phase) = 0;
-		virtual bool tryAttack(const Ship& target, 
+		virtual bool tryAttack(const NavalUnit& target, 
 			GameDirector::Phase phase) = 0;
+		virtual bool tryDefend(const NavalUnit& target) = 0;
+		virtual void promptAttack() = 0;
 		
 		// Resolve attempts
 		virtual void resolveSearch() = 0;
-		virtual void resolveShadow(const NavalUnit& target, bool& heldContact) 
-			= 0;
-		virtual void resolveAttack(int& midshipsLost, int& evasionLost) = 0;
+		virtual void resolveShadow(const NavalUnit& target, 
+			bool& heldContact) = 0;
+		virtual void resolveAttack(Ship& ship, 
+			int& midshipsLost, 
+			int& evasionLost) = 0;
 
 		// Response to enemy request
 		virtual bool checkSearch(const GridCoordinate& zone) = 0;

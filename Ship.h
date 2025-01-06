@@ -39,7 +39,6 @@ class Ship: public NavalUnit
 		int getFuel() const;
 		int getMidships() const;
 		int getTimesDetected() const;
-		bool isSunk() const;
 
 		// Mutator functions
 		void doAvailability();
@@ -87,6 +86,7 @@ class Ship: public NavalUnit
 		int getAttackEvasion() const override;
 
 		// Status checks
+		bool isAfloat() const override;
 		bool isInDay() const override;
 		bool isInNight() const override;
 		bool isInFog() const override;

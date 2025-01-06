@@ -92,7 +92,7 @@ void GermanPlayer::orderUnitsForTurn() {
 	// Add solo ships
 	for (auto& ship: shipList) {
 		if (!ship.isInTaskForce()
-			&& !ship.isSunk())
+			&& ship.isAfloat())
 		{
 			navalUnitList.push_back(&ship);
 		}
@@ -113,7 +113,7 @@ void GermanPlayer::checkToCombineShips() {
 				if (ship.getPosition() == killShip.getPosition()
 					&& ship.getMaxSpeedClass() >= 3
 					&& !ship.isInTaskForce()
-					&& !ship.isSunk())
+					&& ship.isAfloat())
 				{
 					shipsToJoin.push_back(&ship);
 				}
@@ -136,7 +136,7 @@ void GermanPlayer::checkToCombineShips() {
 void GermanPlayer::cleanTaskForce(TaskForce& taffy) {
 	for (int i = taffy.getSize() - 1; i >= 0; i--) {
 		Ship* ship = taffy.getShip(i);
-		if (ship->isSunk()
+		if (!ship->isAfloat()
 			|| ship->getFuel() < 2
 			|| ship->getMaxSpeedClass() < 3)
 		{
@@ -187,7 +187,9 @@ void GermanPlayer::doShipMovementPhase() {
 	
 	// Log all ship statuses
 	for (auto& ship: shipList) {
-		clog << ship << endl;	
+		if (ship.isAfloat()) {
+			clog << ship << endl;
+		}
 	}
 }
 
@@ -219,11 +221,11 @@ bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 // Do air attack phase
 void GermanPlayer::doAirAttackPhase() {
 	auto game = GameDirector::instance();
-	for (auto& ship: shipList) {
-		if (ship.wasLocated(0)     // Rule 9.11
-			&& !ship.isInPort())   // Rule 9.13
+	for (auto& unit: navalUnitList) {
+		if (unit->wasLocated(0)     // Rule 9.11
+			&& !unit->isInPort())   // Rule 9.13
 		{
-			game->checkAttackOn(ship, 
+			game->checkAttackOn(*unit, 
 				GameDirector::Phase::AIR_ATTACK);
 		}
 	}
@@ -233,24 +235,24 @@ void GermanPlayer::doAirAttackPhase() {
 void GermanPlayer::doNavalCombatPhase() {
 	auto game = GameDirector::instance();
 
-	// Check for attacks by British on our ships
-	for (auto& ship: shipList) {
-		if (ship.wasLocated(0)     // Rule 9.23
-			&& !ship.isInPort())   // Rule 12.7
+	// Check for attacks by British on our units
+	for (auto& unit: navalUnitList) {
+		if (unit->wasLocated(0)     // Rule 9.23
+			&& !unit->isInPort())   // Rule 12.7
 		{		
-			game->checkAttackOn(ship, 
+			game->checkAttackOn(*unit, 
 				GameDirector::Phase::NAVAL_COMBAT);
 		}
 	}
 	
 	// Check for attacks we can make on British ships
 	for (auto& zone: foundShipZones) {
-		for (auto& ship: shipList) {
-			if (ship.getPosition() == zone
-				&& !ship.wasCombated(0)
-				&& !ship.isSunk())
+		for (auto& unit: navalUnitList) {
+			if (unit->getPosition() == zone
+				&& unit->isAfloat()
+				&& !unit->wasCombated(0))
 			{
-				game->checkAttackBy(ship);
+				game->checkAttackBy(*unit);
 			}
 		}
 	}

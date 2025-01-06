@@ -343,9 +343,9 @@ bool Ship::movedThrough(const GridCoordinate& zone) const {
 	return hasElem(log.back().moves, zone);
 }
 
-// Are we sunk?
-bool Ship::isSunk() const {
-	return getMidships() <= 0;	
+// Are we afloat?
+bool Ship::isAfloat() const {
+	return getMidships() > 0;	
 }
 
 // Are we in the day?

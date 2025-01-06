@@ -38,7 +38,7 @@ bool BritishPlayerHuman::tryShadow(const NavalUnit& target,
 
 // Ask if we want to try attacking
 bool BritishPlayerHuman::tryAttack(
-	const Ship& target, GameDirector::Phase phase) 
+	const NavalUnit& target, GameDirector::Phase phase) 
 {
 	assert(phase == GameDirector::Phase::AIR_ATTACK 
 		|| phase == GameDirector::Phase::NAVAL_COMBAT);
@@ -51,6 +51,20 @@ bool BritishPlayerHuman::tryAttack(
 		<< (phase == GameDirector::Phase::AIR_ATTACK ? "air" : "sea") 
 		<< " (y/n)? ";
 	return getUserYes();
+}
+
+// Ask if there is a desired target for Germans to attack
+bool BritishPlayerHuman::tryDefend(const NavalUnit& target) {
+	cout << "In " << target.getPosition() 
+		<< " is there a solo cruiser with evasion no more than " 
+		<< target.getAttackEvasion()
+		<< " (y/n)? ";
+	return getUserYes();
+}
+
+// Prompt for an attak resolution
+void BritishPlayerHuman::promptAttack() {
+	cout << "Resolve attack on the Battle Board.\n";
 }
 
 // Resolve attempt to search
@@ -92,11 +106,11 @@ void BritishPlayerHuman::resolveShadow(
 	heldContact = getUserYes();
 }
 
-// Resolve attempt to attack
-void BritishPlayerHuman::resolveAttack(int& midshipsLost, int& evasionLost) 
+// Resolve attempt to attack on a ship
+void BritishPlayerHuman::resolveAttack(Ship& ship, 
+	int& midshipsLost, int& evasionLost)
 {
-	cout << "Resolve attack on the Battle Board.\n";
-	cout << "Enter midships and evasion damage from table: ";
+	cout << "Enter " << ship.getName() << " midships and evasion damage: ";
 	cin >> midshipsLost >> evasionLost;
 }
 
