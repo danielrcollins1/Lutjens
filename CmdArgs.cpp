@@ -24,7 +24,6 @@ void CmdArgs::printOptions() const {
 		<< "\t-l large series of games\n"
 		<< "\t-f finish on turn number\n"
 		<< "\t-n number of games to run\n"
-		<< "\t-p use Prinz Eugen independently\n"
 		<< "\t-ife use intermediate fuel expenditure (rule 16.0)\n"
 		<< "\t-ifd use intermediate fuel damage (rule 21.0)\n";
 }
@@ -40,7 +39,6 @@ void CmdArgs::parseArgs(int argc, char** argv) {
 				case 'f': lastTurn = parseArgAsInt(arg); break;
 				case 'n': numTrials = parseArgAsInt(arg); break;
 				case 'i': parseIntermediateRule(arg); break;
-				case 'p': runPrinzEugen = true; break;
 				default: setExitAfterArgs(); break;
 			}
 		}
