@@ -172,7 +172,7 @@ void Ship::setEvasionLossRate() {
 
 // Try to repair evasion following movement (Rule 9.728)
 void Ship::tryEvasionRepair() {
-	if (evasionLostTemp && getSpeed() <= 1) {
+	if (evasionLostTemp && getSpeedThisTurn() <= 1) {
 		int repair = dieRoll(6) * 2 - 4;
 		repair = max(0, repair);
 		repair = min(repair, evasionLostTemp);
@@ -429,7 +429,7 @@ bool Ship::wasConvoySunk(unsigned turnsAgo) const {
 }
 
 // How far did we move on the search board this turn?
-int Ship::getSpeed() const {
+int Ship::getSpeedThisTurn() const {
 	return log.back().moves.size();
 }
 

@@ -48,7 +48,7 @@ class GameDirector
 		bool isSearchable(const GridCoordinate& zone, int strength) const;
 		bool searchGermanShips(const GridCoordinate& zone);
 		bool searchBritishShips(const GridCoordinate& zone);
-		void checkShadow(Ship& target, 
+		void checkShadow(NavalUnit& target, 
 			const GridCoordinate& knownPos, Phase phase);
 		void checkAttackBy(Ship& attacker);
 		void checkAttackOn(Ship& target, Phase phase);

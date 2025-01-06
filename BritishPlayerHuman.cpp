@@ -23,7 +23,7 @@ bool BritishPlayerHuman::trySearch() {
 }
 
 // Ask if we want to try shadowing
-bool BritishPlayerHuman::tryShadow(const Ship& target, 
+bool BritishPlayerHuman::tryShadow(const NavalUnit& target, 
 	const GridCoordinate& knownPos, GameDirector::Phase phase)
 {
 	assert(phase == GameDirector::Phase::SHADOW 
@@ -80,10 +80,11 @@ void BritishPlayerHuman::resolveSearch() {
 }
 
 // Resolve attempt to shadow
-void BritishPlayerHuman::resolveShadow(const Ship& target, bool& heldContact) 
+void BritishPlayerHuman::resolveShadow(
+	const NavalUnit& target, bool& heldContact) 
 {
 	string targetID = target.getTypeDesc();	
-	if (target.getSpeed() > 1) {
+	if (target.getSpeedThisTurn() > 1) {
 		cout << targetID << " moves at high speed (apply +1).\n";
 	}
 	cout << "Resolve attempt on the Shadow Table.\n";

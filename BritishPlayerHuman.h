@@ -19,7 +19,7 @@ class BritishPlayerHuman: public BritishPlayerInterface
 
 		// Request intentions		
 		bool trySearch() override;
-		bool tryShadow(const Ship& target, 
+		bool tryShadow(const NavalUnit& target, 
 			const GridCoordinate& knownPos, 
 			GameDirector::Phase phase) override;
 		bool tryAttack(const Ship& target, 
@@ -27,7 +27,7 @@ class BritishPlayerHuman: public BritishPlayerInterface
 		
 		// Resolve attempts
 		void resolveSearch() override;
-		void resolveShadow(const Ship& target, bool& heldContact) override;
+		void resolveShadow(const NavalUnit& target, bool& heldContact) override;
 		void resolveAttack(int& midshipsLost, int& evasionLost) override;
 		
 		// Response to enemy request

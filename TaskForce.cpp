@@ -117,6 +117,11 @@ GridCoordinate TaskForce::getPosition() const {
 	return getFlagship()->getPosition();
 }
 
+// How far did we move on the search board this turn?
+int TaskForce::getSpeedThisTurn() const {
+	return getFlagship()->getSpeedThisTurn();
+}
+
 // Get the max speed class on the search board
 int TaskForce::getMaxSpeedClass() const {
 	int lowest = INT_MAX;

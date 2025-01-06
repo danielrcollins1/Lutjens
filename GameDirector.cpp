@@ -282,8 +282,8 @@ void GameDirector::doEndGame() {
 	germanPlayer->printAllShips();
 }
 
-// Check for British shadowing a ship (Rule 8.0)
-void GameDirector::checkShadow(Ship& target,
+// Check for British shadowing a unit (Rule 8.0)
+void GameDirector::checkShadow(NavalUnit& target,
 	const GridCoordinate& knownPos, Phase phase) 
 {
 	assert(phase == SHADOW || phase == SEARCH);

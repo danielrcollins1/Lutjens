@@ -38,7 +38,6 @@ class Ship: public NavalUnit
 		std::string getGeneralTypeName() const;
 		int getFuel() const;
 		int getMidships() const;
-		int getSpeed() const;
 		int getTimesDetected() const;
 		bool isSunk() const;
 
@@ -83,6 +82,7 @@ class Ship: public NavalUnit
 		GridCoordinate getPosition() const override;
 		int getSize() const override;
 		int getMaxSpeedClass() const override;
+		int getSpeedThisTurn() const override;
 		int getEvasion() const override;
 		int getAttackEvasion() const override;
 

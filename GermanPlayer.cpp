@@ -166,10 +166,10 @@ TaskForce* GermanPlayer::getTaskForceById(int id) {
 
 // Do shadow phase
 void GermanPlayer::doShadowPhase() {
-	for (auto& ship: shipList) {
-		if (ship.wasLocated(1)) {
+	for (auto& unit: navalUnitList) {
+		if (unit->wasLocated(1)) {
 			GameDirector::instance()
-				->checkShadow(ship, ship.getPosition(), 
+				->checkShadow(*unit, unit->getPosition(), 
 					GameDirector::Phase::SHADOW);
 		}
 	}
