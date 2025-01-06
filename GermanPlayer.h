@@ -14,7 +14,6 @@ class GermanPlayer
 {
 	public:
 		GermanPlayer();
-		const Ship& getFlagship() const;
 		void doAvailabilityPhase();
 		void doVisibilityPhase();
 		void doShadowPhase();
@@ -28,6 +27,7 @@ class GermanPlayer
 		void printAllShips() const;
 		void getOrders(Ship& ship);
 		int getTimesFlagshipDetected() const;
+		const Ship& getApexShip() const;
 
 	private:
 		// Enumeration
@@ -35,7 +35,7 @@ class GermanPlayer
 			DENMARK_STRAIT, WEST_ATLANTIC, EAST_ATLANTIC, AZORES, OFF_MAP};
 
 		// Data
-		Ship* flagship;
+		Ship* apexShip;
 		std::vector<Ship> shipList;
 		std::vector<TaskForce> taskForceList;
 		std::vector<NavalUnit*> navalUnitList;

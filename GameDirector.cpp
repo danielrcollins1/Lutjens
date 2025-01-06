@@ -69,9 +69,9 @@ void GameDirector::logStartTime() {
 
 // Is the game over? (Rule 12.1)
 bool GameDirector::isGameOver() const {
-	auto flagship = germanPlayer->getFlagship();
-	return flagship.isSunk()           // Rule 12.11
-		|| flagship.isEnteringPort()   // Rule 12.12
+	auto apexShip = germanPlayer->getApexShip();
+	return apexShip.isSunk()           // Rule 12.11
+		|| apexShip.isEnteringPort()   // Rule 12.12
 		|| turn > finishTurn;          // Rule 12.14
 }
 

@@ -17,7 +17,7 @@ GermanPlayer::GermanPlayer() {
 		Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this)
 	};
 	shipList = shipRoster;
-	flagship = &shipList[0];
+	apexShip = &shipList[0];
 	
 	// Construct task force
 	taskForceList.reserve(8);
@@ -27,10 +27,10 @@ GermanPlayer::GermanPlayer() {
 	}
 }
 
-// Get flagship for read-only
-const Ship& GermanPlayer::getFlagship() const {
-	assert(flagship != nullptr);
-	return *flagship;
+// Get apex ship (Bismarck) for special basic rules
+const Ship& GermanPlayer::getApexShip() const {
+	assert(apexShip != nullptr);
+	return *apexShip;
 }
 
 // Do unit availability phase
@@ -361,7 +361,7 @@ void GermanPlayer::printAllShips() const {
 
 // How many times was our flagship detected?
 int GermanPlayer::getTimesFlagshipDetected() const {
-	return flagship->getTimesDetected();
+	return apexShip->getTimesDetected();
 }
 
 // Do we want to search now?
