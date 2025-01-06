@@ -2,6 +2,7 @@
 #include "GameDirector.h"
 #include "SearchBoard.h"
 #include "GameStream.h"
+#include "TaskForce.h"
 #include "CmdArgs.h"
 #include "Utils.h"
 #include <cassert>
@@ -9,19 +10,28 @@ using namespace std;
 
 // Constructor
 GermanPlayer::GermanPlayer() {
-	Ship shipRoster[] = {
+
+	// Construct ships
+	std::vector<Ship> shipRoster = {
 		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this),
 		Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this)
 	};
-	int numToUse = CmdArgs::instance()->isRunPrinzEugen() ? 2 : 1;
-	shipList.insert(shipList.end(), &shipRoster[0], &shipRoster[numToUse]);
-	flagship = &shipList[0];
+	shipList = shipRoster;
+	apexShip = &shipList[0];
+	
+	// Construct task force
+	taskForceList.reserve(8);
+	taskForceList.push_back(TaskForce(1));
+	auto taffy1 = &taskForceList.back();
+	for (auto& ship: shipList) {
+		taffy1->attach(&ship);
+	}
 }
 
-// Get flagship for read-only
-const Ship& GermanPlayer::getFlagship() const {
-	assert(flagship != nullptr);
-	return *flagship;
+// Get apex ship (Bismarck) for special basic rules
+const Ship& GermanPlayer::getApexShip() const {
+	assert(apexShip != nullptr);
+	return *apexShip;
 }
 
 // Do unit availability phase
@@ -32,56 +42,176 @@ void GermanPlayer::doAvailabilityPhase() {
 	}
 }
 
+// Do visibility phase
+void GermanPlayer::doVisibilityPhase() {
+	orderUnitsForTurn();	
+}
+
+// Organize task forces & list ordered units for turn
+void GermanPlayer::orderUnitsForTurn() {
+	navalUnitList.clear();
+
+	// Check to combine ships
+	checkToCombineShips();
+
+	// Clean up task forces
+	for (auto& taffy: taskForceList) {
+		cleanTaskForce(taffy);
+		if (!taffy.isEmpty()) {
+
+			// End solo task force
+			if (taffy.getSize() == 1) {
+				taffy.dissolve();
+			}
+
+			// Breakup after breakout
+			else if (taffy.isOnPatrol()
+				&& !taffy.wasConvoySunk(1))
+			{
+				for (int i = 1; i < taffy.getSize(); i++) {
+					taffy.getShip(i)->orderAction(Ship::PATROL);	
+				}
+				taffy.dissolve();
+			}
+		}
+
+		// At this point if it's empty, delete it
+		if (taffy.isEmpty()) {
+			taskForceList.erase(
+				find(taskForceList.begin(), taskForceList.end(), taffy));
+		}
+	}
+
+	// Add active task forces
+	for (auto& taffy: taskForceList) {
+		if (!taffy.isEmpty()) {
+			navalUnitList.push_back(&taffy);
+		}
+	}
+
+	// Add solo ships
+	for (auto& ship: shipList) {
+		if (!ship.isInTaskForce()
+			&& ship.isAfloat())
+		{
+			navalUnitList.push_back(&ship);
+		}
+	}
+}
+
+// Check to combine ships into task force after convoy sinking
+void GermanPlayer::checkToCombineShips() {
+
+	// Find if any ship sank a convoy
+	for (auto& killShip: shipList) {
+		if (!killShip.isInTaskForce()
+			&& killShip.wasConvoySunk(1)) 
+		{
+			// Gather up ships in zone
+			vector<Ship*> shipsToJoin;
+			for (auto& ship: shipList) {
+				if (ship.getPosition() == killShip.getPosition()
+					&& ship.getMaxSpeedClass() >= 3
+					&& !ship.isInTaskForce()
+					&& ship.isAfloat())
+				{
+					shipsToJoin.push_back(&ship);
+				}
+			}
+			
+			// Make a task force
+			int newId = getNextTaskForceId();
+			taskForceList.push_back(TaskForce(newId));
+			TaskForce* taffy = &taskForceList.back();
+			for (auto& ship: shipsToJoin) {
+				ship->clearOrders();			
+				taffy->attach(ship);
+			}
+		}
+	}
+}
+
+// Clean task force as needed
+//   Sweep out sunk, slow, low-fuel ships
+void GermanPlayer::cleanTaskForce(TaskForce& taffy) {
+	for (int i = taffy.getSize() - 1; i >= 0; i--) {
+		Ship* ship = taffy.getShip(i);
+		if (!ship->isAfloat()
+			|| ship->getFuel() < 2
+			|| ship->getMaxSpeedClass() < 3)
+		{
+			taffy.detach(ship);
+		}
+	}
+}
+
+// Get the number to use for the next convoy
+int GermanPlayer::getNextTaskForceId() {
+	int number = 1;
+	while (getTaskForceById(number)) {
+		number++;	
+	}
+	return number;
+}
+
+// Get a task force by ID number
+TaskForce* GermanPlayer::getTaskForceById(int id) {
+	for (auto& taffy: taskForceList) {
+		if (taffy.getId() == id) {
+			return &taffy;
+		}
+	}
+	return nullptr;	
+}
+
 // Do shadow phase
 void GermanPlayer::doShadowPhase() {
-	for (auto& ship: shipList) {
-		if (ship.wasLocated(1)) {
+	for (auto& unit: navalUnitList) {
+		if (unit->wasLocated(1)) {
 			GameDirector::instance()
-				->checkShadow(ship, ship.getPosition(), 
+				->checkShadow(*unit, unit->getPosition(), 
 					GameDirector::Phase::SHADOW);
 		}
 	}
 }
 
-// Do sea movement phase
-void GermanPlayer::doSeaMovementPhase() {
-	auto game = GameDirector::instance();
+// Do ship movement phase
+void GermanPlayer::doShipMovementPhase() {
 
-	// Do movement
-	for (auto& ship: shipList) {
-		if (!ship.isSunk()
-			&& !ship.wasShadowed(0))
-		{
-			!game->getTurnsElapsed() ?
-				ship.doBreakoutBonusMove() : ship.doMovement();
+	// Move task forces & solo ships
+	for (auto& unit: navalUnitList) {
+		if (!unit->wasShadowed(0)) {
+			unit->doMovementTurn();	
 		}
 	}
 	
-	// Log statuses
+	// Log all ship statuses
 	for (auto& ship: shipList) {
-		clog << ship << endl;	
+		if (ship.isAfloat()) {
+			clog << ship << endl;
+		}
 	}
 }
 
 // Check for search by British player
 bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 	bool anyFound = false;
-	auto director = GameDirector::instance();
-	for (auto& ship: shipList) {
- 		if (ship.getPosition() == zone) 
+	auto game = GameDirector::instance();
+	for (auto& unit: navalUnitList) {
+ 		if (unit->getPosition() == zone) 
 		{
-			cgame << ship.getTypeName() 
+			cgame << unit->getTypeDesc() 
 				<< " found in " << zone << endl;
-			ship.setLocated();
+			unit->setLocated();
 			anyFound = true;
 		}
-		else if (ship.movedThrough(zone)
-			&& director->isPassThroughSearchOn())
+		else if (unit->movedThrough(zone)
+			&& !game->isFirstTurn())
 		{
-			cgame << ship.getTypeAndEvasion()
+			cgame << unit->getTypeDesc()
 				<< " seen moving through " << zone << endl;
-			director->checkShadow(ship, zone, 
-				GameDirector::Phase::SEARCH);
+//			game->checkShadow(ship, zone, 
+//				GameDirector::Phase::SEARCH);
 			anyFound = true;
 		}
 	}
@@ -91,11 +221,11 @@ bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 // Do air attack phase
 void GermanPlayer::doAirAttackPhase() {
 	auto game = GameDirector::instance();
-	for (auto& ship: shipList) {
-		if (ship.wasLocated(0)     // Rule 9.11
-			&& !ship.isInPort())   // Rule 9.13
+	for (auto& unit: navalUnitList) {
+		if (unit->wasLocated(0)     // Rule 9.11
+			&& !unit->isInPort())   // Rule 9.13
 		{
-			game->checkAttackOn(ship, 
+			game->checkAttackOn(*unit, 
 				GameDirector::Phase::AIR_ATTACK);
 		}
 	}
@@ -105,24 +235,24 @@ void GermanPlayer::doAirAttackPhase() {
 void GermanPlayer::doNavalCombatPhase() {
 	auto game = GameDirector::instance();
 
-	// Check for attacks by British on our ships
-	for (auto& ship: shipList) {
-		if (ship.wasLocated(0)     // Rule 9.23
-			&& !ship.isInPort())   // Rule 12.7
+	// Check for attacks by British on our units
+	for (auto& unit: navalUnitList) {
+		if (unit->wasLocated(0)     // Rule 9.23
+			&& !unit->isInPort())   // Rule 12.7
 		{		
-			game->checkAttackOn(ship, 
+			game->checkAttackOn(*unit, 
 				GameDirector::Phase::NAVAL_COMBAT);
 		}
 	}
 	
 	// Check for attacks we can make on British ships
-	for (auto zone: foundShipZones) {
-		for (auto& ship: shipList) {
-			if (ship.getPosition() == zone
-				&& !ship.wasCombated(0)
-				&& !ship.isSunk())
+	for (auto& zone: foundShipZones) {
+		for (auto& unit: navalUnitList) {
+			if (unit->getPosition() == zone
+				&& unit->isAfloat()
+				&& !unit->wasCombated(0))
 			{
-				game->checkAttackBy(ship);
+				game->checkAttackBy(*unit);
 			}
 		}
 	}
@@ -133,17 +263,17 @@ void GermanPlayer::doNavalCombatPhase() {
 //   While RAW says British player makes this roll (Rule 10.1),
 //   it makes more sense for us with knowledge of ships on board.
 void GermanPlayer::doChancePhase() {
-	for (auto& ship: shipList) {
+	for (auto& unit: navalUnitList) {
 		int roll = diceRoll(2, 6);
 		
 		// Huff-duff result
 		if (roll == 2) {
-			callHuffDuff(ship);
+			callHuffDuff(unit);
 		}
 	
 		// General Search results
 		else if (roll <= 9) {
-			checkGeneralSearch(ship, roll);
+			checkGeneralSearch(unit, roll);
 		}
 		
 		// Convoy results
@@ -152,7 +282,7 @@ void GermanPlayer::doChancePhase() {
 			if (!game->wasConvoySunk(0)      // Rule 10.26
 				&& !game->isVisibilityX())   // Errata in General 16/2
 			{			
-				checkConvoyResult(ship, roll);
+				checkConvoyResult(unit, roll);
 			}
 		}
 		
@@ -164,11 +294,11 @@ void GermanPlayer::doChancePhase() {
 }
 
 // Call result of British HUFF-DUFF detection
-void GermanPlayer::callHuffDuff(Ship& ship) {
-	ship.noteDetected();
+void GermanPlayer::callHuffDuff(NavalUnit* unit) {
+	unit->setDetected();
 	cgame << "HUFF-DUFF: German ship near "
 		<< SearchBoard::instance()
-			->randSeaZone(ship.getPosition(), 1)
+			->randSeaZone(unit->getPosition(), 1)
 		<< endl;
 }
 
@@ -188,15 +318,15 @@ const int GS_VALUES[GS_ROWS][GS_COLS] = {
 
 // Check a general search result
 //   See Basic Game Tables Card: Chance Table
-void GermanPlayer::checkGeneralSearch(Ship& ship, int roll) {
+void GermanPlayer::checkGeneralSearch(NavalUnit* unit, int roll) {
 	assert(3 <= roll && roll <= 9);
-	auto pos = ship.getPosition();
+	auto pos = unit->getPosition();
 	auto board = SearchBoard::instance();
 	
 	// Check if general search possible
-	if (board->isInsidePatrolLine(pos)    // Rule 10.211
-		&& !ship.isInFog()                // Rule 10.213
-		&& !ship.isInNight())             // Rule 11.13
+	if (board->isInsidePatrolLine(pos)     // Rule 10.211
+		&& !unit->isInFog()                // Rule 10.213
+		&& !unit->isInNight())             // Rule 11.13
 	{
 		// Look up search strength
 		char colLetter = getGeneralSearchColumn(pos);
@@ -207,9 +337,9 @@ void GermanPlayer::checkGeneralSearch(Ship& ship, int roll) {
 		// Announce result
 		int visibility = GameDirector::instance()->getVisibility();
 		if (visibility <= searchStrength) {
-			ship.noteDetected();
-			cgame << "General Search: " << ship.getName() 
-				<< " found in " << pos << endl;
+			unit->setDetected();
+			cgame << "General Search found " 
+				 << unit->getNameDesc() << " in " << pos << "\n";
 		}
 	}
 }
@@ -236,29 +366,29 @@ char GermanPlayer::getGeneralSearchColumn(const GridCoordinate& zone) {
 }
 
 // Resolve a convoy result from the Chance Table
-void GermanPlayer::checkConvoyResult(Ship& ship, int roll) {
+void GermanPlayer::checkConvoyResult(NavalUnit* unit, int roll) {
 	assert(10 <= roll && roll <= 12);
 	auto board = SearchBoard::instance();
-	auto pos = ship.getPosition();
-	if (!ship.wasLocated(0)     // Rule 10.231
-		&& !ship.isInNight())   // Rule 11.13
+	auto pos = unit->getPosition();
+	if (!unit->wasLocated(0)     // Rule 10.231
+		&& !unit->isInNight())   // Rule 11.13
 	{
 		switch (roll) {
 	
 			// On convoy route
 			case 10:
 				if (board->isConvoyRoute(pos)) {
-					destroyConvoy(ship);				
+					destroyConvoy(unit);				
 				}
 				break;
 	
 			// On patrol and within two
 			case 11:
-				if (ship.isOnPatrol()
+				if (unit->isOnPatrol()
 					&& board->isNearZoneType(pos, 2, 
 						&SearchBoard::isConvoyRoute))
 				{
-					destroyConvoy(ship);				
+					destroyConvoy(unit);				
 				}
 				break;
 				
@@ -267,7 +397,7 @@ void GermanPlayer::checkConvoyResult(Ship& ship, int roll) {
 				if (board->isNearZoneType(pos, 1, 
 					&SearchBoard::isConvoyRoute))
 				{
-					destroyConvoy(ship);
+					destroyConvoy(unit);
 				}
 				break;
 		}
@@ -276,15 +406,13 @@ void GermanPlayer::checkConvoyResult(Ship& ship, int roll) {
 
 // Score destruction of a convoy
 //   And re-route to new destination
-void GermanPlayer::destroyConvoy(Ship& ship) {
+void GermanPlayer::destroyConvoy(NavalUnit* unit) {
 	cgame << "CONVOY SUNK:"
-		<< " In zone " << ship.getPosition()
-		<< " by " << ship.getName() << endl;
+		<< " In zone " << unit->getPosition()
+		<< " by " << unit->getNameDesc() << endl;
 	GameDirector::instance()->msgSunkConvoy();
-	ship.setLoseMoveTurn();   // Rule 10.25
-	if (!ship.isReturnToBase()) {
-		ship.clearOrders();
-	}
+	unit->setConvoySunk();
+	unit->setLoseMoveTurn();   // Rule 10.25
 }
 
 // Print all of our ships (e.g., for end game)
@@ -295,8 +423,8 @@ void GermanPlayer::printAllShips() const {
 }
 
 // How many times was our flagship detected?
-int GermanPlayer::getTimesFlagshipDetected() const {
-	return flagship->getTimesDetected();
+int GermanPlayer::getTimesApexShipDetected() const {
+	return apexShip->getTimesDetected();
 }
 
 // Do we want to search now?
@@ -392,7 +520,8 @@ void GermanPlayer::getOrders(Ship& ship) {
 
 	// Check other reasons for new goal
 	if (!ship.hasOrders() 
-		|| ship.getFirstOrder() == Ship::STOP)
+		|| ship.getFirstOrder() == Ship::STOP
+		|| ship.wasConvoySunk(1))
 	{
 		ship.clearOrders();
 		needsNewGoal = true;
@@ -418,7 +547,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	}
 
 	// At game start, choose breakout bonus move
-	if (!game->getTurnsElapsed()) {
+	if (game->isFirstTurn()) {
 		char row = dieRoll(100) <= 85 ? 
 			'A' + rand(4): 'E' + rand(2);
 		int col = dieRoll(100) <= 50 ?
@@ -429,7 +558,6 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		} 
 		else {
 			ship.orderMove(GridCoordinate(row, col));
-			ship.orderAction(Ship::STOP);
 		}
 	}
 
@@ -654,7 +782,7 @@ GridCoordinate GermanPlayer::findNearestPort(const Ship& ship) const {
 	int minDistance = INT_MAX;
 	auto nearestPort = GridCoordinate::NO_ZONE;
 	auto portList = SearchBoard::instance()->getAllGermanPorts();
-	for (auto port: portList) {
+	for (auto& port: portList) {
 		int distance = port.distanceFrom(ship.getPosition());
 		if (distance < minDistance) {
 			nearestPort = port;

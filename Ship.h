@@ -8,20 +8,22 @@
 #ifndef SHIP_H
 #define SHIP_H
 #include "GridCoordinate.h"
+#include "NavalUnit.h"
 #include <vector>
 #include <queue>
 
-// Forward for player
+// Forwards
 class GermanPlayer;
+class TaskForce;
 
 // Ship class
-class Ship
+class Ship: public NavalUnit
 {
 	public:
 		
 		// Enumerations
 		enum Type {BB, BC, PB, CV, CA, CL, DD, CT, SS, UB};
-		enum ClassType {BATTLESHIP, CRUISER, DESTROYER, SUBMARINE};
+		enum GeneralType {BATTLESHIP, CARRIER, CRUISER, DESTROYER, SUBMARINE};
 		enum OrderType {MOVE, PATROL, STOP};
 
 		// Constructor
@@ -30,68 +32,89 @@ class Ship
 			GridCoordinate position = GridCoordinate::NO_ZONE,
 			GermanPlayer* player = nullptr);
 
-		// Descriptors
-		std::string getName() const;
-		std::string getTypeName() const;
-		std::string getTypeAndEvasion() const;
-		std::string getShortDesc() const;
-		std::string getLongDesc() const;
-
 		// Accessors
-		ClassType getClassType() const;
+		Type getType() const;
+		GeneralType getGeneralType() const;
+		std::string getGeneralTypeName() const;
 		int getFuel() const;
-		int getEvasion() const;
 		int getMidships() const;
-		int getSpeed() const;
 		int getTimesDetected() const;
-		GridCoordinate getPosition() const;
-
-		// Status checks		
-		bool isSunk() const;
-		bool isOnPatrol() const;
-		bool isInPort() const;
-		bool isInDay() const;
-		bool isInNight() const;
-		bool isInFog() const;
-		bool isReturnToBase() const;
-		bool isEnteringPort() const;
-		bool wasLocated(unsigned turnsAgo) const;
-		bool wasShadowed(unsigned turnsAgo) const;
-		bool wasCombated(unsigned turnsAgo) const;
 
 		// Mutator functions
 		void doAvailability();
-		void setLocated();
-		void setShadowed();
-		void setInCombat();
-		void setLoseMoveTurn();
 		void setReturnToBase();
 		void loseFuel(int loss);
 		void loseEvasion(int loss);
 		void loseMidships(int loss);
-		void checkEvasionRepair();
-		void noteDetected();
+		void tryEvasionRepair();
 		
 		// Movement functions
-		void doMovement();
-		void doBreakoutBonusMove();
 		void setPosition(const GridCoordinate& zone);
 		bool isAccessible(const GridCoordinate& zone) const;
-		bool movedThrough(const GridCoordinate& zone) const;
 		GridCoordinate randMoveInArea(int radius) const;
 
 		// Plotting functions
 		void orderAction(OrderType type);
 		void orderMove(const GridCoordinate& dest);
+		void clearOrders();
 		bool hasOrders() const;
 		OrderType getFirstOrder() const;
-		void clearOrders();
+		
+		// Task force membership
+		void joinTaskForce(TaskForce* taskForce);
+		void leaveTaskForce();
+		bool isInTaskForce() const;
+		TaskForce* getTaskForce() const;
+		void moveWithShip(Ship& ship);
+
+		//
+		// NavalUnit overrides
+		//
+		
+		// Descriptors
+		std::string getName() const override;
+		std::string getTypeDesc() const override;
+		std::string getNameDesc() const override;
+		std::string getFullDesc() const override;
+		
+		// Accessors
+		GridCoordinate getPosition() const override;
+		int getSize() const override;
+		int getMaxSpeedClass() const override;
+		int getSpeedThisTurn() const override;
+		int getEvasion() const override;
+		int getAttackEvasion() const override;
+
+		// Status checks
+		bool isAfloat() const override;
+		bool isInDay() const override;
+		bool isInNight() const override;
+		bool isInFog() const override;
+		bool isInPort() const override;
+		bool isEnteringPort() const override;
+		bool isReturnToBase() const override;
+		bool isOnPatrol() const override;
+		bool wasLocated(unsigned turnsAgo) const override;
+		bool wasShadowed(unsigned turnsAgo) const override;
+		bool wasCombated(unsigned turnsAgo) const override;
+		bool wasConvoySunk(unsigned turnsAgo) const override;
+		bool movedThrough(const GridCoordinate& zone) const override;
+
+		// Mutators
+		Ship* getShip(int idx) override;
+		void doMovementTurn() override;
+		void setLocated() override;
+		void setShadowed() override;
+		void setCombated() override;
+		void setConvoySunk() override;
+		void setLoseMoveTurn() override;
+		void setDetected() override;
 		
 	private:
 
 		// Type labels
 		static const char* typeAbbr[];
-		static const char* typeName[];
+		static const char* generalTypeName[];
 
 		// Orders structure
 		struct Order {
@@ -103,7 +126,8 @@ class Ship
 		// Logging structure
 		struct LogTurn {
 			std::vector<GridCoordinate> moves;
-			bool shadowed = false, located = false, combated = false;
+			bool shadowed = false, located = false, 
+				combated = false, convoySunk = false;
 		};
 
 		// Data
@@ -119,18 +143,22 @@ class Ship
 		bool returnToBase;
 		GridCoordinate position;
 		GermanPlayer* player;
+		TaskForce* taskForce;
 		std::queue<Order> orders;
 		std::queue<GridCoordinate> route;
 		std::vector<LogTurn> log;
 
 		// Functions
 		LogTurn& logNow();
-		int maxSpeed() const;
+		int getMaxSpeedThisTurn() const;
+		int getEmergencySpeedThisTurn() const;
 		int getFuelExpense(int speed) const;
-		int getEvasionLossRate() const;
+		bool isOnBreakoutBonus() const;
 		void updateOrders();
 		void doMoveOrder();
+		void doPostMoveAccounts();
 		void pushOrder(Order order);
+		void setEvasionLossRate();
 		void applyTempEvasionLoss(int midshipsLoss);
 		void checkFuelDamage(int midshipsLoss);
 		void checkFuelForWeather(int speed);

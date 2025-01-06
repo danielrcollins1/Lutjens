@@ -16,6 +16,16 @@ void BritishPlayerHuman::okEndGame() {
 	cin.get();	
 }
 
+// Prompt for movement turn
+void BritishPlayerHuman::promptMovement() {
+	cout << "Perform all air and ship movement.\n";
+}
+
+// Prompt for an attack resolution
+void BritishPlayerHuman::promptAttack() {
+	cout << "Resolve attack on the Battle Board.\n";
+}
+
 // Ask if we want to try searching
 bool BritishPlayerHuman::trySearch() {
 	cout << "Do you wish to search (y/n)? ";
@@ -23,14 +33,14 @@ bool BritishPlayerHuman::trySearch() {
 }
 
 // Ask if we want to try shadowing
-bool BritishPlayerHuman::tryShadow(const Ship& target, 
+bool BritishPlayerHuman::tryShadow(const NavalUnit& target, 
 	const GridCoordinate& knownPos, GameDirector::Phase phase)
 {
 	assert(phase == GameDirector::Phase::SHADOW 
 		|| phase == GameDirector::Phase::SEARCH);
 	if (phase == GameDirector::Phase::SHADOW) {
-		cout << target.getTypeAndEvasion()
-			<< " was seen in " << knownPos << "\n";
+		cout << target.getTypeDesc() << " was seen in " << knownPos << "\n";
+		cout << "Evasion level is " << target.getEvasion() << "\n";
 	}
 	cout << "Do you wish to shadow (y/n)? ";
 	return getUserYes();
@@ -38,15 +48,26 @@ bool BritishPlayerHuman::tryShadow(const Ship& target,
 
 // Ask if we want to try attacking
 bool BritishPlayerHuman::tryAttack(
-	const Ship& target, GameDirector::Phase phase) 
+	const NavalUnit& target, GameDirector::Phase phase) 
 {
 	assert(phase == GameDirector::Phase::AIR_ATTACK 
 		|| phase == GameDirector::Phase::NAVAL_COMBAT);
-	cout << (phase == GameDirector::Phase::NAVAL_COMBAT ? 
-		target.getTypeAndEvasion(): target.getTypeName())
-		<< 	" is seen in " << target.getPosition() << "\n";
+	cout << target.getTypeDesc() << " is seen in " 
+		<< target.getPosition() << "\n";
+	if (phase == GameDirector::Phase::NAVAL_COMBAT) {
+		cout << "Evasion rating is " << target.getEvasion() << "\n";		
+	}
 	cout << "Do you wish to attack by " 
 		<< (phase == GameDirector::Phase::AIR_ATTACK ? "air" : "sea") 
+		<< " (y/n)? ";
+	return getUserYes();
+}
+
+// Ask if there is a desired target for Germans to attack
+bool BritishPlayerHuman::tryDefend(const NavalUnit& target) {
+	cout << "In " << target.getPosition() 
+		<< " is there a solo cruiser with evasion no more than " 
+		<< target.getAttackEvasion()
 		<< " (y/n)? ";
 	return getUserYes();
 }
@@ -56,6 +77,7 @@ void BritishPlayerHuman::resolveSearch() {
 	const char END_SEARCH = '@';
 	cout << "Enter zones to search "
 		<< "(" <<  END_SEARCH << " to end):\n";
+	auto game = GameDirector::instance();
 	while (true) {
 		cout << "==> ";
 		string input;
@@ -67,21 +89,25 @@ void BritishPlayerHuman::resolveSearch() {
 			cout << "> Invalid grid coordinate.\n";
 			continue;
 		}
-		auto director = GameDirector::instance();
 		GridCoordinate zone(input);
-		if (director->isInFog(zone)) {
+		if (game->isVisibilityX()) {
+			cout << "> Cannot search at visibility X.\n";
+			break;
+		}
+		if (game->isInFog(zone)) {
 			cout << "> Cannot search in fog.\n";
 			continue;
 		}
-		director->searchGermanShips(zone);
+		game->searchGermanShips(zone);
 	}
 }
 
 // Resolve attempt to shadow
-void BritishPlayerHuman::resolveShadow(const Ship& target, bool& heldContact) 
+void BritishPlayerHuman::resolveShadow(
+	const NavalUnit& target, bool& heldContact) 
 {
-	string targetID = target.getTypeName();	
-	if (target.getSpeed() > 1) {
+	string targetID = target.getTypeDesc();	
+	if (target.getSpeedThisTurn() > 1) {
 		cout << targetID << " moves at high speed (apply +1).\n";
 	}
 	cout << "Resolve attempt on the Shadow Table.\n";
@@ -89,11 +115,11 @@ void BritishPlayerHuman::resolveShadow(const Ship& target, bool& heldContact)
 	heldContact = getUserYes();
 }
 
-// Resolve attempt to attack
-void BritishPlayerHuman::resolveAttack(int& midshipsLost, int& evasionLost) 
+// Resolve attempt to attack on a ship
+void BritishPlayerHuman::resolveAttack(Ship& ship, 
+	int& midshipsLost, int& evasionLost)
 {
-	cout << "Resolve attack on the Battle Board.\n";
-	cout << "Enter midships and evasion damage from table: ";
+	cout << "Enter " << ship.getName() << " midships and evasion damage: ";
 	cin >> midshipsLost >> evasionLost;
 }
 

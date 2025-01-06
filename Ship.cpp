@@ -10,7 +10,7 @@ using namespace std;
 
 // Stream insertion operator
 std::ostream& operator<<(std::ostream& stream, const Ship& ship) {
-	stream << ship.getLongDesc();
+	stream << ship.getFullDesc();
 	return stream;
 }
 
@@ -18,11 +18,10 @@ std::ostream& operator<<(std::ostream& stream, const Ship& ship) {
 const char* Ship::typeAbbr[]
 	= {"BB", "BC", "PB", "CV", "CA", "CL", "DD", "CT", "SS", "UB"};
 
-// Ship type full names
-const char* Ship::typeName[]
-	= {"Battleship", "Battlecruiser", "Pocket Battleship", 
-		"Aircraft Carrier", "Heavy Cruiser", "Light Cruiser",
-		"Destroyer", "Contre-Torpilleur", "Submarine", "U-Boat"};
+// Ship class type names
+const char* Ship::generalTypeName[]
+	= {"Battleship", "Aircraft Carrier", "Cruiser", 
+		"Destroyers", "Submarines"};
 
 // Constructor
 //   DriveDefense indicates evasion loss rate (Rule 9.72)
@@ -38,7 +37,6 @@ Ship::Ship(std::string name, Type type,
 	this->fuelMax = fuel;
 	this->player = player;
 	this->position = position;
-	evasionLossRate = getEvasionLossRate();
 	fuelLost = 0;
 	midshipsLost = 0;
 	evasionLostTemp = 0;
@@ -47,6 +45,18 @@ Ship::Ship(std::string name, Type type,
 	onPatrol = false;
 	loseMoveTurn = false;
 	returnToBase = false;
+	taskForce = nullptr;
+	setEvasionLossRate();
+}
+
+// Get our size
+int Ship::getSize() const {
+	return 1;	
+}
+
+// Get our pointer
+Ship* Ship::getShip(int idx) {
+	return this;	
 }
 
 // Get the name
@@ -54,28 +64,18 @@ string Ship::getName() const {
 	return name;	
 }
 
-// Get the full name of this type
-string Ship::getTypeName() const {
-	return typeName[type];	
+// Get a description with only ship types
+string Ship::getTypeDesc() const {
+	return generalTypeName[getGeneralType()];
 }
 
-// Get a descriptor of type & evasion (e.g., shadow prompt)
-string Ship::getTypeAndEvasion() const {
-	return getTypeName() 
-		+ " (evrtg " + to_string(getEvasion()) + ")";
+// Get a description with any ship names
+string Ship::getNameDesc() const {
+	return getName();	
 }
 
-// Get a short descriptor (e.g., naval combat prompt)
-string Ship::getShortDesc() const {
-	return name
-		+ " (" + typeAbbr[type]
-		+ ", evrtg " + to_string(getEvasion())
-		+ ", mships " + to_string(getMidships())
-		+ ")";
-}
-
-// Get a long descriptor (e.g., logging purposes)
-string Ship::getLongDesc() const {
+// Get a description with full information
+string Ship::getFullDesc() const {
 	return name
 		+ " (" + typeAbbr[type]
 		+ ", evrtg " + to_string(getEvasion())
@@ -86,12 +86,17 @@ string Ship::getLongDesc() const {
 		+ ")";
 }
 
-// Get the category of ship
-//   For purposes of movement, fueling, withdrawal, etc.
-//   E.g., Rules 5.21, 9.72, 9.93, 16.4, 58.5, 67.22
-Ship::ClassType Ship::getClassType() const {
+// Get the type of ship
+Ship::Type Ship::getType() const {
+	return type;	
+}
+
+// Get the general type of ship
+//   For purposes of movement, fueling, search, withdrawal, etc.
+Ship::GeneralType Ship::getGeneralType() const {
 	switch (type) {
 		default: return BATTLESHIP;
+		case CV: return CARRIER;
 		case CA: case CL: return CRUISER;
 		case DD: case CT: return DESTROYER;
 		case SS: case UB: return SUBMARINE;
@@ -113,7 +118,12 @@ int Ship::getEvasion() const {
 	return max(0, evasionMax - evasionLostTemp - evasionLostPerm);
 }
 
-// Take exspense to our fuel
+// Get evasion for launching an attack
+int Ship::getAttackEvasion() const {
+	return getEvasion();	
+}
+
+// Take expense to our fuel
 void Ship::loseFuel(int loss) {
 	fuelLost += loss;	
 }
@@ -135,30 +145,34 @@ void Ship::applyTempEvasionLoss(int midshipsLoss) {
 	evasionLostTemp += midshipsLoss * evasionLossRate;
 }
 
-// Get how much evasion we lose per midships hit
+// Set how much evasion we lose per midships hit
 //   This quality is given by ship type & name in the rules
 //   So we should parse the name on ship construction
-int Ship::getEvasionLossRate() const {
-	switch (getClassType()) {
+void Ship::setEvasionLossRate() {
+	int rate = 0;
+	switch (getGeneralType()) {
 
-		case BATTLESHIP: 
+		case BATTLESHIP: case CARRIER:
 			// Rules 9.724, 48.2
-			return (name == "Bismarck" || name == "Tirpitz") ? 1 : 2;
+			rate = (name == "Bismarck" || name == "Tirpitz") ? 1 : 2;
+			break;
 
 		case CRUISER:
 			// Rules 9.725, 9.726, and class inference
-			return (name == "Prinz Eugen" || name == "Hipper") ? 3 : 5;
+			rate = (name == "Prinz Eugen" || name == "Hipper") ? 3 : 5;
+			break;
 		
 		default:
 			// Other types don't engage in basic naval combat 
 			// (Destroyer rule 23.32, Submarine rule 22.17)
-			return 0;
+			break;
 	}
+	evasionLossRate = rate;
 }
 
-// Check for evasion repair following movement (Rule 9.728)
-void Ship::checkEvasionRepair() {
-	if (evasionLostTemp && getSpeed() <= 1) {
+// Try to repair evasion following movement (Rule 9.728)
+void Ship::tryEvasionRepair() {
+	if (evasionLostTemp && getSpeedThisTurn() <= 1) {
 		int repair = dieRoll(6) * 2 - 4;
 		repair = max(0, repair);
 		repair = min(repair, evasionLostTemp);
@@ -192,39 +206,12 @@ void Ship::doAvailability() {
 	log.push_back(LogTurn());
 }
 
-// Do German ship first-turn breakout bonus move (Rule 5.28)
-//   We use the first waypoint as our location at end of move
-//   Waive most other rules restrictions here
-void Ship::doBreakoutBonusMove() {
-	assert(!GameDirector::instance()->getTurnsElapsed());
+// Do ordered movement for turn
+void Ship::doMovementTurn() {
 	player->getOrders(*this);
 	assert(hasOrders());
 
-	// Get ordered position
-	assert(orders.front().type == MOVE);
-	auto goal = orders.front().zone;
-	int distance = position.distanceFrom(goal);
-
-	// Move to that position
-	assert(distance <= 5);
-	position = goal;
-	logNow().moves.push_back(position);
-	updateOrders();
-
-	// Spend fuel
-	switch (distance) {
-		case 5: loseFuel(2); break;
-		case 4: loseFuel(1); break;
-		default: break; // no loss
-	}
-}
-
-// Do normal movement for turn
-void Ship::doMovement() {
-	player->getOrders(*this);
-	assert(hasOrders());
-
-	// Lose a turn if required
+	// Lose a turn if needed
 	if (loseMoveTurn) {
 		loseMoveTurn = false;
 	}
@@ -239,13 +226,16 @@ void Ship::doMovement() {
 		}
 	}
 	
-	// Spend fuel
+	// Finish the move turn
+	doPostMoveAccounts();	
+}
+
+// Perform post-move accounting (fuel & repairs)
+void Ship::doPostMoveAccounts() {
 	int speed = logNow().moves.size();
 	loseFuel(getFuelExpense(speed));
 	checkFuelForWeather(speed);
-
-	// Repair evasion
-	checkEvasionRepair();
+	tryEvasionRepair();
 }
 
 // Perform orders to move on search board
@@ -258,8 +248,8 @@ void Ship::doMoveOrder() {
 	}
 
 	// Select speed to move
-	int speed = maxSpeed();
-	if (getFuel() == 1) {
+	int speed = getMaxSpeedThisTurn();
+	if (getFuel() == 1) { // avoid emptying
 		speed = min(1, speed);	
 	}
 	
@@ -276,31 +266,51 @@ void Ship::doMoveOrder() {
 	}
 }
 
-// How many board spaces can we move this turn?
+// Get the max speed class on the search board
 //   See Basic Game Tables Card: Movement on Search Board
-int Ship::maxSpeed() const {
+//   Note this is effectively in half-zone units per turn
+int Ship::getMaxSpeedClass() const {
 	int evasion = getEvasion();
-	if (evasion <= 6) {
-		return 0;
-	}
-	else if (evasion <= 15 || getFuel() < 1) {
-		bool convoyTurn = GameDirector::instance()->isConvoyTurn();
-		return convoyTurn ? 0 : 1; // speed 0.5
-	}
-	else if (evasion <= 24) {
-		return 1;		
-	}
-	else if (evasion <= 34) {
-		int lastTurnSpeed = log.rbegin()[1].moves.size();
-		return lastTurnSpeed > 1 ? 1 : 2; // speed 1.5
-	}
+	if (evasion <= 6) return 0;
+	else if (evasion <= 15) return 1;
+	else if (evasion <= 24) return 2;
+	else if (evasion <= 34) return 3;
 	else {
-		// No ship in published game has speed this high.
-		// In this case, search board speed would be full 2/turn.
+		// No ship in the published game has speed this high.
+		// In this case, search board speed would be full 2 zones/turn.
 		// A few destroyers/cruisers in WWII had speeds up to 45 knots.
 		cerr << "Error: Ship evasion above game allowances.\n";
-		return 2;		
+		return 4;
 	}
+}
+
+// How many board spaces can we move this turn?
+//   See Basic Game Tables Card: Movement on Search Board
+int Ship::getMaxSpeedThisTurn() const {
+
+	// Out-of-fuel handler (Rule 5.23)
+	if (!getFuel()) {
+		return getEmergencySpeedThisTurn();	
+	}
+	
+	// First-turn breakout bonus (Rule 5.28)
+	if (isOnBreakoutBonus()) {
+		return 5;		
+	}
+	
+	// Standard cases	
+	switch(getMaxSpeedClass()) {
+		case 0: return 0;
+		case 1: return getEmergencySpeedThisTurn();
+		case 2: return 1;
+		case 3: return log.rbegin()[1].moves.size() > 1 ? 1 : 2;
+		default: return 2;
+	}
+}
+
+// How far can emergency movement take us this turn? (Rule 5.24)
+int Ship::getEmergencySpeedThisTurn() const {
+	return GameDirector::instance()->isConvoyTurn() ? 1 : 0;
 }
 
 // Are we in a friendly port?
@@ -333,9 +343,9 @@ bool Ship::movedThrough(const GridCoordinate& zone) const {
 	return hasElem(log.back().moves, zone);
 }
 
-// Are we sunk?
-bool Ship::isSunk() const {
-	return getMidships() <= 0;	
+// Are we afloat?
+bool Ship::isAfloat() const {
+	return getMidships() > 0;	
 }
 
 // Are we in the day?
@@ -362,7 +372,7 @@ void Ship::setLoseMoveTurn() {
 //   Search, shadow, general search, or HUFF-DUFF,
 //   but not reveal for convoy attack.
 //   Used for statistical models (not part of game).
-void Ship::noteDetected() {
+void Ship::setDetected() {
 	timesDetected++;
 }
 
@@ -374,7 +384,7 @@ int Ship::getTimesDetected() const {
 // Note that we have been located by search/shadow
 void Ship::setLocated() {
 	logNow().located = true;
-	noteDetected();
+	setDetected();
 }
 
 // Note that the enemy tried to shadow us
@@ -385,8 +395,13 @@ void Ship::setShadowed() {
 }
 
 // Note that we have entered naval combat
-void Ship::setInCombat() {
+void Ship::setCombated() {
 	logNow().combated = true;
+}
+
+// Note that we (helped) sank a convoy
+void Ship::setConvoySunk() {
+	logNow().convoySunk = true;	
 }
 
 // Check if we were located by search/shadow on a given turn
@@ -407,8 +422,14 @@ bool Ship::wasCombated(unsigned turnsAgo) const {
 		log.rbegin()[turnsAgo].combated : false;
 }
 
+// Check if we (helped) sank a convoy on a given turn
+bool Ship::wasConvoySunk(unsigned turnsAgo) const {
+	return turnsAgo < log.size() ?
+		log.rbegin()[turnsAgo].convoySunk : false;
+}
+
 // How far did we move on the search board this turn?
-int Ship::getSpeed() const {
+int Ship::getSpeedThisTurn() const {
 	return log.back().moves.size();
 }
 
@@ -497,12 +518,24 @@ Ship::OrderType Ship::getFirstOrder() const {
 //   Does not include optional variation for weather (Rule 16.4),
 //   which refers back here (would be recursive call)
 int Ship::getFuelExpense(int speed) const {
-	assert(speed <= 2);
 	int expense;
 	auto game = GameDirector::instance();
-	switch (getClassType()) {
+
+	// First-turn breakout bonus (Rule 5.28)
+	if (isOnBreakoutBonus()) {
+		assert(speed <= 5);
+		switch (speed) {
+			case 5: return 2;
+			case 4: return 1;
+			default: return 0;
+		}
+	}
+
+	// Handle normal cases
+	assert(speed <= 2);
+	switch (getGeneralType()) {
 	
-		case BATTLESHIP:
+		case BATTLESHIP: case CARRIER:
 			// Rule 5.21
 			expense = (speed < 2) ? 0 : 1;
 
@@ -512,7 +545,7 @@ int Ship::getFuelExpense(int speed) const {
 			{
 				expense = 1;
 			}
-			break;
+			return expense;
 	
 		case CRUISER:
 			// Rule 5.21
@@ -522,19 +555,21 @@ int Ship::getFuelExpense(int speed) const {
 			if (CmdArgs::instance()->useOptFuelExpenditure()) {
 				expense = (speed < 2) ? 0 : 1;
 			}
-			break;
+			return expense;
 
 		case DESTROYER:
 			// Rule 23.21
-			expense = (speed < 2) ? 1 : 3;
-			break;
+			return speed < 2 ? 1 : 3;
 
 		case SUBMARINE:
 			// Rule 22.14
-			expense = 0;
-			break;
+			return 0;
+			
+		default:
+			cerr << "Error: Unhandled ship class type\n";
+			assert(false);
+			return 0;
 	}
-	return expense;
 }
 
 // Expend extra fuel at bad visibility levels
@@ -542,9 +577,10 @@ int Ship::getFuelExpense(int speed) const {
 void Ship::checkFuelForWeather(int speed) {
 	if (CmdArgs::instance()->useOptFuelExpenditure()) {
 		int visibility = GameDirector::instance()->getVisibility();
-		switch (getClassType()) {
+		switch (getGeneralType()) {
 
-			case BATTLESHIP:
+			case BATTLESHIP: 
+			case CARRIER:
 				if (visibility >= 8 && speed > 0) {
 					loseFuel(1);
 				}
@@ -604,4 +640,39 @@ void Ship::setReturnToBase() {
 // Is the return to base (RTB) marker set?
 bool Ship::isReturnToBase() const {
 	return returnToBase;	
+}
+
+// Are we using the breakout bonus first-turn move (Rule 5.28)?
+bool Ship::isOnBreakoutBonus() const {
+	return GameDirector::instance()->isFirstTurn();
+}
+
+// Join a task force
+void Ship::joinTaskForce(TaskForce* taskForce) {
+	this->taskForce = taskForce;
+}
+
+// Leave a task force
+void Ship::leaveTaskForce() {
+	taskForce = nullptr;
+}
+
+// Are we in a task force?
+bool Ship::isInTaskForce() const { 
+	return taskForce != nullptr;
+}
+
+// Get the task force we're in
+TaskForce* Ship::getTaskForce() const { 
+	return taskForce;
+}
+
+// Move with a ship leading us
+void Ship::moveWithShip(Ship& flagship) {
+	assert(isInTaskForce());
+	position = flagship.position;
+	onPatrol = flagship.onPatrol;
+	logNow().moves = flagship.logNow().moves;
+	assert((int) logNow().moves.size() <= getMaxSpeedThisTurn());
+	doPostMoveAccounts();
 }

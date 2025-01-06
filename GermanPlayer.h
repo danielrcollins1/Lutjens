@@ -8,15 +8,16 @@
 #ifndef GERMANPLAYER_H
 #define GERMANPLAYER_H
 #include "Ship.h"
+#include "TaskForce.h"
 
 class GermanPlayer
 {
 	public:
 		GermanPlayer();
-		const Ship& getFlagship() const;
 		void doAvailabilityPhase();
+		void doVisibilityPhase();
 		void doShadowPhase();
-		void doSeaMovementPhase();
+		void doShipMovementPhase();
 		void doAirAttackPhase();
 		void doNavalCombatPhase();
 		void doChancePhase();
@@ -25,7 +26,8 @@ class GermanPlayer
 		void resolveSearch();
 		void printAllShips() const;
 		void getOrders(Ship& ship);
-		int getTimesFlagshipDetected() const;
+		int getTimesApexShipDetected() const;
+		const Ship& getApexShip() const;
 
 	private:
 		// Enumeration
@@ -33,20 +35,27 @@ class GermanPlayer
 			DENMARK_STRAIT, WEST_ATLANTIC, EAST_ATLANTIC, AZORES, OFF_MAP};
 
 		// Data
-		Ship* flagship;
+		Ship* apexShip;
 		std::vector<Ship> shipList;
+		std::vector<TaskForce> taskForceList;
+		std::vector<NavalUnit*> navalUnitList;
 		std::vector<GridCoordinate> foundShipZones;
 		
 		// Functions
-		void checkGeneralSearch(Ship& ship, int roll);
-		void checkConvoyResult(Ship& ship, int roll);
-		void callHuffDuff(Ship& ship);
-		void destroyConvoy(Ship& ship);
+		void checkGeneralSearch(NavalUnit* unit, int roll);
+		void checkConvoyResult(NavalUnit* unit, int roll);
+		void callHuffDuff(NavalUnit* unit);
+		void destroyConvoy(NavalUnit* unit);
 		char getGeneralSearchColumn(const GridCoordinate& zone);
-		void handleFuelEmpty(Ship& ship);
 
 		// Plotting functions
+		void orderUnitsForTurn();
+		void checkToCombineShips();
+		void cleanTaskForce(TaskForce& taffy);
 		void orderNewGoal(Ship& ship);
+		void handleFuelEmpty(Ship& ship);
+		int getNextTaskForceId();
+		TaskForce* getTaskForceById(int id);
 		MapRegion getRegion(const GridCoordinate& zone) const;
 		int randWeightedConvoyDistance() const;
 		GridCoordinate randConvoyTarget(int pctAtlantic) const;

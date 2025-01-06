@@ -40,6 +40,7 @@ class GameDirector
 		int getTurnsElapsed() const;
 		int getVisibility() const;
 		bool isVisibilityX() const;
+		bool isFirstTurn() const;
 		bool isConvoyTurn() const;
 		bool isInDay(const GridCoordinate& zone) const;
 		bool isInNight(const GridCoordinate& zone) const;
@@ -47,16 +48,15 @@ class GameDirector
 		bool isSearchable(const GridCoordinate& zone, int strength) const;
 		bool searchGermanShips(const GridCoordinate& zone);
 		bool searchBritishShips(const GridCoordinate& zone);
-		void checkShadow(Ship& target, 
+		void checkShadow(NavalUnit& target, 
 			const GridCoordinate& knownPos, Phase phase);
-		void checkAttackBy(Ship& attacker);
-		void checkAttackOn(Ship& target, Phase phase);
-		void resolveCombat(Ship& ship);
+		void checkAttackBy(NavalUnit& attacker);
+		void checkAttackOn(NavalUnit& target, Phase phase);
+		void resolveCombat(NavalUnit& unit);
 		void msgSunkConvoy();
-		bool isPassThroughSearchOn() const;
 		bool wasConvoySunk(unsigned daysAgo) const;
 		int getConvoysSunk() const;
-		int getTimesFlagshipDetected() const;
+		int getTimesApexShipDetected() const;
 
 	private:
 		// Constant
@@ -85,7 +85,7 @@ class GameDirector
 		void doAvailabilityPhase();
 		void doVisibilityPhase();
 		void doShadowPhase();
-		void doSeaMovementPhase();
+		void doShipMovementPhase();
 		void doSearchPhase();
 		void doAirAttackPhase();
 		void doNavalCombatPhase();

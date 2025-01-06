@@ -69,9 +69,9 @@ void GameDirector::logStartTime() {
 
 // Is the game over? (Rule 12.1)
 bool GameDirector::isGameOver() const {
-	auto flagship = germanPlayer->getFlagship();
-	return flagship.isSunk()           // Rule 12.11
-		|| flagship.isEnteringPort()   // Rule 12.12
+	auto apexShip = germanPlayer->getApexShip();
+	return !apexShip.isAfloat()        // Rule 12.11
+		|| apexShip.isEnteringPort()   // Rule 12.12
 		|| turn > finishTurn;          // Rule 12.14
 }
 
@@ -83,7 +83,7 @@ void GameDirector::doGameLoop() {
 		doAvailabilityPhase();
 		doVisibilityPhase();
 		doShadowPhase();
-		doSeaMovementPhase();
+		doShipMovementPhase();
 		doSearchPhase();
 		doAirAttackPhase();
 		doNavalCombatPhase();
@@ -100,6 +100,11 @@ int GameDirector::getTurn() const {
 // Get number of turns completed
 int GameDirector::getTurnsElapsed() const {
 	return turn - START_TURN;	
+}
+
+// Are we in the first turn (or before)?
+bool GameDirector::isFirstTurn() const {
+	return getTurnsElapsed() <= 0;	
 }
 
 // Get current visibility
@@ -173,6 +178,7 @@ void GameDirector::doVisibilityPhase() {
 		<< (visibility == VISIBILITY_X ? "X" : to_string(visibility))
 		<< (foggy ? ", with fog" : "") << endl;
 	reportNightTime();
+	germanPlayer->doVisibilityPhase();
 }
 
 // Do shadow phase
@@ -182,10 +188,11 @@ void GameDirector::doShadowPhase() {
 	}
 }
 
-// Do sea movement phase
-void GameDirector::doSeaMovementPhase() {
+// Do ship movement phase
+void GameDirector::doShipMovementPhase() {
 	if (turn >= START_TURN) {
-		germanPlayer->doSeaMovementPhase();
+		britishPlayer->promptMovement();
+		germanPlayer->doShipMovementPhase();
 	}
 }
 
@@ -193,22 +200,14 @@ void GameDirector::doSeaMovementPhase() {
 void GameDirector::doSearchPhase() {
 
 	// Ask players for search attempts
-	if (turn >= START_TURN
-		&& visibility < VISIBILITY_X)
-	{
+	if (turn >= START_TURN) {
 		if (britishPlayer->trySearch()) {
 			britishPlayer->resolveSearch();		
 		}
 		if (germanPlayer->trySearch()) {
-			germanPlayer->resolveSearch();		
+			germanPlayer->resolveSearch();
 		}
 	}
-}
-
-// Is pass-through search permitted?
-//   It's allowed after first turn (Rule 7.23)
-bool GameDirector::isPassThroughSearchOn() const {
-	return turn > START_TURN;
 }
 
 // Search a zone for German ships
@@ -282,8 +281,8 @@ void GameDirector::doEndGame() {
 	germanPlayer->printAllShips();
 }
 
-// Check for British shadowing a ship (Rule 8.0)
-void GameDirector::checkShadow(Ship& target,
+// Check for British shadowing a unit (Rule 8.0)
+void GameDirector::checkShadow(NavalUnit& target,
 	const GridCoordinate& knownPos, Phase phase) 
 {
 	assert(phase == SHADOW || phase == SEARCH);
@@ -294,7 +293,7 @@ void GameDirector::checkShadow(Ship& target,
 
 		// Move target ship in shadow phase
 		if (phase == SHADOW) {
-			target.doMovement();
+			target.doMovementTurn();
 		}
 
 		// Ask for resolution
@@ -304,7 +303,7 @@ void GameDirector::checkShadow(Ship& target,
 		// Player holds contact
 		if (holdContact) {
 			target.setLocated();
-			cgame << target.getTypeName() << " shadowed to zone " 
+			cgame << target.getTypeDesc() << " shadowed to zone " 
 				<< target.getPosition() << endl;
 		}
 	}
@@ -324,49 +323,55 @@ void GameDirector::doNavalCombatPhase() {
 	}
 }
 
-// Check if the British player attacks this ship
-void GameDirector::checkAttackOn(Ship& target, Phase phase) 
+// Check if the British player attacks this German unit
+void GameDirector::checkAttackOn(NavalUnit& target, Phase phase) 
 {
 	assert(phase == AIR_ATTACK || phase == NAVAL_COMBAT);
 	if (britishPlayer->tryAttack(target, phase)) {
 		cgame << "Attack by " << (phase == AIR_ATTACK ? "air" : "sea")
-			<< " on " << target.getShortDesc() << "\n";
+			<< " on " << target.getFullDesc() << "\n";
 		if (phase == NAVAL_COMBAT) {
-			target.setInCombat();
+			target.setCombated();
 		}
 		resolveCombat(target);
 	}
 }
 
-// Check if this ship attacks a British ship
-void GameDirector::checkAttackBy(Ship& attacker) {
-	cgame << attacker.getShortDesc() 
-		<< " attacks solo cruiser in " << attacker.getPosition() << "\n";
-	attacker.setInCombat();
-	resolveCombat(attacker);
+// Check if this German unit attacks a British ship
+void GameDirector::checkAttackBy(NavalUnit& attacker) {
+	if (britishPlayer->tryDefend(attacker)) {
+		cgame << "Ship in " << attacker.getPosition() 
+			<< " attacked by " << attacker.getFullDesc() << "\n";
+		attacker.setCombated();
+		resolveCombat(attacker);
+	}
 }
 
-// Get combat resolution with this German shop
+// Get combat resolution with this German unit
 //   Note evasion loss only happens in conjunction
 //   with midships loss, per Battle Board tables
-void GameDirector::resolveCombat(Ship& ship) {
-	int midshipsLost, evasionLost;
-	britishPlayer->resolveAttack(midshipsLost, evasionLost);
-	if (midshipsLost > 0) {
-		cgame << ship.getName() << " takes "
-			<< midshipsLost << " midships and " 
-			<< evasionLost << " evasion damage.\n";
-		ship.loseMidships(midshipsLost);
-		ship.loseEvasion(evasionLost);
-		if (ship.isSunk()) {
-			cgame << ship.getName() << " is sunk!\n";	
+void GameDirector::resolveCombat(NavalUnit& unit) {
+	britishPlayer->promptAttack();
+	for (int i = 0; i < unit.getSize(); i++) {
+		auto ship = unit.getShip(i);
+		int midshipsLost, evasionLost;
+		britishPlayer->resolveAttack(*ship, midshipsLost, evasionLost);
+		ship->loseMidships(midshipsLost);
+		ship->loseEvasion(evasionLost);
+		if (midshipsLost > 0) {
+			cgame << ship->getName() << " takes "
+				<< midshipsLost << " midships and " 
+				<< evasionLost << " evasion damage.\n";
+		}
+		if (!ship->isAfloat()) {
+			cgame << ship->getName() << " is sunk!\n";	
 		}
 	}
 }
 
-// Get the number of times the German flagship was detected
-int GameDirector::getTimesFlagshipDetected() const {
-	return germanPlayer->getTimesFlagshipDetected();	
+// Get the number of times the German apex ship was detected
+int GameDirector::getTimesApexShipDetected() const {
+	return germanPlayer->getTimesApexShipDetected();	
 }
 
 // Is this a turn in which convoys move?
