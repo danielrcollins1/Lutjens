@@ -50,9 +50,12 @@ class GermanPlayer
 
 		// Plotting functions
 		void orderUnitsForTurn();
+		void checkToCombineShips();
 		void cleanTaskForce(TaskForce& taffy);
 		void orderNewGoal(Ship& ship);
 		void handleFuelEmpty(Ship& ship);
+		int getNextTaskForceId();
+		TaskForce* getTaskForceById(int id);
 		MapRegion getRegion(const GridCoordinate& zone) const;
 		int randWeightedConvoyDistance() const;
 		GridCoordinate randConvoyTarget(int pctAtlantic) const;

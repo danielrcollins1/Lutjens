@@ -15,7 +15,7 @@ class TaskForce: public NavalUnit
 {
 	public:
 		// Construction
-		TaskForce();
+		TaskForce(int id);
 		void attach(Ship* ship);
 		void detach(Ship* ship);
 		void dissolve();
@@ -25,6 +25,9 @@ class TaskForce: public NavalUnit
 		bool isEmpty() const;
 		bool includes(Ship* ship) const;
 		Ship* getFlagship() const;
+		
+		// Operators
+		bool operator==(const TaskForce& other) const;
 
 		//
 		// NavalUnit overrides
@@ -68,7 +71,6 @@ class TaskForce: public NavalUnit
 		void setDetected() override;
 		
 	private:
-		static int numMade;
 		int identifier;
 		std::vector<Ship*> shipList;
 };

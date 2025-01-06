@@ -3,12 +3,9 @@
 #include <cassert>
 using namespace std;
 
-// Initialize static counter
-int TaskForce::numMade = 0;
-
 // Construct a new task force
-TaskForce::TaskForce () {
-	identifier = ++numMade;
+TaskForce::TaskForce (int id) {
+	identifier = id;
 }
 
 // Get our identifying number
@@ -67,6 +64,11 @@ Ship* TaskForce::getFlagship() const {
 Ship* TaskForce::getShip(int idx) {
 	assert(isInInterval(0, idx, shipList.size() - 1));
 	return shipList[idx];
+}
+
+// Equality operator
+bool TaskForce::operator==(const TaskForce& other) const {
+	return identifier == other.identifier;	
 }
 
 //
@@ -203,9 +205,14 @@ bool TaskForce::wasCombated(unsigned turnsAgo) const {
 	return getFlagship()->wasCombated(turnsAgo);
 }
 
-// Did we sink a convoy on a given turn?
+// Did any ship sink a convoy on a given turn?
 bool TaskForce::wasConvoySunk(unsigned turnsAgo) const {
-	return getFlagship()->wasConvoySunk(turnsAgo);
+	for (auto& ship: shipList) {
+		if (ship->wasConvoySunk(turnsAgo)) {
+			return true;
+		}
+	}
+	return false;	
 }
 
 // Did we move through a space on our last move?

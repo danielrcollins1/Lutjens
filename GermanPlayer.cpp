@@ -21,9 +21,10 @@ GermanPlayer::GermanPlayer() {
 	
 	// Construct task force
 	taskForceList.reserve(8);
-	taskForceList.push_back(TaskForce());
+	taskForceList.push_back(TaskForce(1));
+	auto taffy1 = &taskForceList.back();
 	for (auto& ship: shipList) {
-		taskForceList[0].attach(&ship);
+		taffy1->attach(&ship);
 	}
 }
 
@@ -50,6 +51,9 @@ void GermanPlayer::doVisibilityPhase() {
 void GermanPlayer::orderUnitsForTurn() {
 	navalUnitList.clear();
 
+	// Check to combine ships
+	checkToCombineShips();
+
 	// Clean up task forces
 	for (auto& taffy: taskForceList) {
 		cleanTaskForce(taffy);
@@ -57,16 +61,24 @@ void GermanPlayer::orderUnitsForTurn() {
 
 			// End solo task force
 			if (taffy.getSize() == 1) {
-				taffy.dissolve();	
+				taffy.dissolve();
 			}
 
 			// Breakup after breakout
-			else if (taffy.isOnPatrol()) {
+			else if (taffy.isOnPatrol()
+				&& !taffy.wasConvoySunk(1))
+			{
 				for (int i = 1; i < taffy.getSize(); i++) {
 					taffy.getShip(i)->orderAction(Ship::PATROL);	
 				}
 				taffy.dissolve();
 			}
+		}
+
+		// At this point if it's empty, delete it
+		if (taffy.isEmpty()) {
+			taskForceList.erase(
+				find(taskForceList.begin(), taskForceList.end(), taffy));
 		}
 	}
 
@@ -87,6 +99,38 @@ void GermanPlayer::orderUnitsForTurn() {
 	}
 }
 
+// Check to combine ships into task force after convoy sinking
+void GermanPlayer::checkToCombineShips() {
+
+	// Find if any ship sank a convoy
+	for (auto& killShip: shipList) {
+		if (!killShip.isInTaskForce()
+			&& killShip.wasConvoySunk(1)) 
+		{
+			// Gather up ships in zone
+			vector<Ship*> shipsToJoin;
+			for (auto& ship: shipList) {
+				if (ship.getPosition() == killShip.getPosition()
+					&& ship.getMaxSpeedClass() >= 3
+					&& !ship.isInTaskForce()
+					&& !ship.isSunk())
+				{
+					shipsToJoin.push_back(&ship);
+				}
+			}
+			
+			// Make a task force
+			int newId = getNextTaskForceId();
+			taskForceList.push_back(TaskForce(newId));
+			TaskForce* taffy = &taskForceList.back();
+			for (auto& ship: shipsToJoin) {
+				ship->clearOrders();			
+				taffy->attach(ship);
+			}
+		}
+	}
+}
+
 // Clean task force as needed
 //   Sweep out sunk, slow, low-fuel ships
 void GermanPlayer::cleanTaskForce(TaskForce& taffy) {
@@ -99,6 +143,25 @@ void GermanPlayer::cleanTaskForce(TaskForce& taffy) {
 			taffy.detach(ship);
 		}
 	}
+}
+
+// Get the number to use for the next convoy
+int GermanPlayer::getNextTaskForceId() {
+	int number = 1;
+	while (getTaskForceById(number)) {
+		number++;	
+	}
+	return number;
+}
+
+// Get a task force by ID number
+TaskForce* GermanPlayer::getTaskForceById(int id) {
+	for (auto& taffy: taskForceList) {
+		if (taffy.getId() == id) {
+			return &taffy;
+		}
+	}
+	return nullptr;	
 }
 
 // Do shadow phase
