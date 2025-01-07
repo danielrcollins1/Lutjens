@@ -54,9 +54,7 @@ int TaskForce::getSize() const {
 
 // Get the lead ship
 Ship* TaskForce::getFlagship() const {
-	if (isEmpty()) {
-		assert(false);	
-	}
+	assert(!isEmpty());
 	return shipList[0];	
 }
 

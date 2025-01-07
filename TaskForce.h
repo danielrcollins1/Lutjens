@@ -3,7 +3,15 @@
 	Copyright: 2025
 	Author: Daniel R. Collins
 	Date: 04-01-25 13:24
-	Description: Organize collections of ships (Rule 5.4)
+	Description: Collections of Ships (per Rule 5.4).
+	
+		Most NavalUnit functions here pass through to the associated
+		Ship function. Accessors usually check the accessor of the
+		first ship (the flagship). Mutators set the values for all ships.
+
+		Orders and routing for movement are done only for the flagship
+		(via callbacks to its player), while other ships simply copy
+		the same movement. See doMovementTurn() for details.
 */
 #ifndef TASKFORCE_H
 #define TASKFORCE_H
