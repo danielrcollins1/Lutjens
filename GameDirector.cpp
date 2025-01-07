@@ -69,10 +69,10 @@ void GameDirector::logStartTime() {
 
 // Is the game over? (Rule 12.1)
 bool GameDirector::isGameOver() const {
-	auto apexShip = germanPlayer->getApexShip();
-	return !apexShip.isAfloat()        // Rule 12.11
-		|| apexShip.isEnteringPort()   // Rule 12.12
-		|| turn > finishTurn;          // Rule 12.14
+	auto prestigeShip = germanPlayer->getPrestigeShip();
+	return !prestigeShip.isAfloat()        // Rule 12.11
+		|| prestigeShip.isEnteringPort()   // Rule 12.12
+		|| turn > finishTurn;              // Rule 12.14
 }
 
 // Do the game loop
@@ -369,9 +369,9 @@ void GameDirector::resolveCombat(NavalUnit& unit) {
 	}
 }
 
-// Get the number of times the German apex ship was detected
-int GameDirector::getTimesApexShipDetected() const {
-	return germanPlayer->getTimesApexShipDetected();	
+// Get the number of times the German Prestige ship was detected
+int GameDirector::getTimesPrestigeShipDetected() const {
+	return germanPlayer->getTimesPrestigeShipDetected();	
 }
 
 // Is this a turn in which convoys move?

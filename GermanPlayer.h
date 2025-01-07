@@ -26,8 +26,8 @@ class GermanPlayer
 		void resolveSearch();
 		void printAllShips() const;
 		void getOrders(Ship& ship);
-		int getTimesApexShipDetected() const;
-		const Ship& getApexShip() const;
+		int getTimesPrestigeShipDetected() const;
+		const Ship& getPrestigeShip() const;
 
 	private:
 		// Enumeration
@@ -35,7 +35,7 @@ class GermanPlayer
 			DENMARK_STRAIT, WEST_ATLANTIC, EAST_ATLANTIC, AZORES, OFF_MAP};
 
 		// Data
-		Ship* apexShip;
+		Ship* prestigeShip;
 		std::vector<Ship> shipList;
 		std::vector<TaskForce> taskForceList;
 		std::vector<NavalUnit*> navalUnitList;

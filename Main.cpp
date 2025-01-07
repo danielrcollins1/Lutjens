@@ -75,7 +75,7 @@ void runLargeSeries() {
 		game->doGameLoop();
 
 		// Record times detected
-		int timesDetected = game->getTimesApexShipDetected();
+		int timesDetected = game->getTimesPrestigeShipDetected();
 		if (timesDetected > 0) {
 			totalDetections += timesDetected;
 			gamesDetected++;
