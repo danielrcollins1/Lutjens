@@ -75,7 +75,7 @@ void runLargeSeries() {
 		game->doGameLoop();
 
 		// Record times detected
-		int timesDetected = game->getTimesPrestigeShipDetected();
+		int timesDetected = game->getTimesBismarckDetected();
 		if (timesDetected > 0) {
 			totalDetections += timesDetected;
 			gamesDetected++;

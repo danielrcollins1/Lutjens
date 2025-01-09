@@ -69,10 +69,10 @@ void GameDirector::logStartTime() {
 
 // Is the game over? (Rule 12.1)
 bool GameDirector::isGameOver() const {
-	auto prestigeShip = germanPlayer->getPrestigeShip();
-	return !prestigeShip.isAfloat()        // Rule 12.11
-		|| prestigeShip.isEnteringPort()   // Rule 12.12
-		|| turn > finishTurn;              // Rule 12.14
+	auto theBismarck = germanPlayer->getBismarck();
+	return !theBismarck.isAfloat()        // Rule 12.11
+		|| theBismarck.isEnteringPort()   // Rule 12.12
+		|| turn > finishTurn;             // Rule 12.14
 }
 
 // Do the game loop
@@ -369,9 +369,9 @@ void GameDirector::resolveCombat(NavalUnit& unit) {
 	}
 }
 
-// Get the number of times the German Prestige ship was detected
-int GameDirector::getTimesPrestigeShipDetected() const {
-	return germanPlayer->getTimesPrestigeShipDetected();	
+// Get the number of times the Bismarck was detected
+int GameDirector::getTimesBismarckDetected() const {
+	return germanPlayer->getTimesBismarckDetected();	
 }
 
 // Is this a turn in which convoys move?
