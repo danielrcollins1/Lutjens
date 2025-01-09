@@ -422,11 +422,6 @@ void GermanPlayer::printAllShips() const {
 	}
 }
 
-// How many times was the Bismarck detected?
-int GermanPlayer::getTimesBismarckDetected() const {
-	return theBismarck->getTimesDetected();
-}
-
 // Do we want to search now?
 bool GermanPlayer::trySearch() {
 	for (auto& ship: shipList) {

@@ -26,7 +26,6 @@ class GermanPlayer
 		void resolveSearch();
 		void printAllShips() const;
 		void getOrders(Ship& ship);
-		int getTimesBismarckDetected() const;
 		const Ship& getBismarck() const;
 
 	private:

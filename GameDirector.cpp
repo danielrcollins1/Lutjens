@@ -369,9 +369,9 @@ void GameDirector::resolveCombat(NavalUnit& unit) {
 	}
 }
 
-// Get the number of times the Bismarck was detected
-int GameDirector::getTimesBismarckDetected() const {
-	return germanPlayer->getTimesBismarckDetected();	
+// Get the Bismarck for statistics tracking
+const Ship& GameDirector::getBismarck() const {
+	return germanPlayer->getBismarck();	
 }
 
 // Is this a turn in which convoys move?

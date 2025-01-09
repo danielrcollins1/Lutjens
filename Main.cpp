@@ -75,7 +75,7 @@ void runLargeSeries() {
 		game->doGameLoop();
 
 		// Record times detected
-		int timesDetected = game->getTimesBismarckDetected();
+		int timesDetected = game->getBismarck().getTimesDetected();
 		if (timesDetected > 0) {
 			totalDetections += timesDetected;
 			gamesDetected++;
