@@ -21,11 +21,11 @@ CmdArgs::CmdArgs() {
 void CmdArgs::printOptions() const {
 	std::cout << "Command line options available:\n"
 		<< "\t-a automate British player\n"
-		<< "\t-l large series of games\n"
 		<< "\t-f finish on turn number\n"
+		<< "\t-l large series of games\n"
 		<< "\t-n number of games to run\n"
-		<< "\t-ife use intermediate fuel expenditure (rule 16.0)\n"
-		<< "\t-ifd use intermediate fuel damage (rule 21.0)\n";
+		<< "\t-ofe optional fuel expenditure (rule 16.0)\n"
+		<< "\t-ofd optional fuel damage (rule 21.0)\n";
 }
 
 // Parse the command-line arguments
@@ -38,7 +38,7 @@ void CmdArgs::parseArgs(int argc, char** argv) {
 				case 'a': automateBritish = true; break;
 				case 'f': lastTurn = parseArgAsInt(arg); break;
 				case 'n': numTrials = parseArgAsInt(arg); break;
-				case 'i': parseIntermediateRule(arg); break;
+				case 'o': parseOptionalRule(arg); break;
 				default: setExitAfterArgs(); break;
 			}
 		}
@@ -65,8 +65,8 @@ int CmdArgs::parseArgAsInt(char *s) {
 	}
 }
 
-// Parse switch for intermediate (optional) rule
-void CmdArgs::parseIntermediateRule(char *s) {
+// Parse switch for optional (intermediate) rule
+void CmdArgs::parseOptionalRule(char *s) {
 	string arg(s);
 	string optCode = arg.substr(2, 2);
 	if (optCode == "fd") {

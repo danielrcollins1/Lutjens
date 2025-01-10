@@ -40,7 +40,7 @@ class CmdArgs
 		// Functions
 		CmdArgs();
 		int parseArgAsInt(char *s);
-		void parseIntermediateRule(char *s);
+		void parseOptionalRule(char *s);
 		void setExitAfterArgs();
 };
 
