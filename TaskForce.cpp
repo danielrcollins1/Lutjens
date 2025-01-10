@@ -112,7 +112,7 @@ string TaskForce::getFullDesc() const {
 	return desc;
 }
 
-// Accessors
+// Get our position
 GridCoordinate TaskForce::getPosition() const {
 	return getFlagship()->getPosition();
 }

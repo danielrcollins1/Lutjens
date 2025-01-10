@@ -93,7 +93,6 @@ Ship::Type Ship::getType() const {
 }
 
 // Get the general type of ship
-//   For purposes of movement, fueling, search, withdrawal, etc.
 Ship::GeneralType Ship::getGeneralType() const {
 	switch (type) {
 		default: return BATTLESHIP;
