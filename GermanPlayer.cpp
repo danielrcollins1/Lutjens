@@ -92,10 +92,10 @@ void GermanPlayer::orderUnitsForTurn() {
 // Check to combine ships into task force after convoy sinking
 void GermanPlayer::checkToFormTaskForce() {
 
-	// Find if any ship sank a convoy
+	// Check all solo ships
 	for (auto& seedShip: shipList) {
-		if (seedShip.isAfloat()
-			&& !seedShip.isInTaskForce())
+		if (!seedShip.isInTaskForce()
+			&& seedShip.isAfloat())
 		{
 			// Wait if patrolling for convoys
 			if (seedShip.isOnPatrol()
