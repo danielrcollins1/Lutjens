@@ -6,6 +6,7 @@ using namespace std;
 // Construct a new task force
 TaskForce::TaskForce (int id) {
 	identifier = id;
+	clog << getName() << " forming\n";
 }
 
 // Get our identifying number
@@ -32,8 +33,8 @@ void TaskForce::detach(Ship* ship) {
 // Detach all ships
 void TaskForce::dissolve() {
 	clog << getName() << " dissolving\n";
-	for (auto& ship: shipList) {
-		detach(ship);
+	for (int i = getSize() - 1; i >= 0; i--) {
+		detach(shipList[i]);		
 	}
 }
 

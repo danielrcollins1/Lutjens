@@ -24,8 +24,13 @@ void CmdArgs::printOptions() const {
 		<< "\t-f finish on turn number\n"
 		<< "\t-l large series of games\n"
 		<< "\t-n number of games to run\n"
-		<< "\t-ofe optional fuel expenditure (rule 16.0)\n"
-		<< "\t-ofd optional fuel damage (rule 21.0)\n";
+		<< "\n";
+	std::cout << "Optional (intermediate) rules:\n"
+		<< "\t-ofe fuel expenditure (rule 16.0)\n"
+		<< "\t-ofd fuel damage (rule 21.0)\n"
+		<< "\t-oas Admiral Scheer (rules 43.0, 44.0)\n"
+		<< "\t-osg Scharnhorst & Gneisenau (rule 45.0)\n"
+		<< "\t-ott Tirpitz (rule 48.0)\n";
 }
 
 // Parse the command-line arguments
@@ -69,13 +74,12 @@ int CmdArgs::parseArgAsInt(char *s) {
 void CmdArgs::parseOptionalRule(char *s) {
 	string arg(s);
 	string optCode = arg.substr(2, 2);
-	if (optCode == "fd") {
-		optFuelDamage = true;
-	}
-	else if (optCode == "fe") {
-		optFuelExpenditure = true;
-	}
-	else {
+	if (optCode == "fd") { optFuelDamage = true; }
+	else if (optCode == "fe") { optFuelExpenditure = true; }
+	else if (optCode == "as") { optScheer = true; }
+	else if (optCode == "sg") { optScharnhorsts = true; }
+	else if (optCode == "tt") { optTirpitz = true; }
+	else { 
 		setExitAfterArgs();
 	}
 }

@@ -20,10 +20,15 @@ class CmdArgs
 		bool isExitAfterArgs() const { return exitAfterArgs; }
 		bool isAutomatedBritish() const { return automateBritish; }
 		bool isRunLargeSeries() const { return runLargeSeries; }
-		bool useOptFuelExpenditure() const { return optFuelExpenditure; }
-		bool useOptFuelDamage() const { return optFuelDamage; }
 		int getLastTurn() const { return lastTurn; }
 		int getNumTrials() const { return numTrials; }
+
+		// Optional (intermediate) rules
+		bool useOptFuelExpenditure() const { return optFuelExpenditure; }
+		bool useOptFuelDamage() const { return optFuelDamage; }
+		bool useOptScheer() const { return optScheer; }
+		bool useOptScharnhorsts() const { return optScharnhorsts; }
+		bool useOptTirpitz() const { return optTirpitz; }
 
 	private:
 
@@ -32,10 +37,15 @@ class CmdArgs
 		bool exitAfterArgs = false;
 		bool automateBritish = false;
 		bool runLargeSeries = false;
-		bool optFuelExpenditure = false;
-		bool optFuelDamage = false;
 		int lastTurn = -1;
 		int numTrials = -1;
+
+		// Optional rules
+		bool optFuelExpenditure = false;
+		bool optFuelDamage = false;
+		bool optScheer = false;
+		bool optScharnhorsts = false;
+		bool optTirpitz = false;
 
 		// Functions
 		CmdArgs();

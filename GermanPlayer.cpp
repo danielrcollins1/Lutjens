@@ -11,13 +11,33 @@ using namespace std;
 // Constructor
 GermanPlayer::GermanPlayer() {
 
-	// Construct ships
-	std::vector<Ship> shipRoster = {
-		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this),
-		Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this)
-	};
-	shipList = shipRoster;
+	// Size non-resizable structures
+	shipList.reserve(8);
+	taskForceList.reserve(8);
+
+	// Construct basic ships
+	shipList.push_back(
+		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this));
+	shipList.push_back(			
+		Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this));
 	theBismarck = &shipList[0];
+	
+	// Construct optional ships by command
+	auto cmd = CmdArgs::instance();
+	if (cmd->useOptScheer()) {
+		shipList.push_back(
+			Ship("Scheer", Ship::Type::PB, 26, 4, 13, "F20", this));
+	}
+	if (cmd->useOptTirpitz()) {
+		shipList.push_back(
+			Ship("Tirpitz", Ship::Type::BB, 29, 10, 13, "F20", this));
+	}
+	if (cmd->useOptScharnhorsts()) {
+		shipList.push_back(
+			Ship("Scharnhorst", Ship::Type::BC, 32, 7, 13, "P23", this));
+		shipList.push_back(
+			Ship("Gneisenau", Ship::Type::BC, 32, 7, 13, "P23", this));
+	}
 }
 
 // Get the Bismarck for special basic rules
@@ -492,6 +512,10 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(
 	// West Atlantic (closer to Atlantic Convoy line)
 	else if (col <= 'G' + 16 - row) { return WEST_ATLANTIC; }
 
+	// Bay of Biscay (gulf between France & Spain)
+	else if (isInInterval('P', row, 'T')
+		&& col >= row - 'P' + 19) { return BAY_OF_BISCAY; }
+
 	// East Atlantic (closer to African Convoy line)
 	else { return EAST_ATLANTIC; }
 }
@@ -547,16 +571,41 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 
 	// At game start, choose breakout bonus move
 	if (game->isFirstTurn()) {
-		char row = dieRoll(100) <= 85 ? 
-			'A' + rand(4): 'E' + rand(2);
-		int col = dieRoll(100) <= 50 ?
-			15 : 16 + rand(3);
-		if (row == 'F' && col == 15) { // Avoid Faeroe
-			ship.orderMove("G16");
-			ship.orderMove(board->randSeaZone("H15", 1));
-		} 
+
+		// Start at Bergen
+		if (position == GridCoordinate("F20")) {
+			char row = dieRoll(100) <= 85 ? 
+				'A' + rand(4): 'E' + rand(2);
+			int col = dieRoll(100) <= 50 ?
+				15 : 16 + rand(3);
+			if (row == 'F' && col == 15) { // Avoid Faeroe
+				ship.orderMove("G16");
+				ship.orderMove(board->randSeaZone("H15", 1));
+			} 
+			else {
+				ship.orderMove(GridCoordinate(row, col));
+			}
+		}
+		
+		// Start at Brest
+		else if (position == GridCoordinate("P23")) {
+			char row = 'P' + rand(4);
+			int col = row - 'P' + 18;
+			if (dieRoll(100) <= 50) { // Fast-track
+				ship.orderMove(GridCoordinate(row, col));
+				ship.orderMove(randAfricanConvoyTarget());
+				ship.orderAction(Ship::PATROL);
+			}
+			else { // Loiter near France
+				col += dieRoll(4);				
+				ship.orderMove(GridCoordinate(row, col));
+			}
+		}
+
+		// Error handler
 		else {
-			ship.orderMove(GridCoordinate(row, col));
+			cerr << "Error: Unknown starting position\n";
+			assert(false);			
 		}
 	}
 
@@ -688,6 +737,26 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		}
 		
 		// Otherwise loiter in current region
+		else {
+			ship.orderMove(randLoiterZone(ship));
+			ship.orderAction(Ship::STOP);
+		}
+	}
+
+	// Bay of Biscay is starting region for Brest-based ships
+	// (i.e., intermediate new-ship scenarios)
+	else if (region == BAY_OF_BISCAY) {
+
+		// If located, bad weather, or late game, move out
+		if (ship.wasLocated(1)
+			|| visibility > 6
+			|| dieRoll(6) < game->getTurn() - 6)
+		{
+			ship.orderMove(randAfricanConvoyTarget());
+			ship.orderAction(Ship::PATROL);
+		}
+
+		// Loiter near France
 		else {
 			ship.orderMove(randLoiterZone(ship));
 			ship.orderAction(Ship::STOP);
