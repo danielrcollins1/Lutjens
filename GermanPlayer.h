@@ -9,6 +9,8 @@
 #define GERMANPLAYER_H
 #include "Ship.h"
 #include "TaskForce.h"
+#include <vector>
+#include <set>
 
 class GermanPlayer
 {
@@ -40,7 +42,7 @@ class GermanPlayer
 		std::vector<Ship> shipList;
 		std::vector<TaskForce> taskForceList;
 		std::vector<NavalUnit*> navalUnitList;
-		std::vector<GridCoordinate> foundShipZones;
+		std::set<GridCoordinate> foundShipZones;
 		
 		// Functions
 		void checkGeneralSearch(NavalUnit* unit, int roll);

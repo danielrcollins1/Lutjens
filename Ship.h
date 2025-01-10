@@ -83,6 +83,7 @@ class Ship: public NavalUnit
 		int getSpeedThisTurn() const override;
 		int getEvasion() const override;
 		int getAttackEvasion() const override;
+		int getSearchStrength() const override;
 
 		// Status checks
 		bool isAfloat() const override;

@@ -30,6 +30,7 @@ class NavalUnit
 		virtual int getSpeedThisTurn() const = 0;
 		virtual int getEvasion() const = 0;
 		virtual int getAttackEvasion() const = 0;
+		virtual int getSearchStrength() const = 0;
 
 		// Status checks
 		virtual bool isAfloat() const = 0;

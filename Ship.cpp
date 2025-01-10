@@ -148,7 +148,7 @@ void Ship::applyTempEvasionLoss(int midshipsLoss) {
 
 // Set how much evasion we lose per midships hit
 //   This quality is given by ship type & name in the rules
-//   So we should parse the name on ship construction
+//   So we parse the name on ship construction
 void Ship::setEvasionLossRate() {
 	int rate = 0;
 	switch (getGeneralType()) {
@@ -183,6 +183,23 @@ void Ship::tryEvasionRepair() {
 			evasionLostTemp -= repair;
 			assert(evasionLostTemp >= 0);			
 		}
+	}
+}
+
+// Get our current search strength
+//   Note this is inferred for available German ship types
+int Ship::getSearchStrength() const {
+	switch (type) {
+		case BB: case BC: 
+		case CA: return onPatrol ? (isInDay() ? 4 : 3) : 1;
+		case CL: return onPatrol ? (isInDay() ? 4 : 2) : 1;
+		case PB: return onPatrol ? (isInDay() ? 3 : 2) : 1;
+		case UB: return onPatrol ? 4 : (isInDay() ? 3 : 2);
+		case CV: case CT: return 1; // no patrol (Rules 5.31, 23.17)
+		default:
+			cerr << "Error: Unhandled ship type in search\n";
+			assert(false);
+			return 0;
 	}
 }
 

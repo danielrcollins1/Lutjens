@@ -6,6 +6,7 @@
 #include "CmdArgs.h"
 #include "Utils.h"
 #include <cassert>
+#include <set>
 using namespace std;
 
 // Constructor
@@ -99,6 +100,8 @@ void GermanPlayer::checkToFormTaskForce() {
 		{
 			// Wait if patrolling for convoys
 			if (seedShip.isOnPatrol()
+				&& !seedShip.wasLocated(1)
+				&& !seedShip.wasCombated(1)
 				&& !seedShip.wasConvoySunk(1)
 				&& !seedShip.wasConvoySunk(2))
 			{
@@ -469,24 +472,33 @@ bool GermanPlayer::trySearch() {
 
 // Resolve any search attempts
 void GermanPlayer::resolveSearch() {
-	for (auto& ship: shipList) {
-		if (ship.wasLocated(0)) {
-			auto game = GameDirector::instance();
 
-			// Get search strength
-			int strength = 1;
-			if (ship.isOnPatrol()) {
-				strength = ship.isInDay() ? 4 : 3;
+	// Get zones we want to search
+	set<GridCoordinate> zoneList;
+	for (auto& unit: navalUnitList) {
+		if (unit->wasLocated(0)) {
+			zoneList.insert(unit->getPosition());
+		}
+	}
+	
+	// Search those zones
+	for (auto& zone: zoneList) {
+
+		// Add up search strength
+		int strength = 0;
+		for (auto& unit: navalUnitList) {
+			if (unit->getPosition() == zone) {
+				strength += unit->getSearchStrength();
 			}
+		}
 			
-			// Do the search
-			auto zone = ship.getPosition();
-			if (game->isSearchable(zone, strength)) {
-				if (game->searchBritishShips(zone)) {
-					foundShipZones.push_back(zone);
-					cgame << "German player locates ship(s) in " 
-						<< zone << "\n";
-				}
+		// Do the search
+		auto game = GameDirector::instance();
+		if (game->isSearchable(zone, strength)) {
+			if (game->searchBritishShips(zone)) {
+				foundShipZones.insert(zone);
+				cgame << "German player locates ship(s) in " 
+					<< zone << "\n";
 			}
 		}
 	}

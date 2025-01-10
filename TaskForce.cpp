@@ -125,8 +125,9 @@ int TaskForce::getSpeedThisTurn() const {
 int TaskForce::getMaxSpeedClass() const {
 	int lowest = INT_MAX;
 	for (auto& ship: shipList) {
-		if (ship->getMaxSpeedClass() < lowest) {
-			lowest = ship->getMaxSpeedClass();	
+		int speedClass = ship->getMaxSpeedClass();
+		if (speedClass < lowest) {
+			lowest = speedClass;
 		}
 	}
 	return lowest;
@@ -137,26 +138,46 @@ int TaskForce::getMaxSpeedClass() const {
 int TaskForce::getEvasion() const {
 	int lowest = INT_MAX;
 	for (auto& ship: shipList) {
-		if (ship->getEvasion() < lowest) {
-			lowest = ship->getEvasion();	
+		int evasion = ship->getEvasion();
+		if (evasion < lowest) {
+			lowest = evasion;
 		}
 	}
 	return lowest;
 }
 
 // Get the attack evasion level
-//   That is: Evasion of the fastest ship
-//   See Rule 9.222 (CVs barred by errata)
+//   That is: Evasion of the fastest ship (Rule 9.222)
 int TaskForce::getAttackEvasion() const {
 	int highest = 0;
 	for (auto& ship: shipList) {
-		if (ship->getEvasion() > highest
-			&& ship->getType() != Ship::CV)
-		{		
-			highest = ship->getEvasion();	
+		if (ship->getType() != Ship::CV) { // Errata
+			int evasion = ship->getEvasion();
+			if (evasion > highest) {
+				highest = evasion;
+			}
 		}
 	}
 	return highest;
+}
+
+// Get our current search strength
+int TaskForce::getSearchStrength() const {
+
+	// If on patrol, get highest ship strength (Rule 5.45)
+	if (isOnPatrol()) {
+		int highest = 0;
+		for (auto& ship: shipList) {
+			int strength = ship->getSearchStrength();
+			if (strength > highest) {
+				highest = strength;
+			}
+		}
+		return highest;
+	}
+	
+	// If not on patrol, strength is 1 (per game counters)
+	return 1;
 }
 
 // Are any ships afloat?
