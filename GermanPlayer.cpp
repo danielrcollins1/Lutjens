@@ -835,10 +835,16 @@ int GermanPlayer::randWeightedConvoyDistance() const {
 void GermanPlayer::handleFuelEmpty(Ship& ship) {
 	assert(!ship.getFuel());
 	if (CmdArgs::instance()->useOptFuelExpenditure()) {
+
+		// First fuel-empty notice
 		if (!ship.isReturnToBase()) {
 			clog << ship.getName() << " out of fuel (set RTB)\n";
 			ship.setReturnToBase();
 			ship.clearOrders();
+		}
+		
+		// Order to base
+		if (!ship.hasOrders()) {
 			ship.orderMove(findNearestPort(ship));
 			ship.orderAction(Ship::STOP); // Rule 16.6
 		}

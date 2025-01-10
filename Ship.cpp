@@ -83,6 +83,7 @@ string Ship::getFullDesc() const {
 		+ ", fuel " + to_string(getFuel())
 		+ ", zone " + position.toString()
 		+ (onPatrol ? ", patrol" : "")
+		+ (returnToBase ? ", RTB" : "")
 		+ ")";
 }
 
