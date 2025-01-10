@@ -64,7 +64,6 @@ class Ship: public NavalUnit
 		void joinTaskForce(TaskForce* taskForce);
 		void leaveTaskForce();
 		bool isInTaskForce() const;
-		TaskForce* getTaskForce() const;
 		void moveWithShip(Ship& ship);
 
 		//

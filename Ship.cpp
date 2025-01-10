@@ -663,11 +663,6 @@ bool Ship::isInTaskForce() const {
 	return taskForce != nullptr;
 }
 
-// Get the task force we're in
-TaskForce* Ship::getTaskForce() const { 
-	return taskForce;
-}
-
 // Move with a ship leading us
 void Ship::moveWithShip(Ship& flagship) {
 	assert(isInTaskForce());
