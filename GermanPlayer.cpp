@@ -680,7 +680,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 			&& (position.getRow() < 'E' 
 				|| board->isInsidePatrolLine(position)))
 		{
-			auto target = randConvoyTarget(50);
+			auto target = randConvoyTarget(66);
 			if (getRegion(target) == EAST_ATLANTIC) {
 				ship.orderMove(randDenmarkStraitToAfricaTransit(ship));
 			}
