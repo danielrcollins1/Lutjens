@@ -17,6 +17,7 @@ int TaskForce::getId() const {
 // Attach a ship
 void TaskForce::attach(Ship* ship) {
 	assert(!includes(ship));
+	assert(ship->getGeneralType() != Ship::SUBMARINE); // Rule 22.14
 	shipList.push_back(ship);
 	ship->joinTaskForce(this);
 	clog << getName() << " attached " << ship->getName() << "\n";
