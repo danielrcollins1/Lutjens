@@ -70,9 +70,17 @@ void GameDirector::logStartTime() {
 // Is the game over? (Rule 12.1)
 bool GameDirector::isGameOver() const {
 	auto theBismarck = germanPlayer->getBismarck();
-	return !theBismarck.isAfloat()        // Rule 12.11
-		|| theBismarck.isEnteringPort()   // Rule 12.12
-		|| turn > finishTurn;             // Rule 12.14
+	if (germanPlayer->getNumShips() <= 2) {    // Rule 52.1
+		if (!theBismarck.isAfloat()            // Rule 12.11
+			|| theBismarck.isEnteringPort())   // Rule 12.12
+		{
+			return true;	
+		}
+	}
+	if (turn > finishTurn) {                   // Rule 12.14
+		return true; 
+	}              
+	return false;
 }
 
 // Do the game loop

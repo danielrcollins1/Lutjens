@@ -46,6 +46,11 @@ const Ship& GermanPlayer::getBismarck() const {
 	return *theBismarck;
 }
 
+// Get the number of ships we control
+int GermanPlayer::getNumShips() const {
+	return shipList.size();	
+}
+
 // Do unit availability phase
 void GermanPlayer::doAvailabilityPhase() {
 	foundShipZones.clear();

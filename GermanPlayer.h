@@ -27,6 +27,7 @@ class GermanPlayer
 		void printAllShips() const;
 		void getOrders(Ship& ship);
 		const Ship& getBismarck() const;
+		int getNumShips() const;
 
 	private:
 		// Enumeration
