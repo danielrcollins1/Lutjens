@@ -61,16 +61,21 @@ class GermanPlayer
 		int getNextTaskForceId();
 		TaskForce* getTaskForceById(int id);
 		MapRegion getRegion(const GridCoordinate& zone) const;
-		int randWeightedConvoyDistance() const;
+		std::set<GridCoordinate> getShipZones() const;
+
+		// Plot-targeting functions
+		GridCoordinate randLoiterZone(const Ship& ship) const;
+		GridCoordinate randAzoresZone() const;
+		GridCoordinate findNearestPort(const Ship& ship) const;
+		GridCoordinate randDenmarkStraitToAfricaTransit(
+			const Ship& ship) const;
+
+		// Convoy-targeting functions
 		GridCoordinate randConvoyTarget(int pctAtlantic) const;
 		GridCoordinate randAtlanticConvoyTarget() const;
 		GridCoordinate randAfricanConvoyTarget() const;
-		GridCoordinate randLoiterZone(const Ship& ship) const;
-		GridCoordinate randDenmarkStraitToAfricaTransit(
-			const Ship& ship) const;
 		GridCoordinate randConvoyTargetWeightNearby(const Ship& ship) const;
-		GridCoordinate randAzoresZone() const;
-		GridCoordinate findNearestPort(const Ship& ship) const;
+		int randWeightedConvoyDistance() const;
 };
 
 #endif

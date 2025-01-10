@@ -471,23 +471,17 @@ bool GermanPlayer::trySearch() {
 }
 
 // Resolve any search attempts
+//   Only search with ships that were located by enemy
 void GermanPlayer::resolveSearch() {
-
-	// Get zones we want to search
-	set<GridCoordinate> zoneList;
-	for (auto& unit: navalUnitList) {
-		if (unit->wasLocated(0)) {
-			zoneList.insert(unit->getPosition());
-		}
-	}
-	
-	// Search those zones
+	auto zoneList = getShipZones();
 	for (auto& zone: zoneList) {
 
 		// Add up search strength
 		int strength = 0;
 		for (auto& unit: navalUnitList) {
-			if (unit->getPosition() == zone) {
+			if (unit->getPosition() == zone
+				&& unit->wasLocated(0)) 
+			{
 				strength += unit->getSearchStrength();
 			}
 		}
@@ -939,4 +933,18 @@ GridCoordinate GermanPlayer::randConvoyTargetWeightNearby(
 	int roll = dieRoll(distAtlantic + distAfrican);
 	return roll <= distAtlantic ? // small chance to avoid closer line
 		randAfricanConvoyTarget() : randAtlanticConvoyTarget();
+}
+
+// Get the set of zones where we have ships
+set<GridCoordinate> GermanPlayer::getShipZones() const {
+	set<GridCoordinate> shipZones;
+	for (auto& ship: shipList) {
+		auto zone = ship.getPosition();
+		if (ship.isAfloat()
+			&& zone != GridCoordinate::NO_ZONE)
+		{
+			shipZones.insert(zone);
+		}
+	}
+	return shipZones;	
 }
