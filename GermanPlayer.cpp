@@ -133,6 +133,7 @@ void GermanPlayer::checkToCleanTaskForce() {
 		auto& taffy = taskForceList[i];
 		cleanTaskForce(taffy);
 		if (!taffy.isEmpty()) {
+			auto flagship = taffy.getFlagship();
 	
 			// End solo task force
 			if (taffy.getSize() == 1) {
@@ -140,7 +141,8 @@ void GermanPlayer::checkToCleanTaskForce() {
 			}
 	
 			// Breakup after breakout
-			else if (taffy.isOnPatrol()
+			else if (flagship->hasOrders()
+				&& flagship->getFirstOrder() == Ship::OrderType::PATROL
 				&& !taffy.wasConvoySunk(1)
 				&& !taffy.wasConvoySunk(2))
 			{
