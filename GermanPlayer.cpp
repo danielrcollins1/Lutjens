@@ -59,41 +59,13 @@ void GermanPlayer::doVisibilityPhase() {
 	orderUnitsForTurn();	
 }
 
-// Organize task forces & list ordered units for turn
+// Organize task forces & list ordered units for one turn
 void GermanPlayer::orderUnitsForTurn() {
 	navalUnitList.clear();
 
-	// Check to combine ships
-	checkToCombineShips();
-
-	// Clean up task forces
-	for (auto& taffy: taskForceList) {
-		cleanTaskForce(taffy);
-		if (!taffy.isEmpty()) {
-
-			// End solo task force
-			if (taffy.getSize() == 1) {
-				taffy.dissolve();
-			}
-
-			// Breakup after breakout
-			else if (taffy.isOnPatrol()
-				&& !taffy.wasConvoySunk(1)
-				&& !taffy.wasConvoySunk(2))
-			{
-				for (int i = 1; i < taffy.getSize(); i++) {
-					taffy.getShip(i)->orderAction(Ship::PATROL);	
-				}
-				taffy.dissolve();
-			}
-		}
-
-		// At this point if it's empty, delete it
-		if (taffy.isEmpty()) {
-			taskForceList.erase(
-				find(taskForceList.begin(), taskForceList.end(), taffy));
-		}
-	}
+	// Task force maintenance
+	checkToFormTaskForce();
+	checkToCleanTaskForce();
 
 	// Add active task forces
 	for (auto& taffy: taskForceList) {
@@ -113,24 +85,24 @@ void GermanPlayer::orderUnitsForTurn() {
 }
 
 // Check to combine ships into task force after convoy sinking
-void GermanPlayer::checkToCombineShips() {
+void GermanPlayer::checkToFormTaskForce() {
 
 	// Find if any ship sank a convoy
-	for (auto& killShip: shipList) {
-		if (killShip.isAfloat()
-			&& !killShip.isInTaskForce())
+	for (auto& seedShip: shipList) {
+		if (seedShip.isAfloat()
+			&& !seedShip.isInTaskForce())
 		{
 			// Wait if patrolling for convoys
-			if (killShip.isOnPatrol()
-				&& !killShip.wasConvoySunk(1)
-				&& !killShip.wasConvoySunk(2))
+			if (seedShip.isOnPatrol()
+				&& !seedShip.wasConvoySunk(1)
+				&& !seedShip.wasConvoySunk(2))
 			{
 				continue;	
 			}
 
 			// Gather up ships in zone
 			vector<Ship*> shipsToJoin;
-			auto zone = killShip.getPosition();
+			auto zone = seedShip.getPosition();
 			for (auto& ship: shipList) {
 				if (ship.getPosition() == zone
 					&& ship.getMaxSpeedClass() >= 3
@@ -151,6 +123,38 @@ void GermanPlayer::checkToCombineShips() {
 					taffy->attach(ship);
 				}
 			}
+		}
+	}
+}
+
+// Check to clean, dissolve, erase task forces
+void GermanPlayer::checkToCleanTaskForce() {
+	for (int i = taskForceList.size() - 1; i >= 0; i--) {
+		auto& taffy = taskForceList[i];
+		cleanTaskForce(taffy);
+		if (!taffy.isEmpty()) {
+	
+			// End solo task force
+			if (taffy.getSize() == 1) {
+				taffy.dissolve();
+			}
+	
+			// Breakup after breakout
+			else if (taffy.isOnPatrol()
+				&& !taffy.wasConvoySunk(1)
+				&& !taffy.wasConvoySunk(2))
+			{
+				for (int i = 1; i < taffy.getSize(); i++) {
+					taffy.getShip(i)->orderAction(Ship::PATROL);	
+				}
+				taffy.dissolve();
+			}
+		}
+	
+		// At this point if it's empty, delete it
+		if (taffy.isEmpty()) {
+			taskForceList.erase(
+				find(taskForceList.begin(), taskForceList.end(), taffy));
 		}
 	}
 }

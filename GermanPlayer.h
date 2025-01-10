@@ -50,7 +50,8 @@ class GermanPlayer
 
 		// Plotting functions
 		void orderUnitsForTurn();
-		void checkToCombineShips();
+		void checkToFormTaskForce();
+		void checkToCleanTaskForce();
 		void cleanTaskForce(TaskForce& taffy);
 		void orderNewGoal(Ship& ship);
 		void handleFuelEmpty(Ship& ship);
