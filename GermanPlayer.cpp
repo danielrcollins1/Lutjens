@@ -18,14 +18,6 @@ GermanPlayer::GermanPlayer() {
 	};
 	shipList = shipRoster;
 	theBismarck = &shipList[0];
-	
-	// Construct task force
-	taskForceList.reserve(8);
-	taskForceList.push_back(TaskForce(1));
-	auto taffy1 = &taskForceList.back();
-	for (auto& ship: shipList) {
-		taffy1->attach(&ship);
-	}
 }
 
 // Get the Bismarck for special basic rules
@@ -66,7 +58,8 @@ void GermanPlayer::orderUnitsForTurn() {
 
 			// Breakup after breakout
 			else if (taffy.isOnPatrol()
-				&& !taffy.wasConvoySunk(1))
+				&& !taffy.wasConvoySunk(1)
+				&& !taffy.wasConvoySunk(2))
 			{
 				for (int i = 1; i < taffy.getSize(); i++) {
 					taffy.getShip(i)->orderAction(Ship::PATROL);	
@@ -104,13 +97,22 @@ void GermanPlayer::checkToCombineShips() {
 
 	// Find if any ship sank a convoy
 	for (auto& killShip: shipList) {
-		if (!killShip.isInTaskForce()
-			&& killShip.wasConvoySunk(1)) 
+		if (killShip.isAfloat()
+			&& !killShip.isInTaskForce())
 		{
+			// Wait if patrolling for convoys
+			if (killShip.isOnPatrol()
+				&& !killShip.wasConvoySunk(1)
+				&& !killShip.wasConvoySunk(2))
+			{
+				continue;	
+			}
+
 			// Gather up ships in zone
 			vector<Ship*> shipsToJoin;
+			auto zone = killShip.getPosition();
 			for (auto& ship: shipList) {
-				if (ship.getPosition() == killShip.getPosition()
+				if (ship.getPosition() == zone
 					&& ship.getMaxSpeedClass() >= 3
 					&& !ship.isInTaskForce()
 					&& ship.isAfloat())
@@ -120,12 +122,14 @@ void GermanPlayer::checkToCombineShips() {
 			}
 			
 			// Make a task force
-			int newId = getNextTaskForceId();
-			taskForceList.push_back(TaskForce(newId));
-			TaskForce* taffy = &taskForceList.back();
-			for (auto& ship: shipsToJoin) {
-				ship->clearOrders();			
-				taffy->attach(ship);
+			if (shipsToJoin.size() > 1) {
+				int newId = getNextTaskForceId();
+				taskForceList.push_back(TaskForce(newId));
+				TaskForce* taffy = &taskForceList.back();
+				for (auto& ship: shipsToJoin) {
+					ship->clearOrders();			
+					taffy->attach(ship);
+				}
 			}
 		}
 	}
