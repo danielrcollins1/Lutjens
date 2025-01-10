@@ -11,21 +11,15 @@ using namespace std;
 // Constructor
 GermanPlayer::GermanPlayer() {
 
-	// Construct ships
-	std::vector<Ship> shipRoster = {
-		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this),
-		Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this)
-	};
-	shipList = shipRoster;
+	// Construct basic ships
+	shipList.push_back(
+		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this));
+	shipList.push_back(		
+		Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this));
 	theBismarck = &shipList[0];
-	
-	// Construct task force
+
+	// Size task force list
 	taskForceList.reserve(8);
-	taskForceList.push_back(TaskForce(1));
-	auto taffy1 = &taskForceList.back();
-	for (auto& ship: shipList) {
-		taffy1->attach(&ship);
-	}
 }
 
 // Get the Bismarck for special basic rules
@@ -99,18 +93,27 @@ void GermanPlayer::orderUnitsForTurn() {
 	}
 }
 
-// Check to combine ships into task force after convoy sinking
+// Check to combine ships into task forces
 void GermanPlayer::checkToCombineShips() {
 
-	// Find if any ship sank a convoy
-	for (auto& killShip: shipList) {
-		if (!killShip.isInTaskForce()
-			&& killShip.wasConvoySunk(1)) 
+	// Find solo ships in same zone
+	for (auto& seedShip: shipList) {
+		if (seedShip.isAfloat()
+			&& !seedShip.isInTaskForce()) 
 		{
+
+			// Wait if patrolling for convoys
+			if (seedShip.isOnPatrol()
+				&& !seedShip.wasConvoySunk(1)) 
+			{
+				continue;	
+			}
+		
 			// Gather up ships in zone
 			vector<Ship*> shipsToJoin;
+			auto zone = seedShip.getPosition();
 			for (auto& ship: shipList) {
-				if (ship.getPosition() == killShip.getPosition()
+				if (ship.getPosition() == zone
 					&& ship.getMaxSpeedClass() >= 3
 					&& !ship.isInTaskForce()
 					&& ship.isAfloat())
@@ -210,8 +213,8 @@ bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 		{
 			cgame << unit->getTypeDesc()
 				<< " seen moving through " << zone << endl;
-			game->checkShadow(*unit, zone, 
-				GameDirector::Phase::SEARCH);
+//			game->checkShadow(ship, zone, 
+//				GameDirector::Phase::SEARCH);
 			anyFound = true;
 		}
 	}
