@@ -59,6 +59,9 @@ class Ship: public NavalUnit
 		void clearOrders();
 		bool hasOrders() const;
 		OrderType getFirstOrder() const;
+		float getMaxSpeedAvg() const;
+		int routeETA() const;
+		int rowZ_ETA() const;
 		
 		// Task force membership
 		void joinTaskForce(TaskForce* taskForce);
@@ -88,6 +91,7 @@ class Ship: public NavalUnit
 
 		// Status checks
 		bool isAfloat() const override;
+		bool isOnBoard() const override;
 		bool isInDay() const override;
 		bool isInNight() const override;
 		bool isInFog() const override;

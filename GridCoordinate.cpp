@@ -42,8 +42,7 @@ bool GridCoordinate::isValid(const std::string s) {
 
 // Get coordinate as string
 std::string GridCoordinate::toString() const {
-	std::string s = row + std::to_string(col);
-	return s;
+	return *this == NO_ZONE ? "OFFBOARD" : row + std::to_string(col);
 }
 
 // Distance from another zone

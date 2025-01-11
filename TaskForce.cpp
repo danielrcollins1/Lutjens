@@ -217,6 +217,12 @@ bool TaskForce::isAfloat() const {
 	return false;
 }
 
+// Are we on the search board?
+bool TaskForce::isOnBoard() const {
+	return isAfloat()
+		&& getPosition() != GridCoordinate::NO_ZONE;	
+}
+
 // Are we in day?
 bool TaskForce::isInDay() const {
 	return getFlagship()->isInDay();	

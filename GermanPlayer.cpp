@@ -341,31 +341,33 @@ void GermanPlayer::doNavalCombatPhase() {
 //   it makes more sense for us with knowledge of ships on board.
 void GermanPlayer::doChancePhase() {
 	for (auto& unit: navalUnitList) {
-		int roll = diceRoll(2, 6);
-		
-		// Huff-duff result
-		if (roll == 2) {
-			callHuffDuff(unit);
-		}
-	
-		// General Search results
-		else if (roll <= 9) {
-			checkGeneralSearch(unit, roll);
-		}
-		
-		// Convoy results
-		else if (roll <= 12) {
-			auto game = GameDirector::instance();
-			if (!game->wasConvoySunk(0)      // Rule 10.26
-				&& !game->isVisibilityX())   // Errata in General 16/2
-			{			
-				checkConvoyResult(unit, roll);
+		if (unit->isOnBoard()) {
+			int roll = diceRoll(2, 6);
+			
+			// Huff-duff result
+			if (roll == 2) {
+				callHuffDuff(unit);
 			}
-		}
 		
-		// Error check
-		else {
-			cerr << "Error: Unhandled roll in Chance Phase.\n";
+			// General Search results
+			else if (roll <= 9) {
+				checkGeneralSearch(unit, roll);
+			}
+			
+			// Convoy results
+			else if (roll <= 12) {
+				auto game = GameDirector::instance();
+				if (!game->wasConvoySunk(0)      // Rule 10.26
+					&& !game->isVisibilityX())   // Errata in General 16/2
+				{			
+					checkConvoyResult(unit, roll);
+				}
+			}
+			
+			// Error check
+			else {
+				cerr << "Error: Unhandled roll in Chance Phase.\n";
+			}
 		}
 	}
 }
@@ -578,13 +580,23 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(
 // Get orders for a ship before its move
 void GermanPlayer::getOrders(Ship& ship) {
 	bool needsNewGoal = false;
+	int lastTurn = GameDirector::instance()->FINISH_TURN;
 	
 	// Check rule for return-to-base if out of fuel
 	if (!ship.getFuel()) {
 		handleFuelEmpty(ship);
 		if (ship.isReturnToBase()) {
-			return;	
+			return;
 		}
+	}
+
+	// If we can't reach goal, try row Z (Rule 51.6)
+	if (ship.routeETA() > lastTurn
+		&& ship.rowZ_ETA() < lastTurn)
+	{
+		ship.clearOrders();
+		ship.orderMove(randCloseRowZ(ship));
+		return;	
 	}
 
 	// Redirect if we saw combat or were found patroling
@@ -624,8 +636,18 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		visibility += 2; // approximation
 	}
 
+	// If off-board, no move
+	if (position == GridCoordinate::NO_ZONE) {
+		ship.orderAction(Ship::STOP);
+	}
+
+	// If on row Z, exit from map (Rule 51.6)
+	else if (position.getRow() == 'Z') {
+		ship.orderMove(GridCoordinate::NO_ZONE);
+	}
+
 	// At game start, choose breakout bonus move
-	if (game->isFirstTurn()) {
+	else if (game->isFirstTurn()) {
 
 		// Start at Bergen
 		if (position == GridCoordinate("F20")) {
@@ -857,14 +879,14 @@ GridCoordinate GermanPlayer::randAtlanticConvoyTarget() const {
 
 // Randomize a convoy target near the African line
 //   Weight distance as chance to find convoy on patrol (2:3:5:3:2)
-//   Row P to Z, directly on convoy route
+//   Row P to Y, near convoy beyond patrol line
 GridCoordinate GermanPlayer::randAfricanConvoyTarget() const {
 	auto board = SearchBoard::instance();
 	GridCoordinate zone = GridCoordinate::NO_ZONE;
 	while (!board->isSeaZone(zone)
 		|| board->isInsidePatrolLine(zone))
 	{
-		int inc = rand(11);
+		int inc = rand(10);
 		char row = 'P' + inc;
 		int col = 15 + (inc + 1) / 2 + randWeightedConvoyDistance();
 		zone = GridCoordinate(row, col);		
@@ -955,7 +977,7 @@ GridCoordinate GermanPlayer::randAzoresZone() const {
 	auto target = GridCoordinate::NO_ZONE;
 	auto board = SearchBoard::instance();
 	while (!board->isSeaZone(target)) {
-		char row = 'L' + rand(14);
+		char row = 'L' + rand(13);
 		int col = 3 + row - 'L' - rand(8);
 		target = GridCoordinate(row, col);
 	}
@@ -988,4 +1010,14 @@ set<GridCoordinate> GermanPlayer::getShipZones() const {
 		}
 	}
 	return shipZones;	
+}
+
+// Get a minimal-distance zone on row Z
+GridCoordinate GermanPlayer::randCloseRowZ(const Ship& ship) const {
+	auto pos = ship.getPosition();
+	int minCol = max(pos.getCol(), 10);
+	int maxCol = min(pos.getCol() + 'Z' - pos.getRow(), 26);
+	int width = maxCol - minCol + 1;
+	assert(width >= 1);
+	return GridCoordinate('Z', minCol + rand(width));
 }

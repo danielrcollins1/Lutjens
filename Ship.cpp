@@ -381,6 +381,12 @@ bool Ship::isAfloat() const {
 	return getMidships() > 0;	
 }
 
+// Are we on the search board?
+bool Ship::isOnBoard() const {
+	return isAfloat()
+		&& getPosition() != GridCoordinate::NO_ZONE;
+}
+
 // Are we in the day?
 bool Ship::isInDay() const {
 	return !isInNight();
@@ -648,9 +654,14 @@ void Ship::checkFuelDamage(int midshipsLoss) {
 // Get a route from Navigator
 void Ship::plotRoute(const GridCoordinate& goal) {
 	clearRoute();
-	auto navRoute = Navigator::findSeaRoute(*this, goal);
-	for (auto zone: navRoute) {
-		route.push(zone);	
+	if (goal == GridCoordinate::NO_ZONE) {
+		route.push(goal);		
+	}
+	else {
+		auto navRoute = Navigator::findSeaRoute(*this, goal);
+		for (auto zone: navRoute) {
+			route.push(zone);	
+		}
 	}
 }
 
@@ -688,4 +699,27 @@ void Ship::leaveTaskForce() {
 // Are we in a task force?
 bool Ship::isInTaskForce() const { 
 	return taskForce != nullptr;
+}
+
+// How many search board spaces can we move per turn?
+float Ship::getMaxSpeedAvg() const {
+	float speed = (float) getMaxSpeedClass() / 2;
+	switch (getFuel()) {
+		case 0: speed = min(speed, 0.5f); break;
+		case 1: speed = min(speed, 1.0f); break;	
+	}
+	return speed;
+}
+
+// What turn should we arrive at end of plotted route?
+int Ship::routeETA() const {
+	int turnsToGo = (int) (route.size() / getMaxSpeedAvg());
+	return GameDirector::instance()->getTurn() + turnsToGo;
+}
+
+// What turn could we get to row Z? (note Rule 5.6)
+int Ship::rowZ_ETA() const {
+	int distance = 'Z' - position.getRow();
+	int turnsToGo = (int) (distance / getMaxSpeedAvg());
+	return GameDirector::instance()->getTurn() + turnsToGo;
 }

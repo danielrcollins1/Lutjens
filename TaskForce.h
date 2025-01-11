@@ -60,6 +60,7 @@ class TaskForce: public NavalUnit
 
 		// Status checks
 		bool isAfloat() const override;
+		bool isOnBoard() const override;
 		bool isInDay() const override;
 		bool isInNight() const override;
 		bool isInFog() const override;

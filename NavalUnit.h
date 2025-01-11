@@ -35,6 +35,7 @@ class NavalUnit
 
 		// Status checks
 		virtual bool isAfloat() const = 0;
+		virtual bool isOnBoard() const = 0;
 		virtual bool isInDay() const = 0;
 		virtual bool isInNight() const = 0;
 		virtual bool isInFog() const = 0;

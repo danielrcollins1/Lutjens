@@ -66,6 +66,7 @@ class GermanPlayer
 		// Plot-targeting functions
 		GridCoordinate randLoiterZone(const Ship& ship) const;
 		GridCoordinate randAzoresZone() const;
+		GridCoordinate randCloseRowZ(const Ship& ship) const;
 		GridCoordinate findNearestPort(const Ship& ship) const;
 		GridCoordinate randDenmarkStraitToAfricaTransit(
 			const Ship& ship) const;
