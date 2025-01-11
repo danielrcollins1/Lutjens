@@ -34,9 +34,14 @@ void TaskForce::detach(Ship* ship) {
 // Detach all ships
 void TaskForce::dissolve() {
 	clog << getName() << " dissolving\n";
-	for (int i = getSize() - 1; i >= 0; i--) {
-		detach(shipList[i]);		
+	while (!shipList.empty()) {
+		detach(shipList.back());		
 	}
+}
+
+// Destructor
+TaskForce::~TaskForce() {
+	assert(isEmpty());
 }
 
 // Do we control a given ship?

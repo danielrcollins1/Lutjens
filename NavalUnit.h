@@ -56,6 +56,9 @@ class NavalUnit
 		virtual void setCombated() = 0;
 		virtual void setConvoySunk() = 0;
 		virtual void setDetected() = 0;
+		
+		// Destructor
+		virtual ~NavalUnit() {};
 };
 
 #endif

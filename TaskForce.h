@@ -27,6 +27,7 @@ class TaskForce: public NavalUnit
 		void attach(Ship* ship);
 		void detach(Ship* ship);
 		void dissolve();
+		~TaskForce();
 
 		// Accessors
 		int getId() const;

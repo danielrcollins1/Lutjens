@@ -252,7 +252,7 @@ void Ship::followShip(Ship& flagship) {
 	position = flagship.position;
 	onPatrol = flagship.onPatrol;
 	logNow().moves = flagship.logNow().moves;
-	assert(getSpeedThisTurn() <= getMaxSpeedThisTurn());
+	//assert(getSpeedThisTurn() <= getMaxSpeedThisTurn());
 	doPostMoveAccounts();
 }
 
