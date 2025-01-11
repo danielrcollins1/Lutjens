@@ -695,7 +695,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		// Loiter near Norway
 		else {
 			ship.orderMove(randLoiterZone(ship));
-			ship.orderAction(Ship::STOP);
+			ship.orderAction(Ship::STOP); // if current zone
 		}
 	}
 	
@@ -764,7 +764,6 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 			}
 			else {
 				ship.orderMove(randAzoresZone());
-				ship.orderAction(Ship::STOP);
 			}
 		}
 	}
@@ -777,7 +776,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		if (ship.wasLocated(1) || ship.wasCombated(1)) {
 			if (dieRoll(6) <= 2) {
 				ship.orderMove(randAzoresZone());
-				ship.orderAction(Ship::STOP);
+				ship.orderAction(Ship::STOP); // if current zone
 			}
 			else {
 				ship.orderMove(randConvoyTarget(50));
@@ -794,7 +793,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		// Otherwise loiter in current region
 		else {
 			ship.orderMove(randLoiterZone(ship));
-			ship.orderAction(Ship::STOP);
+			ship.orderAction(Ship::STOP); // if current zone
 		}
 	}
 
@@ -814,7 +813,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		// Loiter near France
 		else {
 			ship.orderMove(randLoiterZone(ship));
-			ship.orderAction(Ship::STOP);
+			ship.orderAction(Ship::STOP); // if current zone
 		}
 	}
 	
@@ -900,8 +899,12 @@ void GermanPlayer::handleFuelEmpty(Ship& ship) {
 		
 		// Order to base
 		if (!ship.hasOrders()) {
-			ship.orderMove(findNearestPort(ship));
-			ship.orderAction(Ship::STOP); // Rule 16.6
+			if (ship.isInPort()) {
+				ship.orderAction(Ship::STOP); // Rule 16.6
+			}
+			else {
+				ship.orderMove(findNearestPort(ship));
+			}
 		}
 	}
 }
