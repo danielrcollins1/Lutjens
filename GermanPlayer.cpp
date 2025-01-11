@@ -13,7 +13,7 @@ using namespace std;
 GermanPlayer::GermanPlayer() {
 
 	// Size non-resizable structures
-	shipList.reserve(8);
+	//shipList.reserve(8);
 	taskForceList.reserve(8);
 
 	// Construct basic ships
@@ -21,9 +21,8 @@ GermanPlayer::GermanPlayer() {
 		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this));
 	shipList.push_back(			
 		Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this));
-	theBismarck = &shipList[0];
 	
-	// Construct optional ships by command
+	// Construct optional ships on command
 	auto cmd = CmdArgs::instance();
 	if (cmd->useOptScheer()) {
 		shipList.push_back(
@@ -39,6 +38,9 @@ GermanPlayer::GermanPlayer() {
 		shipList.push_back(
 			Ship("Gneisenau", Ship::Type::BC, 32, 7, 13, "P23", this));
 	}
+	
+	// Register the Bismarck
+	theBismarck = &shipList[0];
 }
 
 // Get the Bismarck for special basic rules
