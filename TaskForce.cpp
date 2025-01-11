@@ -146,6 +146,19 @@ int TaskForce::getMaxSpeedClass() const {
 	return lowest;
 }
 
+// How many board spaces can we move this turn?
+int TaskForce::getMaxSpeedThisTurn() const {
+	int lowest = INT_MAX;
+	for (auto& ship: shipList) {
+		int speed = ship->getMaxSpeedThisTurn();
+		if (speed < lowest) {
+			lowest = speed;
+		}
+	}
+	assert(lowest < INT_MAX);
+	return lowest;
+}
+
 // Get the standard evasion level
 //   That is: Evasion of the slowest ship
 int TaskForce::getEvasion() const {

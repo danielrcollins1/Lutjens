@@ -27,6 +27,7 @@ class NavalUnit
 		virtual GridCoordinate getPosition() const = 0;
 		virtual int getSize() const = 0;
 		virtual int getMaxSpeedClass() const = 0;
+		virtual int getMaxSpeedThisTurn() const = 0;
 		virtual int getSpeedThisTurn() const = 0;
 		virtual int getEvasion() const = 0;
 		virtual int getAttackEvasion() const = 0;

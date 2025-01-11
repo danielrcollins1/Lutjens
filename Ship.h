@@ -80,6 +80,7 @@ class Ship: public NavalUnit
 		GridCoordinate getPosition() const override;
 		int getSize() const override;
 		int getMaxSpeedClass() const override;
+		int getMaxSpeedThisTurn() const override;
 		int getSpeedThisTurn() const override;
 		int getEvasion() const override;
 		int getAttackEvasion() const override;
@@ -149,7 +150,6 @@ class Ship: public NavalUnit
 
 		// Functions
 		LogTurn& logNow();
-		int getMaxSpeedThisTurn() const;
 		int getEmergencySpeedThisTurn() const;
 		int getFuelExpense(int speed) const;
 		bool isOnBreakoutBonus() const;

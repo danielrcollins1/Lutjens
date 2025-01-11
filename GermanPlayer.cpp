@@ -259,8 +259,8 @@ void GermanPlayer::testMoveAfterConvoySunk() {
 		if (ship.wasConvoySunk(1)
 			&& ship.getSpeedThisTurn() > 0)
 		{
-//			cerr << "Error: Ship moved after convoy sunk: " 
-//				<< ship.getFullDesc() << "\n";
+			cerr << "Error: Ship moved after convoy sunk: " 
+				<< ship.getFullDesc() << "\n";
 		}
 	}
 }

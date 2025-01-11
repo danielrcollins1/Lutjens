@@ -176,7 +176,7 @@ void Ship::setEvasionLossRate() {
 	evasionLossRate = rate;
 }
 
-// Try to repair evasion following movement (Rule 9.728)
+// Try to repair evasion after movement (Rule 9.728)
 void Ship::tryEvasionRepair() {
 	if (evasionLostTemp && getSpeedThisTurn() <= 1) {
 		int repair = dieRoll(6) * 2 - 4;
@@ -234,7 +234,7 @@ void Ship::doMovementTurn() {
 	player->getOrders(*this);
 	assert(hasOrders());
 
-	// Follow first order
+	// Obey first order
 	onPatrol = false;
 	switch (orders.front().type) {
 		case MOVE: doMoveOrder(); break;
@@ -252,7 +252,7 @@ void Ship::followShip(Ship& flagship) {
 	position = flagship.position;
 	onPatrol = flagship.onPatrol;
 	logNow().moves = flagship.logNow().moves;
-	//assert(getSpeedThisTurn() <= getMaxSpeedThisTurn());
+	assert(getSpeedThisTurn() <= getMaxSpeedThisTurn());
 	doPostMoveAccounts();
 }
 
@@ -277,6 +277,9 @@ void Ship::doMoveOrder() {
 	int speed = getMaxSpeedThisTurn();
 	if (getFuel() == 1) { // avoid emptying
 		speed = min(1, speed);	
+	}
+	if (isInTaskForce()) { // lead task force
+		speed = min(speed, taskForce->getMaxSpeedThisTurn());
 	}
 	
 	// Try to perform movement
