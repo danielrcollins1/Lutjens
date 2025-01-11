@@ -101,6 +101,7 @@ class Ship: public NavalUnit
 		bool movedThrough(const GridCoordinate& zone) const override;
 
 		// Mutators
+		Ship* getCommand() override;
 		Ship* getShip(int idx) override;
 		void doMovementTurn() override;
 		void setLocated() override;

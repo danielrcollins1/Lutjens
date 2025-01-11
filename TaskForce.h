@@ -71,7 +71,8 @@ class TaskForce: public NavalUnit
 		bool wasConvoySunk(unsigned turnsAgo) const override;
 		bool movedThrough(const GridCoordinate& zone) const override;
 
-		// Mutators		
+		// Mutators
+		Ship* getCommand() override;
 		Ship* getShip(int idx) override;
 		void doMovementTurn() override;
 		void setLocated() override;

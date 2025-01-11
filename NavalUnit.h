@@ -48,6 +48,7 @@ class NavalUnit
 		virtual bool movedThrough(const GridCoordinate& zone) const = 0;
 
 		// Mutators
+		virtual Ship* getCommand() = 0;
 		virtual Ship* getShip(int idx) = 0;
 		virtual void doMovementTurn() = 0;
 		virtual void setLocated() = 0;

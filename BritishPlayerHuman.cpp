@@ -65,9 +65,8 @@ bool BritishPlayerHuman::tryAttack(
 
 // Ask if there is a desired target for Germans to attack
 bool BritishPlayerHuman::tryDefend(const NavalUnit& target) {
-	cout << "In " << target.getPosition() 
-		<< " is there a solo cruiser with evasion no more than " 
-		<< target.getAttackEvasion()
+	cout << "Is there a solo cruiser in " << target.getPosition()
+		<< "\nwith evasion no more than " << target.getAttackEvasion()
 		<< " (y/n)? ";
 	return getUserYes();
 }

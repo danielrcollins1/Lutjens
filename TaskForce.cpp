@@ -60,6 +60,12 @@ Ship* TaskForce::getFlagship() const {
 	return shipList[0];	
 }
 
+// Get commanding ship (override, non-const)
+Ship* TaskForce::getCommand() {
+	assert(!isEmpty());
+	return shipList[0];	
+}
+
 // Get a ship by index
 Ship* TaskForce::getShip(int idx) {
 	assert(isInInterval(0, idx, shipList.size() - 1));

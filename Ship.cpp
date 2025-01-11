@@ -56,7 +56,14 @@ int Ship::getSize() const {
 
 // Get our pointer
 Ship* Ship::getShip(int idx) {
+	assert(idx == 0);
 	return this;	
+}
+
+// Get commanding ship
+Ship* Ship::getCommand() {
+	assert(!isInTaskForce());
+	return this;
 }
 
 // Get the name

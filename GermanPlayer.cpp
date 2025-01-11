@@ -290,7 +290,12 @@ void GermanPlayer::doNavalCombatPhase() {
 				&& unit->isAfloat()
 				&& !unit->wasCombated(0))
 			{
-				game->checkAttackBy(*unit);
+				// Only attack with battleships
+				if (unit->getCommand()->getGeneralType() 
+					== Ship::BATTLESHIP)
+				{
+					game->checkAttackBy(*unit);
+				}
 			}
 		}
 	}
