@@ -666,15 +666,16 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		
 		// Start at Brest
 		else if (position == GridCoordinate("P23")) {
-			char row = 'P' + rand(4);
-			int col = row - 'P' + 18;
 			if (dieRoll(100) <= 50) { // Fast-track
+				char row = 'P' + rand(6);
+				int col = row - 'P' + 18;
 				ship.orderMove(GridCoordinate(row, col));
 				ship.orderMove(randAfricanConvoyTarget());
 				ship.orderAction(Ship::PATROL);
 			}
-			else { // Loiter near France
-				col += dieRoll(4);				
+			else { // Slow-roll near France
+				char row = 'P' + rand(5);
+				int col = row - 'P' + 18 + dieRoll(4);
 				ship.orderMove(GridCoordinate(row, col));
 			}
 		}
@@ -823,20 +824,9 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	// (i.e., intermediate new-ship scenarios)
 	else if (region == BAY_OF_BISCAY) {
 
-		// If located, bad weather, or late game, move out
-		if (ship.wasLocated(1)
-			|| visibility > 6
-			|| dieRoll(6) < game->getTurn() - 6)
-		{
-			ship.orderMove(randAfricanConvoyTarget());
-			ship.orderAction(Ship::PATROL);
-		}
-
-		// Loiter near France
-		else {
-			ship.orderMove(randLoiterZone(ship));
-			ship.orderAction(Ship::STOP); // if current zone
-		}
+		// Get out ASAP (don't loiter inside patrol line)
+		ship.orderMove(randAfricanConvoyTarget());
+		ship.orderAction(Ship::PATROL);
 	}
 	
 	// Error-handler
