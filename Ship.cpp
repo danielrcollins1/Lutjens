@@ -43,7 +43,6 @@ Ship::Ship(std::string name, Type type,
 	evasionLostPerm = 0;
 	timesDetected = 0;
 	onPatrol = false;
-	loseMoveTurn = false;
 	returnToBase = false;
 	taskForce = nullptr;
 	setEvasionLossRate();
@@ -235,13 +234,8 @@ void Ship::doMovementTurn() {
 	player->getOrders(*this);
 	assert(hasOrders());
 
-	// Lose a turn if needed
-	if (loseMoveTurn) {
-		loseMoveTurn = false;
-	}
-
-	// Follow the next order
-	else {
+	// Move if no convoy sunk (Rule 10.25)
+	if (!wasConvoySunk(1)) {
 		onPatrol = false;
 		switch (orders.front().type) {
 			case MOVE: doMoveOrder(); break;
@@ -385,11 +379,6 @@ bool Ship::isInNight() const {
 // Are we in fog?
 bool Ship::isInFog() const {
 	return GameDirector::instance()->isInFog(position);
-}
-
-// Set if we must lose a move turn
-void Ship::setLoseMoveTurn() {
-	loseMoveTurn = true;
 }
 
 // Note that we have been detected by any means:

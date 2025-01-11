@@ -55,6 +55,7 @@ class GermanPlayer
 		void orderUnitsForTurn();
 		void checkToFormTaskForce();
 		void checkToCleanTaskForce();
+		void testStoppedUnits();
 		void cleanTaskForce(TaskForce& taffy);
 		void orderNewGoal(Ship& ship);
 		void handleFuelEmpty(Ship& ship);

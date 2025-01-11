@@ -229,6 +229,27 @@ void GermanPlayer::doShipMovementPhase() {
 			clog << ship << endl;
 		}
 	}
+	
+	// Test for stopped units
+	testStoppedUnits();	
+}
+
+// We had a bug with units losing moves;
+//   this is a test to regress for that
+void GermanPlayer::testStoppedUnits() {
+	for (auto& unit: navalUnitList) {
+		if (unit->isAfloat()
+			&& !unit->getSpeedThisTurn()
+			&& !unit->isInPort()
+			&& !unit->isOnPatrol()
+			&& !unit->isReturnToBase()
+			&& !unit->wasConvoySunk(1)
+			&& !(unit->getCommand()->hasOrders()
+				&& unit->getCommand()->getFirstOrder() == Ship::STOP))
+		{
+			cerr << "Error: Stopped unit " << unit->getFullDesc() << "\n";
+		}
+	}
 }
 
 // Check for search by British player
@@ -455,7 +476,6 @@ void GermanPlayer::destroyConvoy(NavalUnit* unit) {
 		<< " by " << unit->getNameDesc() << endl;
 	GameDirector::instance()->msgSunkConvoy();
 	unit->setConvoySunk();
-	unit->setLoseMoveTurn();   // Rule 10.25
 }
 
 // Print all of our ships (e.g., for end game)

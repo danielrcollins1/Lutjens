@@ -302,13 +302,6 @@ void TaskForce::setConvoySunk() {
 	}
 }
 
-// Note that we must lose a turn
-void TaskForce::setLoseMoveTurn() {
-	for (auto& ship: shipList) {
-		ship->setLoseMoveTurn();		
-	}
-}
-
 // Note that we were detected in any way
 void TaskForce::setDetected() {
 	for (auto& ship: shipList) {

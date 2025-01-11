@@ -108,7 +108,6 @@ class Ship: public NavalUnit
 		void setShadowed() override;
 		void setCombated() override;
 		void setConvoySunk() override;
-		void setLoseMoveTurn() override;
 		void setDetected() override;
 		
 	private:
@@ -140,7 +139,6 @@ class Ship: public NavalUnit
 		int evasionLossRate;
 		int timesDetected;
 		bool onPatrol;
-		bool loseMoveTurn;
 		bool returnToBase;
 		GridCoordinate position;
 		GermanPlayer* player;

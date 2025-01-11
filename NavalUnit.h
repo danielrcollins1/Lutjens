@@ -55,7 +55,6 @@ class NavalUnit
 		virtual void setShadowed() = 0;
 		virtual void setCombated() = 0;
 		virtual void setConvoySunk() = 0;
-		virtual void setLoseMoveTurn() = 0;
 		virtual void setDetected() = 0;
 };
 

@@ -79,7 +79,6 @@ class TaskForce: public NavalUnit
 		void setShadowed() override;
 		void setCombated() override;
 		void setConvoySunk() override;
-		void setLoseMoveTurn() override;
 		void setDetected() override;
 		
 	private:
