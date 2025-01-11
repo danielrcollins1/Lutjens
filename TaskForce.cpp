@@ -137,6 +137,7 @@ int TaskForce::getMaxSpeedClass() const {
 			lowest = speedClass;
 		}
 	}
+	assert(lowest < INT_MAX);
 	return lowest;
 }
 
@@ -150,6 +151,7 @@ int TaskForce::getEvasion() const {
 			lowest = evasion;
 		}
 	}
+	assert(lowest < INT_MAX);
 	return lowest;
 }
 
@@ -269,7 +271,7 @@ void TaskForce::doMovementTurn() {
 	flagship->doMovementTurn();
 	for (auto& ship: shipList) {
 		if (ship != flagship) {
-			ship->moveWithShip(*flagship);
+			ship->followShip(*flagship);
 		}
 	}
 }

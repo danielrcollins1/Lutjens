@@ -234,18 +234,26 @@ void Ship::doMovementTurn() {
 	player->getOrders(*this);
 	assert(hasOrders());
 
-	// Move if no convoy sunk (Rule 10.25)
-	if (!wasConvoySunk(1)) {
-		onPatrol = false;
-		switch (orders.front().type) {
-			case MOVE: doMoveOrder(); break;
-			case PATROL: onPatrol = true; break;
-			case STOP: break;
-		}
+	// Follow first order
+	onPatrol = false;
+	switch (orders.front().type) {
+		case MOVE: doMoveOrder(); break;
+		case PATROL: onPatrol = true; break;
+		case STOP: break;
 	}
 	
 	// Finish the move turn
 	doPostMoveAccounts();	
+}
+
+// Follow the leader of our task force
+void Ship::followShip(Ship& flagship) {
+	assert(isInTaskForce());
+	position = flagship.position;
+	onPatrol = flagship.onPatrol;
+	logNow().moves = flagship.logNow().moves;
+	assert(getSpeedThisTurn() <= getMaxSpeedThisTurn());
+	doPostMoveAccounts();
 }
 
 // Perform post-move accounting (fuel & repairs)
@@ -279,14 +287,13 @@ void Ship::doMoveOrder() {
 			position = next;
 			logNow().moves.push_back(position);
 			updateOrders();
-			//cout << *this << endl;
 		}
 	}
 }
 
 // Get the max speed class on the search board
 //   See Basic Game Tables Card: Movement on Search Board
-//   Note this is effectively in half-zone units per turn
+//   This is effectively in half-zone units per turn
 int Ship::getMaxSpeedClass() const {
 	int evasion = getEvasion();
 	if (evasion <= 6) return 0;
@@ -295,7 +302,7 @@ int Ship::getMaxSpeedClass() const {
 	else if (evasion <= 34) return 3;
 	else {
 		// No ship in the published game has speed this high.
-		// In this case, search board speed would be full 2 zones/turn.
+		// We compute the search board speed would be full 2 zones/turn.
 		// A few destroyers/cruisers in WWII had speeds up to 45 knots.
 		cerr << "Error: Ship evasion above game allowances.\n";
 		return 4;
@@ -303,8 +310,12 @@ int Ship::getMaxSpeedClass() const {
 }
 
 // How many board spaces can we move this turn?
-//   See Basic Game Tables Card: Movement on Search Board
 int Ship::getMaxSpeedThisTurn() const {
+
+	// No move after convoy sunk (Rule 10.25)
+	if (wasConvoySunk(1)) {
+		return 0;
+	}
 
 	// Out-of-fuel handler (Rule 5.23)
 	if (!getFuel()) {
@@ -316,13 +327,14 @@ int Ship::getMaxSpeedThisTurn() const {
 		return 5;		
 	}
 	
-	// Standard cases	
+	// Standard cases (Basic Game Tables Card)
 	switch(getMaxSpeedClass()) {
 		case 0: return 0;
 		case 1: return getEmergencySpeedThisTurn();
 		case 2: return 1;
 		case 3: return log.rbegin()[1].moves.size() > 1 ? 1 : 2;
-		default: return 2;
+		default: cerr << "Error: Unhandled speed class\n";
+			return 0;
 	}
 }
 
@@ -673,14 +685,4 @@ void Ship::leaveTaskForce() {
 // Are we in a task force?
 bool Ship::isInTaskForce() const { 
 	return taskForce != nullptr;
-}
-
-// Move with a ship leading us
-void Ship::moveWithShip(Ship& flagship) {
-	assert(isInTaskForce());
-	position = flagship.position;
-	onPatrol = flagship.onPatrol;
-	logNow().moves = flagship.logNow().moves;
-	assert((int) logNow().moves.size() <= getMaxSpeedThisTurn());
-	doPostMoveAccounts();
 }

@@ -55,7 +55,6 @@ class GermanPlayer
 		void orderUnitsForTurn();
 		void checkToFormTaskForce();
 		void checkToCleanTaskForce();
-		void testStoppedUnits();
 		void cleanTaskForce(TaskForce& taffy);
 		void orderNewGoal(Ship& ship);
 		void handleFuelEmpty(Ship& ship);
@@ -77,6 +76,10 @@ class GermanPlayer
 		GridCoordinate randAfricanConvoyTarget() const;
 		GridCoordinate randConvoyTargetWeightNearby(const Ship& ship) const;
 		int randWeightedConvoyDistance() const;
+		
+		// Test regressions
+		void testStoppedUnits();
+		void testMoveAfterConvoySunk();
 };
 
 #endif

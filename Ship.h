@@ -64,7 +64,7 @@ class Ship: public NavalUnit
 		void joinTaskForce(TaskForce* taskForce);
 		void leaveTaskForce();
 		bool isInTaskForce() const;
-		void moveWithShip(Ship& ship);
+		void followShip(Ship& ship);
 
 		//
 		// NavalUnit overrides

@@ -230,12 +230,13 @@ void GermanPlayer::doShipMovementPhase() {
 		}
 	}
 	
-	// Test for stopped units
+	// Tests for bug regressions
 	testStoppedUnits();	
+	testMoveAfterConvoySunk();
 }
 
-// We had a bug with units losing moves;
-//   this is a test to regress for that
+// Test for units losing movement turns
+//   (Prior bug: Lose-turn field kept after TF dissolved)
 void GermanPlayer::testStoppedUnits() {
 	for (auto& unit: navalUnitList) {
 		if (unit->isAfloat()
@@ -247,7 +248,20 @@ void GermanPlayer::testStoppedUnits() {
 			&& !(unit->getCommand()->hasOrders()
 				&& unit->getCommand()->getFirstOrder() == Ship::STOP))
 		{
-			cerr << "Error: Stopped unit " << unit->getFullDesc() << "\n";
+			cerr << "Error: Stopped unit: " << unit->getFullDesc() << "\n";
+		}
+	}
+}
+
+// Test for units moving after convoy sunk
+//   (Prior bug: TF ignored follower ships that sank convoys)
+void GermanPlayer::testMoveAfterConvoySunk() {
+	for (auto& ship: shipList) {
+		if (ship.wasConvoySunk(1)
+			&& ship.getSpeedThisTurn() > 0)
+		{
+			cerr << "Error: Ship moved after convoy sunk: " 
+				<< ship.getFullDesc() << "\n";
 		}
 	}
 }
