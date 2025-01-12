@@ -588,6 +588,12 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(
 void GermanPlayer::getOrders(Ship& ship) {
 	bool needsNewGoal = false;
 	int lastTurn = GameDirector::instance()->FINISH_TURN;
+
+	// Abort if off-board
+	if (ship.getPosition() == GridCoordinate::NO_ZONE) {
+		ship.orderAction(Ship::STOP);
+		return;
+	}
 	
 	// Check rule for return-to-base if out of fuel
 	if (!ship.getFuel()) {
@@ -643,18 +649,8 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		visibility += 2; // approximation
 	}
 
-	// If off-board, no move
-	if (position == GridCoordinate::NO_ZONE) {
-		ship.orderAction(Ship::STOP);
-	}
-
-	// If on row Z, exit from map (Rule 51.6)
-	else if (position.getRow() == 'Z') {
-		ship.orderMove(GridCoordinate::NO_ZONE);
-	}
-
 	// At game start, choose breakout bonus move
-	else if (game->isFirstTurn()) {
+	if (game->isFirstTurn()) {
 
 		// Start at Bergen
 		if (position == GridCoordinate("F20")) {
@@ -709,10 +705,13 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		}
 	}
 
+	// If on row Z, exit from map (Rule 51.6)
+	else if (position.getRow() == 'Z') {
+		ship.orderMove(GridCoordinate::NO_ZONE);
+	}
+
 	// If in North Sea, move to Norway coast
 	else if (region == NORTH_SEA) {
-
-		// Safety valve for region we shouldn't ever go
 		ship.orderMove(board->randSeaZone("D17", 1));
 	}
 
