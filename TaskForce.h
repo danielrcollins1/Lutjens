@@ -29,15 +29,10 @@ class TaskForce: public NavalUnit
 		void dissolve();
 		~TaskForce();
 
-		// Accessors
+		// Functions
 		int getId() const;
 		bool isEmpty() const;
-		bool includes(Ship* ship) const;
-		
-		// Mutator
 		void orderFollowers(Ship::OrderType order);
-		
-		// Operators
 		bool operator==(const TaskForce& other) const;
 
 		//

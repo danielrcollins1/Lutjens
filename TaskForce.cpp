@@ -9,6 +9,10 @@ TaskForce::TaskForce (int id) {
 	clog << getName() << " forming\n";
 }
 
+// Destructor
+TaskForce::~TaskForce() {
+}
+
 // Get our identifying number
 int TaskForce::getId() const {
 	return identifier;	
@@ -16,7 +20,6 @@ int TaskForce::getId() const {
 
 // Attach a ship
 void TaskForce::attach(Ship* ship) {
-	assert(!includes(ship));
 	assert(ship->getGeneralType() != Ship::SUBMARINE); // Rule 22.14
 	shipList.push_back(ship);
 	ship->joinTaskForce(this);
@@ -25,8 +28,9 @@ void TaskForce::attach(Ship* ship) {
 
 // Detach a ship
 void TaskForce::detach(Ship* ship) {
-	assert(includes(ship));
-	shipList.erase(find(shipList.begin(), shipList.end(), ship));
+	auto it = find(shipList.begin(), shipList.end(), ship);
+	assert(it != shipList.end());
+	shipList.erase(it);
 	ship->leaveTaskForce();
 	clog << getName() << " detached " << ship->getName() << "\n";
 }
@@ -35,17 +39,8 @@ void TaskForce::detach(Ship* ship) {
 void TaskForce::dissolve() {
 	clog << getName() << " dissolving\n";
 	while (!shipList.empty()) {
-		detach(shipList.back());
+		detach(shipList.front());
 	}
-}
-
-// Destructor
-TaskForce::~TaskForce() {
-}
-
-// Do we control a given ship?
-bool TaskForce::includes(Ship* ship) const {
-	return hasElem(shipList, ship);
 }
 
 // Is this group empty?
