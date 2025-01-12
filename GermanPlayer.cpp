@@ -658,10 +658,13 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 
 		// Start at Bergen
 		if (position == GridCoordinate("F20")) {
-			char row = dieRoll(100) <= 85 ? 
-				'A' + rand(4): 'E' + rand(2);
-			int col = dieRoll(100) <= 50 ?
-				15 : 16 + rand(3);
+			
+			// Note: rows A-D are above general patrol area (Rule 10.211),
+			// while rows E-F in reach are mostly 2 zones from Britain
+			// (so, worst chance column for us: 10/36 found start turn)
+			// We take a small risk of that to widen search area
+			char row = dieRoll(100) <= 85 ? 'A' + rand(4): 'E' + rand(2);
+			int col = dieRoll(100) <= 50 ? 15 : 16 + rand(3);
 			if (row == 'F' && col == 15) { // Avoid Faeroe
 				ship.orderMove("G16");
 				ship.orderMove(board->randSeaZone("H15", 1));
@@ -673,10 +676,22 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 		
 		// Start at Brest
 		else if (position == GridCoordinate("P23")) {
+
+			// Here, our entire breakout span is within patrol area.
+			// If we go max speed 5 to row P or below, we get
+			// 2 zones from patrol line (so, best chance column for us)
+			// But most anything else above row R is 2 zones from Britain.
+			// (difference is 0/36 vs. 10/36 to be found 1st turn)
+			// However, British player can picket the entire
+			// max breakout line on start turn and beyond.
+			// So we use more of that area.
 			if (dieRoll(100) <= 50) { // Fast-track
-				char row = 'P' + rand(6);
-				int col = row - 'P' + 18;
+				char row = 'N' + rand(8);
+				int col = (row <= 'P') ? 18 : row - 'P' + 18;
 				ship.orderMove(GridCoordinate(row, col));
+				if (row < 'P') {
+					ship.orderMove(board->randSeaZone("N15", 1));
+				}
 				ship.orderMove(randAfricanConvoyTarget());
 				ship.orderAction(Ship::PATROL);
 			}
