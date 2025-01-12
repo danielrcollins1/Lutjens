@@ -2,11 +2,9 @@
 #include "GameDirector.h"
 #include "SearchBoard.h"
 #include "GameStream.h"
-#include "TaskForce.h"
 #include "CmdArgs.h"
 #include "Utils.h"
 #include <cassert>
-#include <set>
 using namespace std;
 
 // Constructor
@@ -17,6 +15,7 @@ GermanPlayer::GermanPlayer() {
 		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this));
 	shipList.push_back(			
 		Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this));
+	theBismarck = &shipList.front();
 	
 	// Construct optional ships on command
 	auto cmd = CmdArgs::instance();
@@ -34,9 +33,12 @@ GermanPlayer::GermanPlayer() {
 		shipList.push_back(
 			Ship("Gneisenau", Ship::Type::BC, 32, 7, 13, "P23", this));
 	}
-	
-	// Register the Bismarck (do last after ship size set)
-	theBismarck = &shipList[0];
+}
+
+// Destructor
+GermanPlayer::~GermanPlayer() {
+	shipList.clear();
+	taskForceList.clear();
 }
 
 // Get the Bismarck for special basic rules

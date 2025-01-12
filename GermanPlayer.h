@@ -10,12 +10,14 @@
 #include "Ship.h"
 #include "TaskForce.h"
 #include <vector>
+#include <list>
 #include <set>
 
 class GermanPlayer
 {
 	public:
 		GermanPlayer();
+		~GermanPlayer();
 		void doAvailabilityPhase();
 		void doVisibilityPhase();
 		void doShadowPhase();
@@ -39,7 +41,7 @@ class GermanPlayer
 
 		// Data
 		Ship* theBismarck;
-		std::vector<Ship> shipList;
+		std::list<Ship> shipList;
 		std::vector<TaskForce*> taskForceList;
 		std::vector<NavalUnit*> navalUnitList;
 		std::set<GridCoordinate> foundShipZones;
