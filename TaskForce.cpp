@@ -35,13 +35,12 @@ void TaskForce::detach(Ship* ship) {
 void TaskForce::dissolve() {
 	clog << getName() << " dissolving\n";
 	while (!shipList.empty()) {
-		detach(shipList.back());		
+		detach(shipList.back());
 	}
 }
 
 // Destructor
 TaskForce::~TaskForce() {
-	assert(isEmpty());
 }
 
 // Do we control a given ship?
@@ -75,6 +74,13 @@ Ship* TaskForce::getCommand() {
 Ship* TaskForce::getShip(int idx) {
 	assert(isInInterval(0, idx, shipList.size() - 1));
 	return shipList[idx];
+}
+
+// Give all follower ships an order
+void TaskForce::orderFollowers(Ship::OrderType order) {
+	for (unsigned i = 1; i < shipList.size(); i++) {
+		shipList[i]->orderAction(order);
+	}
 }
 
 // Equality operator

@@ -73,13 +73,13 @@ void GermanPlayer::orderUnitsForTurn() {
 	navalUnitList.clear();
 
 	// Task force maintenance
-	checkToFormTaskForce();
-	checkToCleanTaskForce();
+	formTaskForces();
+	cleanTaskForces();
 
 	// Add active task forces
 	for (auto& taffy: taskForceList) {
-		if (!taffy->isEmpty()) {
-			navalUnitList.push_back(taffy);
+		if (!taffy.isEmpty()) {
+			navalUnitList.push_back(&taffy);
 		}
 	}
 
@@ -93,8 +93,8 @@ void GermanPlayer::orderUnitsForTurn() {
 	}
 }
 
-// Check to combine ships into task force after convoy sinking
-void GermanPlayer::checkToFormTaskForce() {
+// Combine ships into task forces
+void GermanPlayer::formTaskForces() {
 
 	// Check all solo ships
 	for (auto& seedShip: shipList) {
@@ -127,62 +127,64 @@ void GermanPlayer::checkToFormTaskForce() {
 			// Create a new task force
 			if (shipsToJoin.size() > 1) {
 				int newId = getNextTaskForceId();
-				TaskForce* taffy = new TaskForce(newId); 
+				taskForceList.push_back(TaskForce(newId));
 				for (auto& ship: shipsToJoin) {
 					ship->clearOrders();			
-					taffy->attach(ship);
+					taskForceList.back().attach(ship);
 				}
-				taskForceList.push_back(taffy);
 			}
 		}
 	}
 }
 
-// Check to clean, dissolve, erase task forces
-void GermanPlayer::checkToCleanTaskForce() {
-	for (int i = taskForceList.size() - 1; i >= 0; i--) {
-		auto taffy = taskForceList[i];
+// Clean, dissolve, erase task forces
+void GermanPlayer::cleanTaskForces() {
+
+	// Clean up task forces
+	for (auto& taffy: taskForceList) {
 		cleanTaskForce(taffy);
-		if (!taffy->isEmpty()) {
-			auto flagship = taffy->getFlagship();
+		if (!taffy.isEmpty()) {
+			auto flagship = taffy.getFlagship();
 	
 			// End solo task force
-			if (taffy->getSize() == 1) {
-				taffy->dissolve();
+			if (taffy.getSize() == 1) {
+				taffy.dissolve();
 			}
 	
 			// Breakup after breakout
 			else if (flagship->hasOrders()
-				&& flagship->getFirstOrder() == Ship::OrderType::PATROL
-				&& !taffy->wasConvoySunk(1)
-				&& !taffy->wasConvoySunk(2))
+				&& flagship->getFirstOrder() == Ship::PATROL
+				&& !taffy.wasConvoySunk(1)
+				&& !taffy.wasConvoySunk(2))
 			{
-				for (int i = 1; i < taffy->getSize(); i++) {
-					taffy->getShip(i)->orderAction(Ship::PATROL);	
-				}
-				taffy->dissolve();
+				taffy.orderFollowers(Ship::PATROL);
+				taffy.dissolve();
 			}
 		}
-	
-		// At this point if it's empty, delete it
-		if (taffy->isEmpty()) {
-			taskForceList.erase(
-				find(taskForceList.begin(), taskForceList.end(), taffy));
-			delete taffy;
+	}
+
+	// Delete any empty task forces
+	auto it = taskForceList.begin();
+	while (it != taskForceList.end()) {
+		if (it->isEmpty()) {
+			it = taskForceList.erase(it);	
+			continue;
 		}
+		it++;
 	}
 }
 
 // Clean task force as needed
 //   Sweep out sunk, slow, low-fuel ships
-void GermanPlayer::cleanTaskForce(TaskForce* taffy) {
-	for (int i = taffy->getSize() - 1; i >= 0; i--) {
-		Ship* ship = taffy->getShip(i);
+void GermanPlayer::cleanTaskForce(TaskForce& taffy) {
+	for (int i = 0; i < taffy.getSize(); i++) {
+		Ship* ship = taffy.getShip(i);
 		if (!ship->isAfloat()
 			|| ship->getFuel() < 2
 			|| ship->getMaxSpeedClass() < 3)
 		{
-			taffy->detach(ship);
+			taffy.detach(ship);
+			i--;
 		}
 	}
 }
@@ -199,8 +201,8 @@ int GermanPlayer::getNextTaskForceId() {
 // Get a task force by ID number
 TaskForce* GermanPlayer::getTaskForceById(int id) {
 	for (auto& taffy: taskForceList) {
-		if (taffy->getId() == id) {
-			return taffy;
+		if (taffy.getId() == id) {
+			return &taffy;
 		}
 	}
 	return nullptr;	

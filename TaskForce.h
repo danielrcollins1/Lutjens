@@ -35,6 +35,9 @@ class TaskForce: public NavalUnit
 		bool includes(Ship* ship) const;
 		Ship* getFlagship() const;
 		
+		// Mutator
+		void orderFollowers(Ship::OrderType order);
+		
 		// Operators
 		bool operator==(const TaskForce& other) const;
 

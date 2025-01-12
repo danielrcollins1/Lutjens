@@ -43,7 +43,7 @@ class GermanPlayer
 		int startNumShips;
 		Ship* theBismarck;
 		std::list<Ship> shipList;
-		std::vector<TaskForce*> taskForceList;
+		std::list<TaskForce> taskForceList;
 		std::list<NavalUnit*> navalUnitList;
 		std::set<GridCoordinate> foundShipZones;
 		
@@ -56,9 +56,9 @@ class GermanPlayer
 
 		// Plotting functions
 		void orderUnitsForTurn();
-		void checkToFormTaskForce();
-		void checkToCleanTaskForce();
-		void cleanTaskForce(TaskForce* taffy);
+		void formTaskForces();
+		void cleanTaskForces();
+		void cleanTaskForce(TaskForce& taffy);
 		void orderNewGoal(Ship& ship);
 		void handleFuelEmpty(Ship& ship);
 		int getNextTaskForceId();
