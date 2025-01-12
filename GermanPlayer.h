@@ -44,7 +44,7 @@ class GermanPlayer
 		Ship* theBismarck;
 		std::list<Ship> shipList;
 		std::vector<TaskForce*> taskForceList;
-		std::vector<NavalUnit*> navalUnitList;
+		std::list<NavalUnit*> navalUnitList;
 		std::set<GridCoordinate> foundShipZones;
 		
 		// Functions
