@@ -59,15 +59,16 @@ int TaskForce::getSize() const {
 }
 
 // Get the lead ship
-Ship* TaskForce::getFlagship() const {
+const Ship* TaskForce::getFlagship() const {
 	assert(!isEmpty());
-	return shipList[0];	
+	return shipList.front();	
 }
 
-// Get commanding ship (override, non-const)
-Ship* TaskForce::getCommand() {
-	assert(!isEmpty());
-	return shipList[0];	
+// Get the lead ship (non-const)
+Ship* TaskForce::getFlagship() {
+	// Per Scott Meyers: stackoverflow.com/a/123995/5407757
+	return const_cast<Ship*>
+		(static_cast<const TaskForce&>(*this).getFlagship());
 }
 
 // Get a ship by index

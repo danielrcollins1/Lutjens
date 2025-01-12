@@ -80,6 +80,9 @@ class Ship: public NavalUnit
 		std::string getFullDesc() const override;
 		
 		// Accessors
+		virtual Ship* getShip(int idx) override;
+		virtual Ship* getFlagship() override;
+		virtual const Ship* getFlagship() const override;
 		GridCoordinate getPosition() const override;
 		int getSize() const override;
 		int getMaxSpeedClass() const override;
@@ -106,8 +109,6 @@ class Ship: public NavalUnit
 		bool movedThrough(const GridCoordinate& zone) const override;
 
 		// Mutators
-		Ship* getCommand() override;
-		Ship* getShip(int idx) override;
 		void doMovementTurn() override;
 		void setLocated() override;
 		void setShadowed() override;

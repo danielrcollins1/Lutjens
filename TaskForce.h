@@ -33,7 +33,6 @@ class TaskForce: public NavalUnit
 		int getId() const;
 		bool isEmpty() const;
 		bool includes(Ship* ship) const;
-		Ship* getFlagship() const;
 		
 		// Mutator
 		void orderFollowers(Ship::OrderType order);
@@ -52,6 +51,9 @@ class TaskForce: public NavalUnit
 		std::string getFullDesc() const override;
 		
 		// Accessors
+		virtual Ship* getShip(int idx) override;
+		virtual Ship* getFlagship() override;
+		virtual const Ship* getFlagship() const override;
 		GridCoordinate getPosition() const override;
 		int getSize() const override;
 		int getMaxSpeedClass() const override;
@@ -78,8 +80,6 @@ class TaskForce: public NavalUnit
 		bool movedThrough(const GridCoordinate& zone) const override;
 
 		// Mutators
-		Ship* getCommand() override;
-		Ship* getShip(int idx) override;
 		void doMovementTurn() override;
 		void setLocated() override;
 		void setShadowed() override;

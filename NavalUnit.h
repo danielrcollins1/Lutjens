@@ -22,8 +22,11 @@ class NavalUnit
 		virtual std::string getTypeDesc() const = 0;
 		virtual std::string getNameDesc() const = 0;
 		virtual std::string getFullDesc() const = 0;
-		
+
 		// Accessors
+		virtual Ship* getShip(int idx) = 0;
+		virtual Ship* getFlagship() = 0;
+		virtual const Ship* getFlagship() const = 0;
 		virtual GridCoordinate getPosition() const = 0;
 		virtual int getSize() const = 0;
 		virtual int getMaxSpeedClass() const = 0;
@@ -50,8 +53,6 @@ class NavalUnit
 		virtual bool movedThrough(const GridCoordinate& zone) const = 0;
 
 		// Mutators
-		virtual Ship* getCommand() = 0;
-		virtual Ship* getShip(int idx) = 0;
 		virtual void doMovementTurn() = 0;
 		virtual void setLocated() = 0;
 		virtual void setShadowed() = 0;

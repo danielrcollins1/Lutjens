@@ -59,10 +59,17 @@ Ship* Ship::getShip(int idx) {
 	return this;	
 }
 
-// Get commanding ship
-Ship* Ship::getCommand() {
+// Get commanding ship (this)
+const Ship* Ship::getFlagship() const {
 	assert(!isInTaskForce());
 	return this;
+}
+
+// Get commanding ship (non-const)
+Ship* Ship::getFlagship() {
+	// Per Scott Meyers: stackoverflow.com/a/123995/5407757
+	return const_cast<Ship*>
+		(static_cast<const Ship&>(*this).getFlagship());
 }
 
 // Get the name

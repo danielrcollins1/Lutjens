@@ -251,8 +251,8 @@ void GermanPlayer::testStoppedUnits() {
 			&& !unit->isOnPatrol()
 			&& !unit->isReturnToBase()
 			&& !unit->wasConvoySunk(1)
-			&& !(unit->getCommand()->hasOrders()
-				&& unit->getCommand()->getFirstOrder() == Ship::STOP))
+			&& !(unit->getFlagship()->hasOrders()
+				&& unit->getFlagship()->getFirstOrder() == Ship::STOP))
 		{
 			cerr << "Error: Stopped unit: " << unit->getFullDesc() << "\n";
 		}
@@ -332,7 +332,7 @@ void GermanPlayer::doNavalCombatPhase() {
 				&& !unit->wasCombated(0))
 			{
 				// Only attack with battleships
-				if (unit->getCommand()->getGeneralType() 
+				if (unit->getFlagship()->getGeneralType() 
 					== Ship::BATTLESHIP)
 				{
 					game->checkAttackBy(*unit);
