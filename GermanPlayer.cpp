@@ -15,7 +15,6 @@ GermanPlayer::GermanPlayer() {
 		Ship("Bismarck", Ship::Type::BB, 29, 10, 13, "F20", this));
 	shipList.push_back(			
 		Ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, "F20", this));
-	theBismarck = &shipList.front();
 	
 	// Construct optional ships on command
 	auto cmd = CmdArgs::instance();
@@ -33,6 +32,10 @@ GermanPlayer::GermanPlayer() {
 		shipList.push_back(
 			Ship("Gneisenau", Ship::Type::BC, 32, 7, 13, "P23", this));
 	}
+	
+	// Record key data
+	startNumShips = shipList.size();
+	theBismarck = &shipList.front();
 }
 
 // Destructor
@@ -47,9 +50,9 @@ const Ship& GermanPlayer::getBismarck() const {
 	return *theBismarck;
 }
 
-// Get the number of ships we control
-int GermanPlayer::getNumShips() const {
-	return shipList.size();	
+// Get the number of ships we started with
+int GermanPlayer::getStartNumShips() const {
+	return startNumShips;
 }
 
 // Do unit availability phase

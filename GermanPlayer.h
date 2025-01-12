@@ -30,8 +30,8 @@ class GermanPlayer
 		void resolveSearch();
 		void printAllShips() const;
 		void getOrders(Ship& ship);
+		int getStartNumShips() const;
 		const Ship& getBismarck() const;
-		int getNumShips() const;
 
 	private:
 		// Enumeration
@@ -40,6 +40,7 @@ class GermanPlayer
 			AZORES, BAY_OF_BISCAY, OFF_MAP};
 
 		// Data
+		int startNumShips;
 		Ship* theBismarck;
 		std::list<Ship> shipList;
 		std::vector<TaskForce*> taskForceList;
