@@ -60,6 +60,7 @@ class Ship: public NavalUnit
 		bool hasOrders() const;
 		OrderType getFirstOrder() const;
 		float getMaxSpeedAvg() const;
+		int convoyETA() const;
 		int routeETA() const;
 		int rowZ_ETA() const;
 		

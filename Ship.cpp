@@ -718,7 +718,21 @@ float Ship::getMaxSpeedAvg() const {
 	return speed;
 }
 
-// What turn should we arrive at end of plotted route?
+// What turn is the earliest we could reach a convoy route zone?
+int Ship::convoyETA() const {
+	int minDist = INT_MAX;
+	auto convoyZones = SearchBoard::instance()->getAllConvoyRoutes();	
+	for (auto zone: convoyZones) {
+		int distance = position.distanceFrom(zone);
+		if (distance < minDist) {
+			minDist = distance;	
+		}
+	}
+	int turnsToGo = (int) (minDist / getMaxSpeedAvg());
+	return GameDirector::instance()->getTurn() + turnsToGo;
+}
+
+// What turn should we arrive at end of our plotted route?
 int Ship::routeETA() const {
 	int turnsToGo = (int) (route.size() / getMaxSpeedAvg());
 	return GameDirector::instance()->getTurn() + turnsToGo;

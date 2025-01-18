@@ -815,9 +815,18 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	// Use Azores to hide out, e.g., after convoy sinking
 	// (We rarely get this far, and never time to get out)
 	else if (region == AZORES) {
+		int lastTurn = game->getFinishTurn();
+
+		// Exit via row Z late-game (Rule 51.6)
+		if (ship.convoyETA() > lastTurn
+			&& ship.rowZ_ETA() < lastTurn)
+		{
+			ship.clearOrders();
+			ship.orderMove(randCloseRowZ(ship));
+		}
 
 		// Move somewhere if we're found or combated
-		if (ship.wasLocated(1) || ship.wasCombated(1)) {
+		else if (ship.wasLocated(1) || ship.wasCombated(1)) {
 			if (dieRoll(6) <= 2) {
 				ship.orderMove(randAzoresZone());
 				ship.orderAction(Ship::STOP); // if current zone

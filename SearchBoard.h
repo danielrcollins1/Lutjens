@@ -30,6 +30,7 @@ class SearchBoard
 		GridCoordinate randSeaZone(const GridCoordinate& center, 
 			int radius) const;
 		std::vector<GridCoordinate> getAllGermanPorts() const;
+		std::vector<GridCoordinate> getAllConvoyRoutes() const;
 		void print() const;
 
 	private:

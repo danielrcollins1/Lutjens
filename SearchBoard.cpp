@@ -113,3 +113,8 @@ bool SearchBoard::isInsidePatrolLine(const GridCoordinate& zone) const {
 std::vector<GridCoordinate> SearchBoard::getAllGermanPorts() const {
 	return layers[GermanPorts].getAllOn();
 }
+
+// Get a list of all the convoy route zones
+std::vector<GridCoordinate> SearchBoard::getAllConvoyRoutes() const {
+	return layers[ConvoyRoutes].getAllOn();
+}
