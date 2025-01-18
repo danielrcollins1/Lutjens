@@ -690,7 +690,7 @@ bool Ship::isReturnToBase() const {
 
 // Are we using the breakout bonus first-turn move (Rule 5.28)?
 bool Ship::isOnBreakoutBonus() const {
-	return GameDirector::instance()->isFirstTurn();
+	return GameDirector::instance()->isStartTurn();
 }
 
 // Join a task force

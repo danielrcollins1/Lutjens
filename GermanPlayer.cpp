@@ -285,7 +285,7 @@ bool GermanPlayer::checkSearch(const GridCoordinate& zone) {
 			anyFound = true;
 		}
 		else if (unit->movedThrough(zone)
-			&& !game->isFirstTurn())
+			&& !game->isStartTurn())
 		{
 			cgame << unit->getTypeDesc()
 				<< " seen moving through " << zone << endl;
@@ -587,7 +587,7 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(
 // Get orders for a ship before its move
 void GermanPlayer::getOrders(Ship& ship) {
 	bool needsNewGoal = false;
-	int lastTurn = GameDirector::instance()->FINISH_TURN;
+	int lastTurn = GameDirector::instance()->getFinishTurn();
 
 	// Abort if off-board
 	if (ship.getPosition() == GridCoordinate::NO_ZONE) {
@@ -650,7 +650,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 	}
 
 	// At game start, choose breakout bonus move
-	if (game->isFirstTurn()) {
+	if (game->isStartTurn()) {
 
 		// Start at Bergen
 		if (position == GridCoordinate("F20")) {

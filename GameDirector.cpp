@@ -39,7 +39,7 @@ GameDirector::GameDirector() {
 		(BritishPlayerInterface*) new BritishPlayerComputer :
 		(BritishPlayerInterface*) new BritishPlayerHuman;
 	if (args->getLastTurn() > 0) {
-		finishTurn = args->getLastTurn();	
+		finishTurn = args->getLastTurn();
 	}
 	dailyConvoySunk.push_back(false);
 }
@@ -105,14 +105,24 @@ int GameDirector::getTurn() const {
 	return turn;	
 }
 
-// Get number of turns completed
-int GameDirector::getTurnsElapsed() const {
-	return turn - START_TURN;	
+// Get turn number of the starting turn
+int GameDirector::getStartTurn() const {
+	return BASIC_START_TURN;
 }
 
-// Are we in the first turn (or before)?
-bool GameDirector::isFirstTurn() const {
-	return getTurnsElapsed() <= 0;	
+// Get turn number of the finishing turn
+int GameDirector::getFinishTurn() const {
+	return BASIC_FINISH_TURN;	
+}
+
+// Get number of turns completed
+int GameDirector::getTurnsElapsed() const {
+	return getTurn() - getStartTurn();
+}
+
+// Are we in the starting turn?
+bool GameDirector::isStartTurn() const {
+	return getTurn() == getStartTurn();
 }
 
 // Get current visibility
@@ -179,7 +189,7 @@ void GameDirector::doAvailabilityPhase() {
 
 // Do visibility phase
 void GameDirector::doVisibilityPhase() {
-	if (turn > START_TURN) {
+	if (!isStartTurn()) {
 		rollVisibility();
 	}
 	cgame << "Visibility: " 
@@ -191,30 +201,22 @@ void GameDirector::doVisibilityPhase() {
 
 // Do shadow phase
 void GameDirector::doShadowPhase() {
-	if (turn > START_TURN) {
-		germanPlayer->doShadowPhase();
-	}
+	germanPlayer->doShadowPhase();
 }
 
 // Do ship movement phase
 void GameDirector::doShipMovementPhase() {
-	if (turn >= START_TURN) {
-		britishPlayer->promptMovement();
-		germanPlayer->doShipMovementPhase();
-	}
+	britishPlayer->promptMovement();
+	germanPlayer->doShipMovementPhase();
 }
 
 // Do search phase
 void GameDirector::doSearchPhase() {
-
-	// Ask players for search attempts
-	if (turn >= START_TURN) {
-		if (britishPlayer->trySearch()) {
-			britishPlayer->resolveSearch();		
-		}
-		if (germanPlayer->trySearch()) {
-			germanPlayer->resolveSearch();
-		}
+	if (britishPlayer->trySearch()) {
+		britishPlayer->resolveSearch();		
+	}
+	if (germanPlayer->trySearch()) {
+		germanPlayer->resolveSearch();
 	}
 }
 
@@ -231,7 +233,7 @@ bool GameDirector::searchBritishShips(const GridCoordinate& zone) {
 // Do chance phase
 //   See Basic Game Tables Card: Chance Table
 void GameDirector::doChancePhase() {
-	if (turn >= START_TURN && !isGameOver()) {
+	if (!isGameOver()) {
 		germanPlayer->doChancePhase();
 	}
 }

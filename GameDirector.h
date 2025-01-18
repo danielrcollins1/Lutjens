@@ -20,9 +20,6 @@ class GermanPlayer;
 class GameDirector
 {
 	public:
-		// Constants
-		static const int START_TURN = 4;
-		static const int FINISH_TURN = 34;
 
 		// Enumeration
 		enum Phase {AVAILABILITY, VISIBILITY, 
@@ -37,10 +34,12 @@ class GameDirector
 		void doGameLoop();
 		void doEndGame();
 		int getTurn() const;
+		int getStartTurn() const;
+		int getFinishTurn() const;
 		int getTurnsElapsed() const;
 		int getVisibility() const;
 		bool isVisibilityX() const;
-		bool isFirstTurn() const;
+		bool isStartTurn() const;
 		bool isConvoyTurn() const;
 		bool isInDay(const GridCoordinate& zone) const;
 		bool isInNight(const GridCoordinate& zone) const;
@@ -59,7 +58,9 @@ class GameDirector
 		const Ship& getBismarck() const;
 
 	private:
-		// Constant
+		// Constants
+		static const int BASIC_START_TURN = 4;
+		static const int BASIC_FINISH_TURN = 34;
 		static const int VISIBILITY_X = 9;
 
 		// Data
@@ -67,8 +68,8 @@ class GameDirector
 		GermanPlayer* germanPlayer = nullptr;
 		BritishPlayerInterface* britishPlayer = nullptr;
 		std::vector<bool> dailyConvoySunk;
-		int turn = START_TURN;
-		int finishTurn = FINISH_TURN;
+		int turn = BASIC_START_TURN;
+		int finishTurn = BASIC_FINISH_TURN;
 		int visibility = 4;
 		bool foggy = true;
 		
