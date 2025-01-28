@@ -312,7 +312,7 @@ int Ship::getMaxSpeedClass() const {
 	else if (evasion <= 34) return 3;
 	else {
 		// No ship in the published game has speed this high.
-		// We compute the search board speed would be full 2 zones/turn.
+		// We infer the search board speed would be fully 2 zones/turn.
 		// A few destroyers/cruisers in WWII had speeds up to 45 knots.
 		cerr << "Error: Ship evasion above game allowances.\n";
 		return 4;
@@ -391,7 +391,7 @@ bool Ship::isAfloat() const {
 // Are we on the search board?
 bool Ship::isOnBoard() const {
 	return isAfloat()
-		&& getPosition() != GridCoordinate::NO_ZONE;
+		&& getPosition() != GridCoordinate::OFFBOARD;
 }
 
 // Are we in the day?
@@ -482,7 +482,7 @@ Ship::LogTurn& Ship::logNow() {
 // Receive a non-move order
 void Ship::orderAction(OrderType type) {
 	assert(type != MOVE);
-	Order order = {type, GridCoordinate::NO_ZONE};
+	Order order = {type, GridCoordinate::OFFBOARD};
 	pushOrder(order);
 }
 
@@ -542,7 +542,7 @@ string Ship::Order::toString() const {
 // Get a random nearby space to which we can move
 GridCoordinate Ship::randMoveInArea(int radius) const {
 	auto board = SearchBoard::instance();
-	GridCoordinate move = GridCoordinate::NO_ZONE;
+	GridCoordinate move = GridCoordinate::OFFBOARD;
 	while (!isAccessible(move) || board->isGermanPort(move)) {
 		move = board->randSeaZone(position, radius);
 	}
@@ -661,7 +661,7 @@ void Ship::checkFuelDamage(int midshipsLoss) {
 // Get a route from Navigator
 void Ship::plotRoute(const GridCoordinate& goal) {
 	clearRoute();
-	if (goal == GridCoordinate::NO_ZONE) {
+	if (goal == GridCoordinate::OFFBOARD) {
 		route.push(goal);		
 	}
 	else {
@@ -738,7 +738,7 @@ int Ship::routeETA() const {
 	return GameDirector::instance()->getTurn() + turnsToGo;
 }
 
-// What turn could we get to row Z? (note Rule 5.6)
+// What turn could we get to row Z? (note Rule 51.6)
 int Ship::rowZ_ETA() const {
 	int distance = 'Z' - position.getRow();
 	int turnsToGo = (int) (distance / getMaxSpeedAvg());

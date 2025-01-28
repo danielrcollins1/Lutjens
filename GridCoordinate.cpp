@@ -2,12 +2,12 @@
 #include "Utils.h"
 #include <cassert>
 
-// Off-map marker
-const GridCoordinate GridCoordinate::NO_ZONE('~', 0);
+// Off-board marker
+const GridCoordinate GridCoordinate::OFFBOARD('~', 0);
 
 // Default constructor
 GridCoordinate::GridCoordinate() {
-	*this = NO_ZONE;
+	*this = OFFBOARD;
 }
 
 // Construct from character & integer
@@ -42,7 +42,7 @@ bool GridCoordinate::isValid(const std::string s) {
 
 // Get coordinate as string
 std::string GridCoordinate::toString() const {
-	return *this == NO_ZONE ? "OFFBOARD" : row + std::to_string(col);
+	return *this == OFFBOARD ? "OFFBOARD" : row + std::to_string(col);
 }
 
 // Distance from another zone

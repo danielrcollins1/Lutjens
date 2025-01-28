@@ -30,7 +30,7 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 	// Initialize with ship start position
 	GridCoordinate start = ship.getPosition();
 	int distance = start.distanceFrom(goal);
-	pathRecords[start] = {true, 0, distance, GridCoordinate::NO_ZONE};
+	pathRecords[start] = {true, 0, distance, GridCoordinate::OFFBOARD};
 	openSet.emplace(distance + randDecimal(), start);
 	
 	// While we have an open edge to the search space

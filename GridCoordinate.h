@@ -29,7 +29,7 @@ class GridCoordinate
 		bool operator<(const GridCoordinate& other) const;
 		static bool isValid(const char *s);
 		static bool isValid(const std::string s);
-		static const GridCoordinate NO_ZONE;
+		static const GridCoordinate OFFBOARD;
 		
 	private:
 		typedef char int8;

@@ -555,7 +555,7 @@ GermanPlayer::MapRegion GermanPlayer::getRegion(
 	int col = zone.getCol();
 
 	// Off-map (no-zone coordinate)
-	if (zone == GridCoordinate::NO_ZONE) { return OFF_MAP; }
+	if (zone == GridCoordinate::OFFBOARD) { return OFF_MAP; }
 	
 	// North Sea (east of Britain; don't expect to go here)
 	else if (row >= 'H' && col >= row - 'H' + 18) { return NORTH_SEA; }
@@ -590,7 +590,7 @@ void GermanPlayer::getOrders(Ship& ship) {
 	int lastTurn = GameDirector::instance()->getFinishTurn();
 
 	// Abort if off-board
-	if (ship.getPosition() == GridCoordinate::NO_ZONE) {
+	if (ship.getPosition() == GridCoordinate::OFFBOARD) {
 		ship.orderAction(Ship::STOP);
 		return;
 	}
@@ -707,7 +707,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 
 	// If on row Z, exit from map (Rule 51.6)
 	else if (position.getRow() == 'Z') {
-		ship.orderMove(GridCoordinate::NO_ZONE);
+		ship.orderMove(GridCoordinate::OFFBOARD);
 	}
 
 	// If in North Sea, move to Norway coast
@@ -868,7 +868,7 @@ void GermanPlayer::orderNewGoal(Ship& ship) {
 
 // Get an adjacent zone for a ship loitering in a region
 GridCoordinate GermanPlayer::randLoiterZone(const Ship& ship) const {
-	GridCoordinate move = GridCoordinate::NO_ZONE;
+	GridCoordinate move = GridCoordinate::OFFBOARD;
 	while (getRegion(move) != getRegion(ship.getPosition())) {
 		move = ship.randMoveInArea(1);
 	};
@@ -886,7 +886,7 @@ GridCoordinate GermanPlayer::randConvoyTarget(int pctAtlantic) const {
 //   Around row H, on western edge past patrol line
 GridCoordinate GermanPlayer::randAtlanticConvoyTarget() const {
 	auto board = SearchBoard::instance();
-	GridCoordinate zone = GridCoordinate::NO_ZONE;
+	GridCoordinate zone = GridCoordinate::OFFBOARD;
 	while (!board->isSeaZone(zone)
 		|| board->isInsidePatrolLine(zone))
 	{
@@ -902,7 +902,7 @@ GridCoordinate GermanPlayer::randAtlanticConvoyTarget() const {
 //   Row P to Y, near convoy beyond patrol line
 GridCoordinate GermanPlayer::randAfricanConvoyTarget() const {
 	auto board = SearchBoard::instance();
-	GridCoordinate zone = GridCoordinate::NO_ZONE;
+	GridCoordinate zone = GridCoordinate::OFFBOARD;
 	while (!board->isSeaZone(zone)
 		|| board->isInsidePatrolLine(zone))
 	{
@@ -954,7 +954,7 @@ void GermanPlayer::handleFuelEmpty(Ship& ship) {
 // Find the nearest friendly port for a given ship
 GridCoordinate GermanPlayer::findNearestPort(const Ship& ship) const {
 	int minDistance = INT_MAX;
-	auto nearestPort = GridCoordinate::NO_ZONE;
+	auto nearestPort = GridCoordinate::OFFBOARD;
 	auto portList = SearchBoard::instance()->getAllGermanPorts();
 	for (auto& port: portList) {
 		int distance = port.distanceFrom(ship.getPosition());
@@ -963,7 +963,7 @@ GridCoordinate GermanPlayer::findNearestPort(const Ship& ship) const {
 			minDistance = distance;
 		}
 	}
-	assert(nearestPort != GridCoordinate::NO_ZONE);
+	assert(nearestPort != GridCoordinate::OFFBOARD);
 	return nearestPort;	
 }
 
@@ -975,7 +975,7 @@ GridCoordinate GermanPlayer::randDenmarkStraitToAfricaTransit(
 	assert(ship.getPosition().getCol() < 10);
 	int startCol = ship.getPosition().getCol();
 	GridCoordinate bestZone('C' + startCol, startCol);
-	GridCoordinate targetZone = GridCoordinate::NO_ZONE;
+	GridCoordinate targetZone = GridCoordinate::OFFBOARD;
 	while (!ship.isAccessible(targetZone)) {
 
 		// Vary northwest along patrol up to 3 spaces
@@ -994,7 +994,7 @@ GridCoordinate GermanPlayer::randDenmarkStraitToAfricaTransit(
 
 // Get a random point in the Azores region to hide
 GridCoordinate GermanPlayer::randAzoresZone() const {
-	auto target = GridCoordinate::NO_ZONE;
+	auto target = GridCoordinate::OFFBOARD;
 	auto board = SearchBoard::instance();
 	while (!board->isSeaZone(target)) {
 		char row = 'L' + rand(13);
@@ -1024,7 +1024,7 @@ set<GridCoordinate> GermanPlayer::getShipZones() const {
 	for (auto& ship: shipList) {
 		auto zone = ship.getPosition();
 		if (ship.isAfloat()
-			&& zone != GridCoordinate::NO_ZONE)
+			&& zone != GridCoordinate::OFFBOARD)
 		{
 			shipZones.insert(zone);
 		}

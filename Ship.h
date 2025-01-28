@@ -29,7 +29,7 @@ class Ship: public NavalUnit
 		// Constructor
 		Ship(std::string name, Type type, 
 			int evasion, int midships, int fuel, 
-			GridCoordinate position = GridCoordinate::NO_ZONE,
+			GridCoordinate position = GridCoordinate::OFFBOARD,
 			GermanPlayer* player = nullptr);
 
 		// Accessors
@@ -125,8 +125,8 @@ class Ship: public NavalUnit
 
 		// Orders structure
 		struct Order {
-			OrderType type;
-			GridCoordinate zone = GridCoordinate::NO_ZONE;
+			OrderType type = OrderType::STOP;
+			GridCoordinate zone = GridCoordinate::OFFBOARD;
 			std::string toString() const;
 		};
 
