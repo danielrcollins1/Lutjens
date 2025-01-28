@@ -159,6 +159,7 @@ class Ship: public NavalUnit
 		int getEmergencySpeedThisTurn() const;
 		int getFuelExpense(int speed) const;
 		bool isOnBreakoutBonus() const;
+		bool isAdjacent(const GridCoordinate& zone) const;
 		void updateOrders();
 		void doMoveOrder();
 		void doPostMoveAccounts();

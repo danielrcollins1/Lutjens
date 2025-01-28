@@ -294,6 +294,7 @@ void Ship::doMoveOrder() {
 		if (!route.empty()) {
 			auto next = route.front();
 			route.pop();
+			assert(isAdjacent(next));
 			position = next;
 			logNow().moves.push_back(position);
 			updateOrders();
@@ -743,4 +744,11 @@ int Ship::rowZ_ETA() const {
 	int distance = 'Z' - position.getRow();
 	int turnsToGo = (int) (distance / getMaxSpeedAvg());
 	return GameDirector::instance()->getTurn() + turnsToGo;
+}
+
+// Are we adjacent to this zone?
+bool Ship::isAdjacent(const GridCoordinate& zone) const {
+	return zone == GridCoordinate::OFFBOARD ?
+		position.getRow() == 'Z': 
+		position.distanceFrom(zone) == 1;
 }
