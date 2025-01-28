@@ -35,8 +35,8 @@ Ship::Ship(std::string name, Type type,
 	this->evasionMax = evasion;
 	this->midshipsMax = midships;
 	this->fuelMax = fuel;
-	this->player = player;
 	this->position = position;
+	this->player = player;
 	fuelLost = 0;
 	midshipsLost = 0;
 	evasionLostTemp = 0;
@@ -292,8 +292,8 @@ void Ship::doMoveOrder() {
 	// Try to perform movement
 	for (int step = 0; step < speed; step++) {
 		if (!route.empty()) {
-			auto next = route.front();
-			route.pop();
+			auto next = route.back();
+			route.pop_back();
 			assert(isAdjacent(next));
 			position = next;
 			logNow().moves.push_back(position);
@@ -527,7 +527,7 @@ bool Ship::hasOrders() const {
 void Ship::clearOrders() {
 	queue<Order> empty;
 	swap(orders, empty);
-	clearRoute();
+	route.clear();
 }
 
 // Get a string descriptor for an order
@@ -659,24 +659,16 @@ void Ship::checkFuelDamage(int midshipsLoss) {
 	}
 }
 
-// Get a route from Navigator
+// Get a route from the Navigator
 void Ship::plotRoute(const GridCoordinate& goal) {
-	clearRoute();
+	route.clear();
 	if (goal == GridCoordinate::OFFBOARD) {
-		route.push(goal);		
+		assert(position.getRow() == 'Z');
+		route.push_back(goal);
 	}
 	else {
-		auto navRoute = Navigator::findSeaRoute(*this, goal);
-		for (auto zone: navRoute) {
-			route.push(zone);	
-		}
+		route = Navigator::findSeaRoute(*this, goal);
 	}
-}
-
-// Clear the current route plot
-void Ship::clearRoute() {
-	queue<GridCoordinate> empty;
-	swap(route, empty);
 }
 
 // Set the return to base (RTB) marker (Rule 16.3)

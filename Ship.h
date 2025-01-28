@@ -151,7 +151,7 @@ class Ship: public NavalUnit
 		GermanPlayer* player;
 		TaskForce* taskForce;
 		std::queue<Order> orders;
-		std::queue<GridCoordinate> route;
+		std::vector<GridCoordinate> route;
 		std::vector<LogTurn> log;
 
 		// Functions
@@ -169,7 +169,6 @@ class Ship: public NavalUnit
 		void checkFuelDamage(int midshipsLoss);
 		void checkFuelForWeather(int speed);
 		void plotRoute(const GridCoordinate& goal);
-		void clearRoute();
 };
 
 // Stream insertion operator

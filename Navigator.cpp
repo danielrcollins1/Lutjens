@@ -18,6 +18,7 @@ struct ZonePathRecord {
 //   Initial code from OpenAI chat suggestion.
 //   We add a decimal to keys in the priority queue,
 //     so as to randomly shuffle equally-close options.
+//   Returns route in reverse order (goal is first element).
 std::vector<GridCoordinate> Navigator::findSeaRoute(
 	const Ship& ship, const GridCoordinate& goal)
 {
@@ -48,7 +49,6 @@ std::vector<GridCoordinate> Navigator::findSeaRoute(
 				path.push_back(current);
 				current = pathRecords[current].cameFrom;
 			}
-			reverse(path.begin(), path.end());
 			return path;
 		}
 

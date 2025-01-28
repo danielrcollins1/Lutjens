@@ -32,7 +32,7 @@ void testObjectSizes() {
 
 // Test GridCoordinate construction
 void testCoordinateConstructors() {
-	assert(GridCoordinate() == GridCoordinate::NO_ZONE);
+	assert(GridCoordinate() == GridCoordinate::OFFBOARD);
 	assert(GridCoordinate('B', 3).toString() == "B3");	
 	assert(GridCoordinate("P18").toString() == "P18");
 	assert(GridCoordinate(string("Z20")).toString() == "Z20");
@@ -73,6 +73,7 @@ void testNavigatorPath(const GridCoordinate& src,
 	cout << "Navigator path from " << src << " to " << dest << ": ";
 	Ship ship("Prinz Eugen", Ship::Type::CA, 32, 4, 10, src);
 	vector<GridCoordinate> path = Navigator::findSeaRoute(ship, dest);
+	reverse(path.begin(), path.end());
 	printVec(path);
 }
 
