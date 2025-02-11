@@ -45,7 +45,6 @@ void testCoordinateDistances() {
 	assert(anchor.distanceFrom("F5") == 5);
 	assert(anchor.distanceFrom("F10") == 5);
 	assert(anchor.distanceFrom("H2") == 8);
-	assert(anchor.distanceFrom("F5") == 5);
 	assert(anchor.distanceFrom("K5") == 5);
 	assert(anchor.distanceFrom("K12") == 2);
 	assert(anchor.distanceFrom("P19") == 9);
